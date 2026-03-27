@@ -1,5 +1,10 @@
 # TEZ Games Changelog
 
+## v0.2.1 — Font & Animation Polish
+- Switched font from Fredoka to Segoe UI across logos and game titles
+- Game card hover: smooth ease-in/out, glow pulse, polished mouse-leave transition
+- Version number displayed in footer bottom-right
+
 ## v0.2.0 — TEZ Blackjack
 - Imported TEZ Blackjack as first playable game
 - Single player with learn mode, split, double, insurance
