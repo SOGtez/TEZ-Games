@@ -93,7 +93,7 @@ export default function Layout({ children, title = 'TEZ Games' }) {
           className="text-center py-8 font-nunito text-sm"
           style={{ color: 'rgba(255,255,255,0.2)', position: 'relative', zIndex: 1 }}
         >
-          <p>Made by SOGtez</p>
+          <p>Made by SOGtez · Play, have fun, repeat!</p>
         </footer>
       </div>
     </>
