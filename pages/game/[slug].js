@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Layout from '../../components/Layout';
 import { games, getGameBySlug } from '../../lib/games';
@@ -28,6 +28,17 @@ export default function GamePage({ game }) {
   );
 
   const GameComponent = gameComponents[game.slug];
+
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  };
 
   return (
     <Layout title={`${game.name} — TEZ Games`}>
@@ -100,6 +111,23 @@ export default function GamePage({ game }) {
           </div>
         )}
       </div>
+      {/* Fullscreen toggle */}
+      <button
+        onClick={toggleFullscreen}
+        title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+        style={{
+          position: 'fixed', bottom: 16, left: 16, zIndex: 9998,
+          width: 40, height: 40, borderRadius: 10,
+          background: 'rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.15)',
+          color: 'white', fontSize: 18, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          backdropFilter: 'blur(6px)', transition: 'background 0.2s',
+        }}
+        onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.7)'}
+        onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.45)'}
+      >
+        {isFullscreen ? '⊡' : '⛶'}
+      </button>
     </Layout>
   );
 }
