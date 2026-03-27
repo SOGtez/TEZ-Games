@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { version } from '../lib/version';
 
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
   return (
@@ -92,10 +93,11 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
 
         {!hideChrome && (
           <footer
-            className="text-center py-8 font-nunito text-sm"
-            style={{ color: 'rgba(255,255,255,0.2)', position: 'relative', zIndex: 1 }}
+            className="py-8 font-nunito text-sm"
+            style={{ color: 'rgba(255,255,255,0.2)', position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 16, paddingRight: 16 }}
           >
-            <p>Made by SOGtez · Play, have fun, repeat!</p>
+            <p style={{ flex: 1, textAlign: 'center' }}>Made by SOGtez · Play, have fun, repeat!</p>
+            <span style={{ fontSize: 10, color: '#666', opacity: 0.7, flexShrink: 0 }}>{version}</span>
           </footer>
         )}
       </div>
