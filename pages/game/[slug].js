@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Layout from '../../components/Layout';
 import { games, getGameBySlug } from '../../lib/games';
@@ -29,16 +29,7 @@ export default function GamePage({ game }) {
 
   const GameComponent = gameComponents[game.slug];
 
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', handler);
-    return () => document.removeEventListener('fullscreenchange', handler);
-  }, []);
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-    else document.exitFullscreen();
-  };
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <Layout title={`${game.name} — TEZ Games`}>
@@ -102,7 +93,15 @@ export default function GamePage({ game }) {
       )}
 
       {/* Game container */}
-      <div className="w-full rounded-3xl overflow-hidden shadow-xl">
+      <div
+        style={isExpanded ? {
+          position: 'fixed', inset: 0, zIndex: 9999,
+          borderRadius: 0, overflow: 'hidden',
+        } : {
+          borderRadius: '1.5rem', overflow: 'hidden',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.15)', position: 'relative',
+        }}
+      >
         {GameComponent ? (
           <GameComponent mode={selectedMode} />
         ) : (
@@ -110,24 +109,24 @@ export default function GamePage({ game }) {
             Game coming soon!
           </div>
         )}
+        {/* Expand / collapse button */}
+        <button
+          onClick={() => setIsExpanded(e => !e)}
+          title={isExpanded ? 'Collapse' : 'Expand'}
+          style={{
+            position: 'absolute', bottom: 12, left: 12, zIndex: 10000,
+            width: 36, height: 36, borderRadius: 8,
+            background: 'rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.15)',
+            color: 'white', fontSize: 16, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backdropFilter: 'blur(6px)', transition: 'background 0.2s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.7)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.45)'}
+        >
+          {isExpanded ? '⊡' : '⛶'}
+        </button>
       </div>
-      {/* Fullscreen toggle */}
-      <button
-        onClick={toggleFullscreen}
-        title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-        style={{
-          position: 'fixed', bottom: 16, left: 16, zIndex: 9998,
-          width: 40, height: 40, borderRadius: 10,
-          background: 'rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.15)',
-          color: 'white', fontSize: 18, cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          backdropFilter: 'blur(6px)', transition: 'background 0.2s',
-        }}
-        onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.7)'}
-        onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.45)'}
-      >
-        {isFullscreen ? '⊡' : '⛶'}
-      </button>
     </Layout>
   );
 }
