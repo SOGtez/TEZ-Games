@@ -32,7 +32,7 @@ export default function GamePage({ game }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <Layout title={`${game.name} — TEZ Games`}>
+    <Layout title={`${game.name} — TEZ Games`} hideChrome={isExpanded}>
       {/* Back button */}
       <div className="mb-6">
         <Link

@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 
-export default function Layout({ children, title = 'TEZ Games' }) {
+export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
   return (
     <>
       <Head>
@@ -42,7 +42,7 @@ export default function Layout({ children, title = 'TEZ Games' }) {
         </div>
 
         {/* Header */}
-        <header style={{
+        {!hideChrome && <header style={{
           position: 'sticky', top: 0, zIndex: 50,
           background: 'rgba(13,6,24,0.8)',
           backdropFilter: 'blur(16px)',
@@ -83,18 +83,20 @@ export default function Layout({ children, title = 'TEZ Games' }) {
               </Link>
             </nav>
           </div>
-        </header>
+        </header>}
 
         <main className="max-w-6xl mx-auto px-4 py-8" style={{ position: 'relative', zIndex: 1 }}>
           {children}
         </main>
 
-        <footer
-          className="text-center py-8 font-nunito text-sm"
-          style={{ color: 'rgba(255,255,255,0.2)', position: 'relative', zIndex: 1 }}
-        >
-          <p>Made by SOGtez · Play, have fun, repeat!</p>
-        </footer>
+        {!hideChrome && (
+          <footer
+            className="text-center py-8 font-nunito text-sm"
+            style={{ color: 'rgba(255,255,255,0.2)', position: 'relative', zIndex: 1 }}
+          >
+            <p>Made by SOGtez · Play, have fun, repeat!</p>
+          </footer>
+        )}
       </div>
     </>
   );
