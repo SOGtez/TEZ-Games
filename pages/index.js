@@ -21,8 +21,8 @@ export default function Home() {
         </div>
 
         <h1
-          className="font-fredoka font-bold mb-5 leading-tight shimmer-text"
-          style={{ fontSize: 'clamp(3rem, 8vw, 5.5rem)' }}
+          className="font-bold mb-5 leading-tight shimmer-text"
+          style={{ fontSize: 'clamp(3rem, 8vw, 5.5rem)', fontFamily: "'Segoe UI', sans-serif" }}
         >
           TEZ Games
         </h1>
@@ -62,8 +62,8 @@ export default function Home() {
       <section>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
           <h2
-            className="font-fredoka font-semibold"
-            style={{ fontSize: 26, color: 'rgba(255,255,255,0.9)', letterSpacing: '0.03em' }}
+            className="font-semibold"
+            style={{ fontSize: 26, color: 'rgba(255,255,255,0.9)', letterSpacing: '0.03em', fontFamily: "'Segoe UI', sans-serif" }}
           >
             🕹️ Games
           </h2>

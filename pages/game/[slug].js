@@ -52,7 +52,7 @@ export default function GamePage({ game }) {
           {game.emoji}
         </span>
         <div>
-          <h1 className="font-fredoka text-4xl font-bold text-gray-800">{game.name}</h1>
+          <h1 className="text-4xl font-bold text-gray-800" style={{ fontFamily: "'Segoe UI', sans-serif" }}>{game.name}</h1>
           <p className="text-gray-500 font-nunito">{game.description}</p>
         </div>
       </div>

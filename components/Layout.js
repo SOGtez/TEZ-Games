@@ -53,8 +53,9 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 group">
               <span
-                className="text-3xl font-fredoka font-bold group-hover:scale-105 transition-transform duration-200 inline-block"
+                className="text-3xl font-bold group-hover:scale-105 transition-transform duration-200 inline-block"
                 style={{
+                  fontFamily: "'Segoe UI', sans-serif",
                   background: 'linear-gradient(135deg, #fde047, #f59e0b)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -64,8 +65,8 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                 TEZ
               </span>
               <span
-                className="text-3xl font-fredoka font-light group-hover:scale-105 transition-transform duration-200 inline-block"
-                style={{ color: 'rgba(255,255,255,0.88)', letterSpacing: '0.08em' }}
+                className="text-3xl font-light group-hover:scale-105 transition-transform duration-200 inline-block"
+                style={{ fontFamily: "'Segoe UI', sans-serif", color: 'rgba(255,255,255,0.88)', letterSpacing: '0.08em' }}
               >
                 Games
               </span>
