@@ -8,8 +8,14 @@ export default function GameCard({ game, index = 0 }) {
     <Link href={`/game/${game.slug}`} className="block" style={{ animationDelay: `${index * 0.1}s` }}>
       <style>{`
         @keyframes pulse-glow-${index} {
-          0%, 100% { box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 30px ${game.accentColor}33; }
-          50%       { box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 60px ${game.accentColor}77; }
+          0%, 100% {
+            box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 15px ${game.accentColor}1A;
+            transform: translateY(-6px) scale(1.02);
+          }
+          50% {
+            box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 30px ${game.accentColor}3B;
+            transform: translateY(-6px) scale(1.035);
+          }
         }
       `}</style>
       <div
@@ -21,7 +27,7 @@ export default function GameCard({ game, index = 0 }) {
           transform: hovered ? 'translateY(-6px) scale(1.02)' : 'translateY(0) scale(1)',
           transition: 'transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275), box-shadow 0.3s ease',
           boxShadow: hovered ? undefined : '0 8px 30px rgba(0,0,0,0.4)',
-          animation: hovered ? `pulse-glow-${index} 1.8s ease-in-out infinite` : 'none',
+          animation: hovered ? `pulse-glow-${index} 1.8s ease-in-out 0.3s infinite` : 'none',
           background: 'rgba(255,255,255,0.04)',
           border: `1px solid ${hovered ? game.accentColor + '80' : 'rgba(255,255,255,0.08)'}`,
           backdropFilter: 'blur(12px)',
