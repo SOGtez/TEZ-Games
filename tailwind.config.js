@@ -25,9 +25,14 @@ module.exports = {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-6px)' },
         },
+        'glow-pulse': {
+          '0%, 100%': { boxShadow: '0 0 10px rgba(253,224,71,0.2), 0 0 30px rgba(124,58,237,0.1)' },
+          '50%': { boxShadow: '0 0 25px rgba(253,224,71,0.45), 0 0 60px rgba(124,58,237,0.25)' },
+        },
       },
       animation: {
         float: 'float 3s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
       },
     },
   },
