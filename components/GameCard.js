@@ -6,6 +6,12 @@ export default function GameCard({ game, index = 0 }) {
 
   return (
     <Link href={`/game/${game.slug}`} className="block" style={{ animationDelay: `${index * 0.1}s` }}>
+      <style>{`
+        @keyframes pulse-glow-${index} {
+          0%, 100% { box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 30px ${game.accentColor}33; }
+          50%       { box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 60px ${game.accentColor}77; }
+        }
+      `}</style>
       <div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -14,9 +20,8 @@ export default function GameCard({ game, index = 0 }) {
           cursor: 'pointer',
           transform: hovered ? 'translateY(-6px) scale(1.02)' : 'translateY(0) scale(1)',
           transition: 'transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275), box-shadow 0.3s ease',
-          boxShadow: hovered
-            ? `0 24px 60px rgba(0,0,0,0.6), 0 0 40px ${game.accentColor}44`
-            : '0 8px 30px rgba(0,0,0,0.4)',
+          boxShadow: hovered ? undefined : '0 8px 30px rgba(0,0,0,0.4)',
+          animation: hovered ? `pulse-glow-${index} 1.8s ease-in-out infinite` : 'none',
           background: 'rgba(255,255,255,0.04)',
           border: `1px solid ${hovered ? game.accentColor + '80' : 'rgba(255,255,255,0.08)'}`,
           backdropFilter: 'blur(12px)',
