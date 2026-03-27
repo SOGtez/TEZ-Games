@@ -6,7 +6,7 @@ import BlackjackGame from '../../components/games/BlackjackGame';
 import Connect4Game from '../../components/games/Connect4Game';
 
 const gameComponents = {
-  blackjack: BlackjackGame,
+  'tez-blackjack': BlackjackGame,
   connect4: Connect4Game,
 };
 
@@ -91,7 +91,7 @@ export default function GamePage({ game }) {
       )}
 
       {/* Game container */}
-      <div className="w-full bg-white rounded-3xl shadow-xl border border-purple-100 overflow-hidden p-6">
+      <div className="w-full rounded-3xl overflow-hidden shadow-xl">
         {GameComponent ? (
           <GameComponent mode={selectedMode} />
         ) : (
