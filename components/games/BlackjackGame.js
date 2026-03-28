@@ -58,6 +58,61 @@ const CHIPS = [
   {val:50,bg:"#a855f7"},{val:100,bg:"#eab308",color:"#000"},{val:500,bg:"#dc2626"},
 ];
 
+// ── SOUND ENGINE ─────────────────────────────────────────────
+const SOUND_FILES = {
+  chip:      "/sounds/chip.mp3",
+  deal:      "/sounds/deal.mp3",
+  flip:      "/sounds/flip.mp3",
+  win:       "/sounds/win.mp3",
+  blackjack: "/sounds/blackjack.mp3",
+  lose:      "/sounds/lose.mp3",
+  bust:      "/sounds/bust.mp3",
+  push:      "/sounds/push.mp3",
+  clear:     "/sounds/clear.mp3",
+};
+
+function createSoundEngine() {
+  let muted = false;
+  const cache = {};
+
+  function load(key) {
+    if (typeof window === "undefined") return null;
+    if (!cache[key]) {
+      const audio = new Audio(SOUND_FILES[key]);
+      audio.preload = "auto";
+      cache[key] = audio;
+    }
+    return cache[key];
+  }
+
+  function play(key) {
+    if (muted || typeof window === "undefined") return;
+    try {
+      const audio = load(key);
+      if (!audio) return;
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    } catch(e) {}
+  }
+
+  return {
+    setMuted(val) { muted = val; },
+    getMuted()    { return muted; },
+    chip()      { play("chip"); },
+    deal()      { play("deal"); },
+    flip()      { play("flip"); },
+    win()       { play("win"); },
+    blackjack() { play("blackjack"); },
+    lose()      { play("lose"); },
+    bust()      { play("bust"); },
+    push()      { play("push"); },
+    clear()     { play("clear"); },
+  };
+}
+
+const SFX = createSoundEngine();
+
+// ── CARD COMPONENT ───────────────────────────────────────────
 function Card({ card, hidden, small, delay=0, animKey }) {
   const [entered, setEntered] = useState(false);
   const [flipped, setFlipped] = useState(false);
@@ -73,7 +128,7 @@ function Card({ card, hidden, small, delay=0, animKey }) {
 
   useEffect(() => {
     if (prevHidden.current === true && hidden === false) {
-      setTimeout(() => setFlipped(true), 80);
+      setTimeout(() => { setFlipped(true); SFX.flip(); }, 80);
     }
     prevHidden.current = hidden;
   }, [hidden]);
@@ -86,7 +141,7 @@ function Card({ card, hidden, small, delay=0, animKey }) {
       width:w, height:h, perspective:800, flexShrink:0,
       transform: entered ? "translateY(0) scale(1) rotate(0deg)" : "translateY(-70px) scale(0.7) rotate(-8deg)",
       opacity: entered ? 1 : 0,
-      transition: `transform 0.42s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.3s ease`,
+      transition: "transform 0.42s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.3s ease",
     }}>
       <div style={{
         width:"100%", height:"100%", position:"relative",
@@ -94,7 +149,6 @@ function Card({ card, hidden, small, delay=0, animKey }) {
         transform: showBack ? "rotateY(180deg)" : "rotateY(0deg)",
         transition: flipped ? "transform 0.5s cubic-bezier(0.455,0.03,0.515,0.955)" : "none",
       }}>
-        {/* Front */}
         <div style={{
           position:"absolute", inset:0, backfaceVisibility:"hidden", WebkitBackfaceVisibility:"hidden",
           borderRadius:8, background:"#fff", border:"1.5px solid #ddd",
@@ -104,13 +158,10 @@ function Card({ card, hidden, small, delay=0, animKey }) {
           <div style={{fontSize:small?13:18,fontWeight:800,lineHeight:1,color:red?"#dc2626":"#111",fontFamily:"Georgia,serif"}}>{card?.rank}</div>
           <div style={{fontSize:small?17:24,lineHeight:1.1,color:red?"#dc2626":"#111"}}>{card?.suit}</div>
         </div>
-        {/* Back */}
         <div style={{
           position:"absolute", inset:0, backfaceVisibility:"hidden", WebkitBackfaceVisibility:"hidden",
-          transform:"rotateY(180deg)", borderRadius:8,
-          background:"#1a237e",
-          border:"1.5px solid #3949ab",
-          boxShadow:"0 6px 20px rgba(0,0,0,0.45)",
+          transform:"rotateY(180deg)", borderRadius:8, background:"#1a237e",
+          border:"1.5px solid #3949ab", boxShadow:"0 6px 20px rgba(0,0,0,0.45)",
           display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden",
         }}>
           <div style={{
@@ -127,12 +178,10 @@ function Particles({ active, win }) {
   const [pts, setPts] = useState([]);
   useEffect(() => {
     if (!active) return;
-    setPts(Array.from({length:28},(_,i)=>({
+    setPts(Array.from({length:28},(_,i) => ({
       id:i, x:48+Math.random()*4, y:50+Math.random()*4,
       vx:(Math.random()-0.5)*180, vy:-(60+Math.random()*140),
-      color: win
-        ? ["#4ade80","#86efac","#fde047","#fff","#fbbf24"][i%5]
-        : ["#f87171","#fca5a5","#fff","#fcd34d"][i%4],
+      color: win ? ["#4ade80","#86efac","#fde047","#fff","#fbbf24"][i%5] : ["#f87171","#fca5a5","#fff","#fcd34d"][i%4],
       size:4+Math.random()*7, rot:Math.random()*360,
     })));
     const t = setTimeout(() => setPts([]), 900);
@@ -145,7 +194,7 @@ function Particles({ active, win }) {
           position:"absolute", left:`${p.x}%`, top:`${p.y}%`,
           width:p.size, height:p.size, borderRadius:Math.random()>0.5?"50%":"2px",
           background:p.color,
-          animation:`ptcl 0.85s cubic-bezier(0.25,0.46,0.45,0.94) forwards`,
+          animation:"ptcl 0.85s cubic-bezier(0.25,0.46,0.45,0.94) forwards",
           "--vx":`${p.vx}px`, "--vy":`${p.vy}px`, "--rot":`${p.rot}deg`,
         }}/>
       ))}
@@ -183,9 +232,39 @@ function BalanceCounter({ value }) {
   );
 }
 
+function BetCounter({ value }) {
+  const [display, setDisplay] = useState(value);
+  const [glow, setGlow] = useState(false);
+  const prev = useRef(value);
+  const raf = useRef(null);
+  useEffect(() => {
+    if (prev.current === value) return;
+    const start = prev.current, end = value, dur = 500, t0 = Date.now();
+    setGlow(true);
+    cancelAnimationFrame(raf.current);
+    const tick = () => {
+      const p = Math.min(1,(Date.now()-t0)/dur);
+      const ease = 1-Math.pow(1-p,3);
+      setDisplay(Math.round(start + (end-start)*ease));
+      if (p < 1) { raf.current = requestAnimationFrame(tick); }
+      else { setTimeout(() => setGlow(false), 400); }
+    };
+    raf.current = requestAnimationFrame(tick);
+    prev.current = value;
+  }, [value]);
+  return (
+    <span style={{
+      fontWeight:700, fontSize:18, color:"#fde047",
+      textShadow: glow ? "0 0 14px rgba(253,224,71,0.95)" : "none",
+      transition:"text-shadow 0.3s",
+      fontVariantNumeric:"tabular-nums",
+    }}>${display}</span>
+  );
+}
+
 function ResultBadge({ result, delay=0 }) {
   const [vis, setVis] = useState(false);
-  useEffect(() => { const t = setTimeout(()=>setVis(true), delay); return ()=>clearTimeout(t); }, []);
+  useEffect(() => { const t = setTimeout(() => setVis(true), delay); return () => clearTimeout(t); }, []);
   const map = {
     blackjack:{label:"Blackjack! 🎉",color:"#fbbf24"},
     win:{label:"Win ✅",color:"#4ade80"},
@@ -213,6 +292,7 @@ function ResultBadge({ result, delay=0 }) {
   );
 }
 
+// ── MAIN APP ─────────────────────────────────────────────────
 export default function BlackjackGame() {
   const [deck,setDeck]             = useState(()=>buildDeck());
   const [phase,setPhase]           = useState("bet");
@@ -232,12 +312,33 @@ export default function BlackjackGame() {
   const [dealKey,setDealKey]       = useState(0);
   const [burst,setBurst]           = useState(null);
   const [chipAnim,setChipAnim]     = useState(false);
+  const [muted,setMuted]           = useState(false);
+
+  const toggleMute = () => {
+    const next = !muted;
+    setMuted(next);
+    SFX.setMuted(next);
+  };
 
   const addChip = (v) => {
     if (phase!=="bet") return;
-    if (balance-bet >= v) { setBet(b=>b+v); setChipAnim(true); setTimeout(()=>setChipAnim(false),200); }
+    if (balance-bet >= v) {
+      setBet(b=>b+v);
+      setChipAnim(true);
+      setTimeout(()=>setChipAnim(false),200);
+      SFX.chip();
+    }
   };
-  const maxBet = () => { if (phase!=="bet") return; setBet(balance); };
+  const maxBet = () => {
+    if (phase!=="bet") return;
+    setBet(balance);
+    SFX.chip();
+  };
+  const clearBetFn = () => {
+    if (phase!=="bet") return;
+    setBet(0);
+    SFX.clear();
+  };
 
   const deal = () => {
     if (bet===0) return;
@@ -247,11 +348,12 @@ export default function BlackjackGame() {
     setResults([]); setHint(null); setActiveIdx(0);
     setInsBet(0); setInsResult(null); setDealerRevealed(false);
     setDealKey(k=>k+1);
+    [0,1,2,3].forEach(i => setTimeout(() => SFX.deal(), i*160+80));
     if (dl[0].rank==="A") { setInsPhase(true); setPhase("insurance"); }
     else setPhase("play");
   };
 
-  const takeIns = () => { const ib=Math.floor(bet/2); setInsBet(ib); setBalance(b=>b-ib); setInsPhase(false); setPhase("play"); };
+  const takeIns = () => { const ib=Math.floor(bet/2); setInsBet(ib); setBalance(b=>b-ib); setInsPhase(false); setPhase("play"); SFX.chip(); };
   const declineIns = () => { setInsPhase(false); setPhase("play"); };
 
   const resolveHands = (allHands,allBets,dl,dk) => {
@@ -261,7 +363,7 @@ export default function BlackjackGame() {
     let insDelta=0, insRes=null;
     if (insBet>0) { insRes=dealerBJ?"win":"lose"; insDelta=dealerBJ?insBet*2:0; }
     setInsResult(insRes); setDealerRevealed(true);
-    const res = allHands.map((h,i)=>{
+    const res = allHands.map((h,i) => {
       const pt=getTotal(h), playerBJ=h.length===2&&pt===21;
       const bonus=get21Bonus(h);
       if (playerBJ&&dealerBJ) return {type:"push",label:"Push 🤝",delta:0,note:"Both Blackjack"};
@@ -281,6 +383,17 @@ export default function BlackjackGame() {
     const anyWin=res.some(r=>r.delta>0);
     setBurst(anyWin?"win":"lose");
     setTimeout(()=>setBurst(null),950);
+    setTimeout(() => {
+      const hasBJ = res.some(r=>r.type==="blackjack");
+      const hasBust = res.some(r=>r.type==="bust");
+      const hasPush = res.every(r=>r.type==="push");
+      const hasLose = res.some(r=>r.type==="lose"||r.type==="bust");
+      if (hasBJ) SFX.blackjack();
+      else if (anyWin) SFX.win();
+      else if (hasBust) SFX.bust();
+      else if (hasPush) SFX.push();
+      else if (hasLose) SFX.lose();
+    }, 600);
   };
 
   const advanceOrResolve = (nh,nb,nd,idx) => {
@@ -293,6 +406,7 @@ export default function BlackjackGame() {
     const d=[...deck];
     const h=hands.map((hand,i)=>i===activeIdx?[...hand,d.pop()]:hand);
     setHint(null);
+    SFX.deal();
     if (getTotal(h[activeIdx])>=21) advanceOrResolve(h,splitBets,d,activeIdx);
     else { setHands(h); setDeck(d); }
   };
@@ -302,6 +416,7 @@ export default function BlackjackGame() {
     const h=hands.map((hand,i)=>i===activeIdx?[...hand,d.pop()]:hand);
     const nb=splitBets.map((b,i)=>i===activeIdx?b*2:b);
     setBalance(b=>b-splitBets[activeIdx]);
+    SFX.deal();
     advanceOrResolve(h,nb,d,activeIdx);
   };
   const split = () => {
@@ -311,11 +426,13 @@ export default function BlackjackGame() {
     const nh=[...hands.slice(0,activeIdx),h1,h2,...hands.slice(activeIdx+1)];
     const nb=[...splitBets.slice(0,activeIdx),bet,bet,...splitBets.slice(activeIdx+1)];
     setBalance(b=>b-bet); setHands(nh); setSplitBets(nb); setDeck(d); setHint(null);
+    SFX.deal();
   };
   const next = () => {
     if (balance<=0) setBalance(500);
     setBet(0); setHands([[]]); setSplitBets([0]); setDealer([]); setResults([]); setHint(null);
     setActiveIdx(0); setInsBet(0); setInsResult(null); setDealerRevealed(false); setPhase("bet");
+    SFX.clear();
   };
 
   const canSplit = () => { const h=hands[activeIdx]; return h.length===2&&h[0].rank===h[1].rank&&balance>=bet&&hands.length<4; };
@@ -333,7 +450,7 @@ export default function BlackjackGame() {
   return (
     <div style={{minHeight:"100vh",background:"radial-gradient(ellipse at 50% 0%,#1a4731 0%,#0d2b1e 60%,#071a12 100%)",color:"white",fontFamily:"'Segoe UI',sans-serif",display:"flex",flexDirection:"column",position:"relative"}}>
       <style>{`
-        .abtn:hover{filter:brightness(1.18);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.4)!important}
+        .abtn:hover{filter:brightness(1.18)!important;transform:translateY(-2px)!important;box-shadow:0 6px 20px rgba(0,0,0,0.4)!important}
         .abtn:active{transform:scale(0.95)!important}
         .chip:hover{transform:scale(1.18) translateY(-4px)!important;filter:brightness(1.15)}
         .chip:active{transform:scale(0.9)!important}
@@ -343,6 +460,21 @@ export default function BlackjackGame() {
       `}</style>
 
       <Particles active={burst!==null} win={burst==="win"} />
+
+      {/* Mute button */}
+      <button
+        onClick={toggleMute}
+        style={{
+          position:"fixed", bottom:16, right:16, zIndex:8000,
+          width:40, height:40, borderRadius:"50%", border:"1px solid rgba(255,255,255,0.15)",
+          background:"rgba(0,0,0,0.55)", color:"white", fontSize:18,
+          cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center",
+          backdropFilter:"blur(4px)", transition:"all 0.2s",
+        }}
+        title={muted?"Unmute":"Mute"}
+      >
+        {muted ? "🔇" : "🔊"}
+      </button>
 
       {/* Top bar */}
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 24px",background:"rgba(0,0,0,0.4)",borderBottom:"1px solid rgba(255,255,255,0.06)",backdropFilter:"blur(8px)"}}>
@@ -357,7 +489,7 @@ export default function BlackjackGame() {
           </div>
           <div style={{textAlign:"center"}}>
             <div style={{fontSize:10,color:"#86efac",letterSpacing:1,textTransform:"uppercase"}}>Bet</div>
-            <span style={{fontWeight:700,fontSize:18,color:"#fde047",transition:"all 0.2s",transform:chipAnim?"scale(1.2)":"scale(1)",display:"inline-block"}}>${phase==="bet"?bet:totalBet}</span>
+            <BetCounter value={phase==="bet"?bet:totalBet} />
           </div>
           <button className="abtn" onClick={()=>setLearnMode(l=>!l)} style={{...btn(learnMode?"#d97706":"#374151",learnMode?"#000":"#9ca3af"),border:"none",fontSize:12,padding:"7px 13px"}}>
             📚 {learnMode?"ON":"OFF"}
@@ -367,7 +499,7 @@ export default function BlackjackGame() {
 
       <div style={{maxWidth:580,margin:"0 auto",padding:"22px 16px",display:"flex",flexDirection:"column",gap:16,width:"100%"}}>
 
-        {/* Dealer zone */}
+        {/* Dealer */}
         <div>
           <div style={{textAlign:"center",fontSize:11,textTransform:"uppercase",letterSpacing:2,color:"rgba(134,239,172,0.7)",marginBottom:8}}>
             Dealer {phase==="result"?`— ${getTotal(dealer)}`:""}
@@ -381,7 +513,7 @@ export default function BlackjackGame() {
           </div>
         </div>
 
-        {/* Insurance prompt */}
+        {/* Insurance */}
         {phase==="insurance"&&(
           <div style={{background:"rgba(0,0,0,0.6)",border:"1.5px solid #fbbf24",borderRadius:14,padding:18,textAlign:"center",animation:"ins-in 0.35s cubic-bezier(0.175,0.885,0.32,1.275)",boxShadow:"0 0 30px rgba(251,191,36,0.2)"}}>
             <div style={{fontSize:19,fontWeight:700,color:"#fbbf24",marginBottom:6}}>🛡️ Insurance?</div>
@@ -390,7 +522,7 @@ export default function BlackjackGame() {
               {learnMode&&<div style={{color:"#86efac",marginTop:6,fontSize:12}}>💡 Basic strategy: Always decline — house edge is high.</div>}
             </div>
             <div style={{display:"flex",justifyContent:"center",gap:10}}>
-              <button className="abtn" onClick={takeIns}    style={btn("#7c3aed")}>Take Insurance</button>
+              <button className="abtn" onClick={takeIns} style={btn("#7c3aed")}>Take Insurance</button>
               <button className="abtn" onClick={declineIns} style={btn("#374151")}>Decline</button>
             </div>
           </div>
@@ -410,12 +542,10 @@ export default function BlackjackGame() {
           </div>
         )}
 
-        {/* Hand results */}
+        {/* Results */}
         {phase==="result"&&results.length>0&&(
           <div style={{display:"flex",justifyContent:"center",gap:12,flexWrap:"wrap"}}>
-            {results.map((r,i)=>(
-              <ResultBadge key={i} result={r} delay={i*120} />
-            ))}
+            {results.map((r,i)=>(<ResultBadge key={i} result={r} delay={i*120} />))}
           </div>
         )}
 
@@ -423,7 +553,7 @@ export default function BlackjackGame() {
         {learnMode&&phase==="play"&&hands[activeIdx]?.length>0&&(
           <div style={{animation:"hint-in 0.25s ease"}}>
             {!hint
-              ?<button className="abtn" onClick={()=>setHint(getHintFor(hands[activeIdx],dealer[0]))} style={{width:"100%",padding:10,borderRadius:10,background:"rgba(234,179,8,0.1)",border:"1px solid rgba(253,224,71,0.5)",color:"#fde047",fontWeight:700,cursor:"pointer",transition:"background 0.2s, border-color 0.2s",fontSize:14}}>
+              ?<button className="abtn" onClick={()=>setHint(getHintFor(hands[activeIdx],dealer[0]))} style={{width:"100%",padding:10,borderRadius:10,background:"rgba(234,179,8,0.1)",border:"1px solid rgba(253,224,71,0.5)",color:"#fde047",fontWeight:700,cursor:"pointer",fontSize:14}}>
                 💡 Basic Strategy Hint
               </button>
               :<div style={{background:"rgba(0,0,0,0.45)",border:"1px solid rgba(253,224,71,0.6)",borderRadius:10,padding:14,animation:"hint-in 0.25s ease",boxShadow:"0 0 16px rgba(253,224,71,0.1)"}}>
@@ -445,18 +575,11 @@ export default function BlackjackGame() {
               {hands.map((h,i)=>{
                 const active=i===activeIdx&&phase==="play";
                 return (
-                  <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,
-                    transition:"transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275)",
-                    transform:active?"scale(1.06)":"scale(1)"}}>
+                  <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,transition:"transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275)",transform:active?"scale(1.06)":"scale(1)"}}>
                     <div style={{fontSize:10,color:active?"#fde047":"#86efac",textTransform:"uppercase",letterSpacing:1,transition:"color 0.3s"}}>
                       {active?"▶ ":""}Hand {i+1} ({getTotal(h)})
                     </div>
-                    <div style={{display:"flex",gap:5,padding:8,borderRadius:10,
-                      border:active?"1.5px solid #fde047":"1.5px solid transparent",
-                      background:"rgba(0,0,0,0.25)",
-                      transition:"border-color 0.3s, box-shadow 0.3s",
-                      animation:active?"pulse-glow 2s ease-in-out infinite":"none",
-                    }}>
+                    <div style={{display:"flex",gap:5,padding:8,borderRadius:10,border:active?"1.5px solid #fde047":"1.5px solid transparent",background:"rgba(0,0,0,0.25)",transition:"border-color 0.3s, box-shadow 0.3s",animation:active?"pulse-glow 2s ease-in-out infinite":"none"}}>
                       {h.map((c,j)=><Card key={`s${i}-${j}-${dealKey}`} card={c} small delay={j*120} animKey={`s${i}-${j}-${dealKey}`} />)}
                     </div>
                     <div style={{fontSize:11,color:"#fde047"}}>${splitBets[i]}</div>
@@ -473,7 +596,6 @@ export default function BlackjackGame() {
           )}
         </div>
 
-        {/* Felt line */}
         <div style={{height:1,background:"linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)"}}/>
 
         {/* Bet phase */}
@@ -494,7 +616,7 @@ export default function BlackjackGame() {
               ))}
             </div>
             <div style={{display:"flex",justifyContent:"center",gap:10}}>
-              <button className="abtn" onClick={()=>setBet(0)} style={btn("#374151")}>Clear</button>
+              <button className="abtn" onClick={clearBetFn} style={btn("#374151")}>Clear</button>
               <button className="abtn" onClick={maxBet} style={btn("#059669")}>Max Bet</button>
               <button className="abtn" onClick={deal} disabled={bet===0} style={btn("#d97706","#000",bet===0)}>Deal</button>
             </div>
@@ -504,8 +626,8 @@ export default function BlackjackGame() {
         {/* Play phase */}
         {phase==="play"&&(
           <div style={{display:"flex",justifyContent:"center",gap:10,flexWrap:"wrap"}}>
-            <button className="abtn" onClick={hit}    style={btn("#15803d")}>Hit</button>
-            <button className="abtn" onClick={stand}  style={btn("#b91c1c")}>Stand</button>
+            <button className="abtn" onClick={hit}   style={btn("#15803d")}>Hit</button>
+            <button className="abtn" onClick={stand} style={btn("#b91c1c")}>Stand</button>
             {canDouble()&&<button className="abtn" onClick={dbl}   style={btn("#1d4ed8")}>Double</button>}
             {canSplit() &&<button className="abtn" onClick={split} style={btn("#7c3aed")}>Split</button>}
           </div>

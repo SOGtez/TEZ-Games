@@ -1,5 +1,11 @@
 # TEZ Games Changelog
 
+## v0.3.0 — TEZ Blackjack Sound Engine
+- Added sound engine with MP3 support (chip, deal, flip, win, blackjack, lose, bust, push, clear)
+- Mute/unmute toggle button (bottom right corner)
+- Animated bet counter with glow effect
+- Sound hooks on all game actions
+
 ## v0.2.1 — Font & Animation Polish
 - Switched font from Fredoka to Segoe UI across logos and game titles
 - Game card hover: smooth ease-in/out, glow pulse, polished mouse-leave transition
