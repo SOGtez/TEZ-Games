@@ -5,22 +5,20 @@ import { version } from '../lib/version';
 
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
   const audioRef = useRef(null);
+  const playedRef = useRef(false);
   const [musicOn, setMusicOn] = useState(false);
-  const [musicReady, setMusicReady] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const audio = new Audio('/sounds/bg-music.mp3');
+    const audio = new Audio('/sounds/bg-music.m4a');
     audio.loop = true;
     audio.volume = 0.3;
     audioRef.current = audio;
 
-    audio.addEventListener('canplaythrough', () => setMusicReady(true));
-
-    // Auto-play on first user interaction
     const tryPlay = () => {
-      if (!audioRef.current || musicOn) return;
-      audioRef.current.play().then(() => setMusicOn(true)).catch(() => {});
+      if (playedRef.current) return;
+      playedRef.current = true;
+      audio.play().then(() => setMusicOn(true)).catch(() => { playedRef.current = false; });
       window.removeEventListener('click', tryPlay);
       window.removeEventListener('keydown', tryPlay);
     };
