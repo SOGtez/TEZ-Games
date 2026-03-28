@@ -1,8 +1,51 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useState, useEffect, useRef } from 'react';
 import { version } from '../lib/version';
 
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
+  const audioRef = useRef(null);
+  const [musicOn, setMusicOn] = useState(false);
+  const [musicReady, setMusicReady] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const audio = new Audio('/sounds/bg-music.mp3');
+    audio.loop = true;
+    audio.volume = 0.3;
+    audioRef.current = audio;
+
+    audio.addEventListener('canplaythrough', () => setMusicReady(true));
+
+    // Auto-play on first user interaction
+    const tryPlay = () => {
+      if (!audioRef.current || musicOn) return;
+      audioRef.current.play().then(() => setMusicOn(true)).catch(() => {});
+      window.removeEventListener('click', tryPlay);
+      window.removeEventListener('keydown', tryPlay);
+    };
+    window.addEventListener('click', tryPlay);
+    window.addEventListener('keydown', tryPlay);
+
+    return () => {
+      audio.pause();
+      audio.src = '';
+      window.removeEventListener('click', tryPlay);
+      window.removeEventListener('keydown', tryPlay);
+    };
+  }, []);
+
+  const toggleMusic = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (musicOn) {
+      audio.pause();
+      setMusicOn(false);
+    } else {
+      audio.play().then(() => setMusicOn(true)).catch(() => {});
+    }
+  };
+
   return (
     <>
       <Head>
@@ -73,7 +116,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               </span>
               <span className="text-2xl animate-float ml-1">🎮</span>
             </Link>
-            <nav>
+            <nav style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <Link
                 href="/"
                 className="font-semibold font-nunito transition-all duration-200"
@@ -83,6 +126,24 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               >
                 All Games
               </Link>
+              <button
+                onClick={toggleMusic}
+                title={musicOn ? 'Mute music' : 'Play music'}
+                style={{
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: 20,
+                  width: 34, height: 34,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer',
+                  fontSize: 15,
+                  color: musicOn ? '#fde047' : 'rgba(255,255,255,0.4)',
+                  transition: 'color 0.2s, background 0.2s',
+                  flexShrink: 0,
+                }}
+              >
+                {musicOn ? '🎵' : '🔇'}
+              </button>
             </nav>
           </div>
         </header>}

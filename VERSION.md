@@ -1,5 +1,11 @@
 # TEZ Games Changelog
 
+## v0.3.3 — Background music
+- Added looping background music player (public/sounds/bg-music.mp3)
+- Auto-plays on first user interaction (browser autoplay policy)
+- Music toggle button (🎵/🔇) in top-right header
+- SSR-safe, persists across page navigation
+
 ## v0.3.2 — Coming soon game cards
 - Added locked cards for TEZ Uno, TEZ War, TEZ Tic Tac Toe, TEZ Minesweeper
 
