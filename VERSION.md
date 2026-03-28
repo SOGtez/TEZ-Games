@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.3.1 — Connect 4 locked card
+- Connect 4 game card shows greyed out with 🔒 Coming Soon badge
+- Locked cards are non-clickable
+
 ## v0.3.0 — TEZ Blackjack Sound Engine
 - Added sound engine with MP3 support (chip, deal, flip, win, blackjack, lose, bust, push, clear)
 - Mute/unmute toggle button (bottom right corner)
