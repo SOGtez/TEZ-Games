@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.3.2 — Coming soon game cards
+- Added locked cards for TEZ Uno, TEZ War, TEZ Tic Tac Toe, TEZ Minesweeper
+
 ## v0.3.1 — Connect 4 locked card
 - Connect 4 game card shows greyed out with 🔒 Coming Soon badge
 - Locked cards are non-clickable
