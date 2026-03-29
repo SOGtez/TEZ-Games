@@ -3,28 +3,79 @@ import Head from 'next/head';
 
 const PIN = '1234';
 
-function StatCard({ label, value, sub }) {
+// ── Shared bar-list section ────────────────────────────────────────────────
+function BreakdownCard({ title, data, labelKey = 'key', valueKey = 'total', accent = '#7C3AED,#EC4899' }) {
+  if (!data?.length) return null;
+  const max = data[0]?.[valueKey] ?? 1;
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 16, padding: '20px 24px', flex: 1, minWidth: 140,
+      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: 16, padding: '20px 24px', flex: 1, minWidth: 0,
     }}>
-      <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginBottom: 6, fontFamily: 'Nunito, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-        {label}
+      <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginBottom: 16, fontFamily: 'Nunito, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        {title}
       </div>
-      <div style={{
-        fontSize: 36, fontWeight: 700, fontFamily: "'Segoe UI', sans-serif",
-        background: 'linear-gradient(135deg, #fde047, #f59e0b)',
-        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-      }}>
-        {value ?? '—'}
-      </div>
-      {sub && <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginTop: 4, fontFamily: 'Nunito, sans-serif' }}>{sub}</div>}
+      {data.map((row, i) => {
+        const pct = Math.round(((row[valueKey] ?? 0) / max) * 100);
+        return (
+          <div key={i} style={{ marginBottom: i < data.length - 1 ? 12 : 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, fontFamily: 'Nunito, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>
+                {row[labelKey] || '(direct)'}
+              </span>
+              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, fontFamily: 'Nunito, sans-serif', flexShrink: 0 }}>
+                {(row[valueKey] ?? 0).toLocaleString()}
+              </span>
+            </div>
+            <div style={{ height: 3, background: 'rgba(255,255,255,0.07)', borderRadius: 2 }}>
+              <div style={{ height: 3, borderRadius: 2, width: `${pct}%`, background: `linear-gradient(90deg, ${accent})`, transition: 'width 0.6s ease' }} />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
+// ── Daily bar chart ────────────────────────────────────────────────────────
+function DailyChart({ data }) {
+  if (!data?.length) return null;
+  const max = Math.max(...data.map(d => d.total ?? 0), 1);
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '20px 24px', marginBottom: 20 }}>
+      <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginBottom: 16, fontFamily: 'Nunito, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        Daily Page Views — Last 30 Days
+      </div>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 60 }}>
+        {data.map((d, i) => {
+          const h = Math.max(Math.round(((d.total ?? 0) / max) * 60), d.total ? 2 : 1);
+          return (
+            <div key={i} title={`${d.total ?? 0} views`} style={{
+              flex: 1, height: h, borderRadius: 2,
+              background: d.total ? 'linear-gradient(180deg, #7C3AED, #EC4899)' : 'rgba(255,255,255,0.06)',
+              transition: 'height 0.4s ease',
+              cursor: 'default',
+            }} />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Stat card ──────────────────────────────────────────────────────────────
+function StatCard({ label, value }) {
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '20px 24px', flex: 1, minWidth: 130 }}>
+      <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginBottom: 6, fontFamily: 'Nunito, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
+      <div style={{ fontSize: 36, fontWeight: 700, fontFamily: "'Segoe UI', sans-serif", background: 'linear-gradient(135deg, #fde047, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+        {value ?? '—'}
+      </div>
+    </div>
+  );
+}
+
+// ── Main dashboard ─────────────────────────────────────────────────────────
 function Dashboard() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -32,10 +83,7 @@ function Dashboard() {
   useEffect(() => {
     fetch('/api/analytics-data')
       .then(r => r.json())
-      .then(d => {
-        if (d.error) setError(d.error);
-        else setData(d);
-      })
+      .then(d => { if (d.error) setError(d.error); else setData(d); })
       .catch(e => setError(e.message));
   }, []);
 
@@ -46,74 +94,52 @@ function Dashboard() {
   );
 
   if (!data) return (
-    <div style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'Nunito, sans-serif', fontSize: 14, textAlign: 'center', padding: 40 }}>
-      Loading...
+    <div style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'Nunito, sans-serif', fontSize: 14, textAlign: 'center', padding: 60 }}>
+      Loading…
     </div>
   );
 
-  // Parse stats — Vercel returns { data: [...] } with daily buckets
-  const pageviews = data.stats?.data?.reduce((sum, d) => sum + (d.total ?? 0), 0) ?? null;
-  const visitors = data.stats?.data?.reduce((sum, d) => sum + (d.unique ?? 0), 0) ?? null;
-  const topPages = data.breakdown?.data ?? [];
+  const pageviews = data.stats?.data?.reduce((s, d) => s + (d.total ?? 0), 0);
+  const visitors  = data.stats?.data?.reduce((s, d) => s + (d.unique ?? 0), 0);
 
   return (
-    <div style={{ maxWidth: 640, margin: '0 auto', padding: '0 16px' }}>
+    <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 20px 60px' }}>
       {/* Header */}
       <div style={{ marginBottom: 32, textAlign: 'center' }}>
-        <div style={{
-          fontSize: 28, fontWeight: 700, fontFamily: "'Segoe UI', sans-serif",
-          background: 'linear-gradient(135deg, #fde047, #f59e0b)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          marginBottom: 4,
-        }}>TEZ Analytics</div>
+        <div style={{ fontSize: 26, fontWeight: 700, fontFamily: "'Segoe UI', sans-serif", background: 'linear-gradient(135deg, #fde047, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 4 }}>
+          TEZ Analytics
+        </div>
         <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, fontFamily: 'Nunito, sans-serif' }}>Last 30 days</div>
       </div>
 
-      {/* Stat cards */}
-      <div style={{ display: 'flex', gap: 16, marginBottom: 32, flexWrap: 'wrap' }}>
+      {/* Stat row */}
+      <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
         <StatCard label="Page Views" value={pageviews?.toLocaleString()} />
         <StatCard label="Unique Visitors" value={visitors?.toLocaleString()} />
       </div>
 
-      {/* Top pages */}
-      {topPages.length > 0 && (
-        <div style={{
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: 16, padding: '20px 24px',
-        }}>
-          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginBottom: 16, fontFamily: 'Nunito, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Top Pages
-          </div>
-          {topPages.map((page, i) => {
-            const max = topPages[0]?.total ?? 1;
-            const pct = Math.round(((page.total ?? 0) / max) * 100);
-            return (
-              <div key={i} style={{ marginBottom: i < topPages.length - 1 ? 14 : 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, fontFamily: 'Nunito, sans-serif' }}>
-                    {page.key || '/'}
-                  </span>
-                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, fontFamily: 'Nunito, sans-serif' }}>
-                    {(page.total ?? 0).toLocaleString()}
-                  </span>
-                </div>
-                <div style={{ height: 4, background: 'rgba(255,255,255,0.07)', borderRadius: 2 }}>
-                  <div style={{
-                    height: 4, borderRadius: 2, width: `${pct}%`,
-                    background: 'linear-gradient(90deg, #7C3AED, #EC4899)',
-                    transition: 'width 0.6s ease',
-                  }} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {/* Daily chart */}
+      <DailyChart data={data.stats?.data} />
+
+      {/* Pages + Countries */}
+      <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
+        <BreakdownCard title="Top Pages" data={data.pages?.data} accent="#7C3AED,#EC4899" />
+        <BreakdownCard title="Countries" data={data.countries?.data} accent="#06B6D4,#3B82F6" />
+      </div>
+
+      {/* Devices + Referrers */}
+      <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
+        <BreakdownCard title="Devices" data={data.devices?.data} accent="#10B981,#06B6D4" />
+        <BreakdownCard title="Referrers" data={data.referrers?.data} accent="#F59E0B,#EF4444" />
+      </div>
+
+      {/* Browsers */}
+      <BreakdownCard title="Browsers" data={data.browsers?.data} accent="#8B5CF6,#EC4899" />
     </div>
   );
 }
 
+// ── PIN gate ───────────────────────────────────────────────────────────────
 export default function AnalyticsPage() {
   const [pin, setPin] = useState('');
   const [shake, setShake] = useState(false);
@@ -137,40 +163,33 @@ export default function AnalyticsPage() {
       <Head><title>TEZ Analytics</title></Head>
       <style>{`
         @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          20%, 60% { transform: translateX(-8px); }
-          40%, 80% { transform: translateX(8px); }
+          0%,100% { transform: translateX(0); }
+          20%,60%  { transform: translateX(-8px); }
+          40%,80%  { transform: translateX(8px); }
         }
         .shake { animation: shake 0.4s ease; }
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
       `}</style>
       <div style={{
         minHeight: '100vh',
         background: 'radial-gradient(ellipse at 50% 0%, #1a0a2e 0%, #0d0618 55%, #07030f 100%)',
         color: 'white',
-        paddingTop: unlocked ? 48 : 0,
         display: unlocked ? 'block' : 'flex',
         alignItems: unlocked ? undefined : 'center',
         justifyContent: unlocked ? undefined : 'center',
+        paddingTop: unlocked ? 48 : 0,
       }}>
         {!unlocked ? (
           <div style={{ textAlign: 'center' }}>
-            <div style={{
-              fontSize: 36, marginBottom: 8,
-              background: 'linear-gradient(135deg, #fde047, #f59e0b)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-              fontFamily: "'Segoe UI', sans-serif", fontWeight: 700, letterSpacing: '0.05em',
-            }}>TEZ</div>
+            <div style={{ fontSize: 36, marginBottom: 8, background: 'linear-gradient(135deg, #fde047, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: "'Segoe UI', sans-serif", fontWeight: 700, letterSpacing: '0.05em' }}>
+              TEZ
+            </div>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, marginBottom: 32, fontFamily: 'Nunito, sans-serif' }}>
               Enter PIN to continue
             </p>
             <input
-              type="password"
-              inputMode="numeric"
-              value={pin}
-              onChange={handleChange}
-              autoFocus
-              placeholder="••••"
+              type="password" inputMode="numeric"
+              value={pin} onChange={handleChange}
+              autoFocus placeholder="••••"
               className={shake ? 'shake' : ''}
               style={{
                 background: 'rgba(255,255,255,0.06)',

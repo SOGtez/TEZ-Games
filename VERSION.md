@@ -1,5 +1,10 @@
 # TEZ Games Changelog
 
+## v0.3.6 — Full analytics dashboard
+- Daily bar chart (30-day traffic history)
+- Countries, Referrers, Devices, Browsers breakdowns
+- 2-column grid layout with color-coded accent bars
+
 ## v0.3.5 — Custom analytics dashboard
 - /analytics now shows a real dashboard (page views, unique visitors, top pages)
 - Server-side API route proxies Vercel Analytics REST API

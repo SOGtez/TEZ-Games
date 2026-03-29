@@ -7,27 +7,27 @@ export default async function handler(req, res) {
   }
 
   const now = Date.now();
-  const from = now - 30 * 24 * 60 * 60 * 1000; // 30 days ago
-  const filter = JSON.stringify({});
+  const from = now - 30 * 24 * 60 * 60 * 1000;
+  const filter = encodeURIComponent(JSON.stringify({}));
 
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  };
-
+  const headers = { Authorization: `Bearer ${token}` };
   const base = `https://vercel.com/api/web/insights`;
-  const params = `projectId=${projectId}&from=${from}&to=${now}&filter=${encodeURIComponent(filter)}`;
+  const params = `projectId=${projectId}&from=${from}&to=${now}&filter=${filter}`;
+
+  const breakdown = (metric, limit = 8) =>
+    fetch(`${base}/breakdown?${params}&metric=${metric}&limit=${limit}`, { headers }).then(r => r.json());
 
   try {
-    const [statsRes, breakdownRes] = await Promise.all([
-      fetch(`${base}/pageviews?${params}&limit=30`, { headers }),
-      fetch(`${base}/breakdown?${params}&metric=path&limit=8`, { headers }),
+    const [stats, pages, countries, referrers, devices, browsers] = await Promise.all([
+      fetch(`${base}/pageviews?${params}&limit=30`, { headers }).then(r => r.json()),
+      breakdown('path', 8),
+      breakdown('country', 8),
+      breakdown('referrer', 8),
+      breakdown('device', 5),
+      breakdown('browser', 6),
     ]);
 
-    const stats = await statsRes.json();
-    const breakdown = await breakdownRes.json();
-
-    res.status(200).json({ stats, breakdown });
+    res.status(200).json({ stats, pages, countries, referrers, devices, browsers });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
