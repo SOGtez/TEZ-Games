@@ -7,41 +7,37 @@ export default async function handler(req, res) {
   }
 
   const headers = { Authorization: `Bearer ${token}` };
-
-  // Verify token + get account context
-  const [userRes, projectRes] = await Promise.all([
-    fetch('https://vercel.com/api/v9/user', { headers }),
-    fetch(`https://vercel.com/api/v9/projects/${projectId}`, { headers }),
-  ]);
-  const user = await userRes.json();
-  const project = await projectRes.json();
-
-  // The analytics API needs either teamId (team) or just projectId (personal)
-  // For personal accounts, teamId = user.id in some cases
-  const teamId = project.accountId ?? null;
+  const teamId = 'team_rcckPm5SaxpLn0alYNQaAi9M';
 
   const now = Date.now();
   const from = now - 30 * 24 * 60 * 60 * 1000;
   const filter = encodeURIComponent(JSON.stringify({}));
-  const teamParam = teamId ? `&teamId=${teamId}` : '';
-  const params = `projectId=${projectId}&from=${from}&to=${now}&filter=${filter}${teamParam}`;
-  const base = `https://vercel.com/api/web/insights`;
+  const common = `projectId=${projectId}&teamId=${teamId}&from=${from}&to=${now}&filter=${filter}`;
 
-  const [statsRes, pagesRes] = await Promise.all([
-    fetch(`${base}/pageviews?${params}&limit=30`, { headers }),
-    fetch(`${base}/breakdown?${params}&metric=path&limit=5`, { headers }),
-  ]);
-  const stats = await statsRes.json();
-  const pages = await pagesRes.json();
+  // Try several candidate endpoint patterns
+  const candidates = {
+    'web/insights/pageviews':        `https://vercel.com/api/web/insights/pageviews?${common}&limit=5`,
+    'v1/web/insights/pageviews':     `https://vercel.com/api/v1/web/insights/pageviews?${common}&limit=5`,
+    'web/analytics':                 `https://vercel.com/api/web/analytics?${common}&limit=5`,
+    'v1/web/analytics':              `https://vercel.com/api/v1/web/analytics?${common}&limit=5`,
+    'v9/projects/analytics':         `https://vercel.com/api/v9/projects/${projectId}/analytics?teamId=${teamId}&from=${from}&to=${now}`,
+    'web/insights (no filter)':      `https://vercel.com/api/web/insights?projectId=${projectId}&teamId=${teamId}&from=${from}&to=${now}&metric=pageviews`,
+  };
 
-  res.status(200).json({
-    _debug: {
-      userId: user?.user?.id,
-      projectFound: !!project?.id,
-      projectAccountId: project?.accountId,
-      teamId,
-    },
-    stats,
-    pages,
-  });
+  const results = {};
+  await Promise.all(
+    Object.entries(candidates).map(async ([key, url]) => {
+      try {
+        const r = await fetch(url, { headers });
+        const text = await r.text();
+        let json;
+        try { json = JSON.parse(text); } catch { json = text.slice(0, 200); }
+        results[key] = { status: r.status, body: json };
+      } catch (e) {
+        results[key] = { error: e.message };
+      }
+    })
+  );
+
+  res.status(200).json(results);
 }
