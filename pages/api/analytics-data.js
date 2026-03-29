@@ -8,37 +8,40 @@ export default async function handler(req, res) {
 
   const headers = { Authorization: `Bearer ${token}` };
 
-  // Auto-discover teamId from the first team on this account
-  let teamId = null;
-  try {
-    const teamsRes = await fetch('https://vercel.com/api/v9/teams', { headers });
-    const teamsData = await teamsRes.json();
-    teamId = teamsData.teams?.[0]?.id ?? null;
-  } catch (_) {}
+  // Verify token + get account context
+  const [userRes, projectRes] = await Promise.all([
+    fetch('https://vercel.com/api/v9/user', { headers }),
+    fetch(`https://vercel.com/api/v9/projects/${projectId}`, { headers }),
+  ]);
+  const user = await userRes.json();
+  const project = await projectRes.json();
+
+  // The analytics API needs either teamId (team) or just projectId (personal)
+  // For personal accounts, teamId = user.id in some cases
+  const teamId = project.accountId ?? null;
 
   const now = Date.now();
   const from = now - 30 * 24 * 60 * 60 * 1000;
   const filter = encodeURIComponent(JSON.stringify({}));
-
-  const base = `https://vercel.com/api/web/insights`;
   const teamParam = teamId ? `&teamId=${teamId}` : '';
   const params = `projectId=${projectId}&from=${from}&to=${now}&filter=${filter}${teamParam}`;
+  const base = `https://vercel.com/api/web/insights`;
 
-  const breakdown = (metric, limit = 8) =>
-    fetch(`${base}/breakdown?${params}&metric=${metric}&limit=${limit}`, { headers }).then(r => r.json());
+  const [statsRes, pagesRes] = await Promise.all([
+    fetch(`${base}/pageviews?${params}&limit=30`, { headers }),
+    fetch(`${base}/breakdown?${params}&metric=path&limit=5`, { headers }),
+  ]);
+  const stats = await statsRes.json();
+  const pages = await pagesRes.json();
 
-  try {
-    const [stats, pages, countries, referrers, devices, browsers] = await Promise.all([
-      fetch(`${base}/pageviews?${params}&limit=30`, { headers }).then(r => r.json()),
-      breakdown('path', 8),
-      breakdown('country', 8),
-      breakdown('referrer', 8),
-      breakdown('device', 5),
-      breakdown('browser', 6),
-    ]);
-
-    res.status(200).json({ stats, pages, countries, referrers, devices, browsers, _teamId: teamId });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  res.status(200).json({
+    _debug: {
+      userId: user?.user?.id,
+      projectFound: !!project?.id,
+      projectAccountId: project?.accountId,
+      teamId,
+    },
+    stats,
+    pages,
+  });
 }
