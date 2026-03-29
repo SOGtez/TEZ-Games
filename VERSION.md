@@ -1,5 +1,10 @@
 # TEZ Games Changelog
 
+## v0.3.5 — Custom analytics dashboard
+- /analytics now shows a real dashboard (page views, unique visitors, top pages)
+- Server-side API route proxies Vercel Analytics REST API
+- PIN-gated, not linked anywhere on the site
+
 ## v0.3.4 — Hidden analytics page
 - PIN-gated /analytics page (not linked anywhere)
 - Installs @vercel/analytics for passive page view tracking
