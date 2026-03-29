@@ -6,13 +6,23 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Missing env vars' });
   }
 
+  const headers = { Authorization: `Bearer ${token}` };
+
+  // Auto-discover teamId from the first team on this account
+  let teamId = null;
+  try {
+    const teamsRes = await fetch('https://vercel.com/api/v9/teams', { headers });
+    const teamsData = await teamsRes.json();
+    teamId = teamsData.teams?.[0]?.id ?? null;
+  } catch (_) {}
+
   const now = Date.now();
   const from = now - 30 * 24 * 60 * 60 * 1000;
   const filter = encodeURIComponent(JSON.stringify({}));
 
-  const headers = { Authorization: `Bearer ${token}` };
   const base = `https://vercel.com/api/web/insights`;
-  const params = `projectId=${projectId}&from=${from}&to=${now}&filter=${filter}`;
+  const teamParam = teamId ? `&teamId=${teamId}` : '';
+  const params = `projectId=${projectId}&from=${from}&to=${now}&filter=${filter}${teamParam}`;
 
   const breakdown = (metric, limit = 8) =>
     fetch(`${base}/breakdown?${params}&metric=${metric}&limit=${limit}`, { headers }).then(r => r.json());
@@ -27,7 +37,7 @@ export default async function handler(req, res) {
       breakdown('browser', 6),
     ]);
 
-    res.status(200).json({ stats, pages, countries, referrers, devices, browsers });
+    res.status(200).json({ stats, pages, countries, referrers, devices, browsers, _teamId: teamId });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
