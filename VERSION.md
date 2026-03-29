@@ -1,5 +1,10 @@
 # TEZ Games Changelog
 
+## v0.3.4 — Hidden analytics page
+- PIN-gated /analytics page (not linked anywhere)
+- Installs @vercel/analytics for passive page view tracking
+- Correct PIN redirects to Vercel Analytics dashboard
+
 ## v0.3.3 — Background music
 - Added looping background music player (public/sounds/bg-music.mp3)
 - Auto-plays on first user interaction (browser autoplay policy)
