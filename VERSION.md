@@ -1,5 +1,12 @@
 # TEZ Games Changelog
 
+## v0.4.6 — TEZ War (Normal Mode)
+- Added TEZ War as a playable game (unlocked)
+- Card flip battle with war mechanics, double/triple war, particle effects
+- Auto-flip toggle with speed control (Slow / Normal / Fast / Turbo)
+- Stats panel: rounds, wins, losses, wars, streaks, biggest haul
+- Blitz Mode placeholder (coming soon)
+
 ## v0.4.5 — Live visitors card
 - Track session IDs to identify unique visitors
 - /api/live counts distinct sessions active in last 5 minutes

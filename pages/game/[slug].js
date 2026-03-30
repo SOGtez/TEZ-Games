@@ -4,10 +4,12 @@ import Layout from '../../components/Layout';
 import { games, getGameBySlug } from '../../lib/games';
 import BlackjackGame from '../../components/games/BlackjackGame';
 import Connect4Game from '../../components/games/Connect4Game';
+import WarGame from '../../components/games/WarGame';
 
 const gameComponents = {
   'tez-blackjack': BlackjackGame,
   connect4: Connect4Game,
+  war: WarGame,
 };
 
 export async function getStaticPaths() {
