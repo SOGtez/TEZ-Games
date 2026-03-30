@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.3.7 — Background music WAV support
+- Switched background music from .m4a to .wav format
+
 ## v0.3.6 — Full analytics dashboard
 - Daily bar chart (30-day traffic history)
 - Countries, Referrers, Devices, Browsers breakdowns
