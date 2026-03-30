@@ -1,5 +1,13 @@
 # TEZ Games Changelog
 
+## v0.4.7 — TEZ War Tutorial Mode
+- Added "LEARN TO PLAY" button on TEZ War menu
+- Full interactive tutorial with 20 scripted steps
+- Scripted card flips demonstrating win, lose, war, double war scenarios
+- TutorialPopup overlay with gold progress bar
+- "LEARN" badge in top bar during tutorial
+- Stats and auto-flip hidden during tutorial
+
 ## v0.4.6 — TEZ War (Normal Mode)
 - Added TEZ War as a playable game (unlocked)
 - Card flip battle with war mechanics, double/triple war, particle effects
