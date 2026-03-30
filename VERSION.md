@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.3.9 — Fix music autoplay reliability
+- Add preload=auto so audio buffers before first interaction
+- Fix retry logic so play can re-attempt if initial attempt fails
+
 ## v0.3.8 — Fix music mute toggle
 - Mute/unmute now uses audio.muted instead of pause/play to avoid browser blocking
 

@@ -13,14 +13,19 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
     const audio = new Audio('/sounds/bg-music.wav');
     audio.loop = true;
     audio.volume = 0.3;
+    audio.preload = 'auto';
     audioRef.current = audio;
 
     const tryPlay = () => {
       if (playedRef.current) return;
       playedRef.current = true;
-      audio.play().then(() => setMusicOn(true)).catch(() => { playedRef.current = false; });
       window.removeEventListener('click', tryPlay);
       window.removeEventListener('keydown', tryPlay);
+      audio.play().then(() => setMusicOn(true)).catch(() => {
+        playedRef.current = false;
+        window.addEventListener('click', tryPlay);
+        window.addEventListener('keydown', tryPlay);
+      });
     };
     window.addEventListener('click', tryPlay);
     window.addEventListener('keydown', tryPlay);
