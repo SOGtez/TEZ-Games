@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.4.1 — Persistent background music across pages
+- Moved audio to _app.js so it never resets on navigation
+- Shared music state via React context
+
 ## v0.4.0 — Switch background music to MP3
 - Converted bg-music from WAV (20MB) to MP3 for faster loading
 
