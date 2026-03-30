@@ -1,5 +1,11 @@
 # TEZ Games Changelog
 
+## v0.4.3 — Custom analytics with Supabase
+- Track page views in Supabase (page, country, device, referrer)
+- /api/track logs each page visit server-side
+- /api/analytics-data aggregates real data from Supabase
+- /analytics dashboard now shows live traffic data
+
 ## v0.4.2 — Fix music truly persisting across pages
 - Move audio to module-level singleton so React lifecycle can never destroy it
 - Cleanup no longer pauses/clears audio on navigation

@@ -1,43 +1,52 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+
 export default async function handler(req, res) {
-  const token = process.env.VERCEL_API_TOKEN;
-  const projectId = process.env.VERCEL_PROJECT_ID;
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  if (!token || !projectId) {
-    return res.status(500).json({ error: 'Missing env vars' });
-  }
+  const { data: rows, error } = await supabase
+    .from('pageviews')
+    .select('page, referrer, country, device, created_at')
+    .gte('created_at', since);
 
-  const headers = { Authorization: `Bearer ${token}` };
-  const teamId = 'team_rcckPm5SaxpLn0alYNQaAi9M';
+  if (error) return res.status(500).json({ error: error.message });
 
-  const now = Date.now();
-  const from = now - 30 * 24 * 60 * 60 * 1000;
-  const filter = encodeURIComponent(JSON.stringify({}));
-  const common = `projectId=${projectId}&teamId=${teamId}&from=${from}&to=${now}&filter=${filter}`;
+  const total = rows.length;
 
-  // Try several candidate endpoint patterns
-  const candidates = {
-    'web/insights/pageviews':        `https://vercel.com/api/web/insights/pageviews?${common}&limit=5`,
-    'v1/web/insights/pageviews':     `https://vercel.com/api/v1/web/insights/pageviews?${common}&limit=5`,
-    'web/analytics':                 `https://vercel.com/api/web/analytics?${common}&limit=5`,
-    'v1/web/analytics':              `https://vercel.com/api/v1/web/analytics?${common}&limit=5`,
-    'v9/projects/analytics':         `https://vercel.com/api/v9/projects/${projectId}/analytics?teamId=${teamId}&from=${from}&to=${now}`,
-    'web/insights (no filter)':      `https://vercel.com/api/web/insights?projectId=${projectId}&teamId=${teamId}&from=${from}&to=${now}&metric=pageviews`,
+  const tally = (field) => {
+    const counts = {};
+    rows.forEach(r => {
+      const key = r[field] || '(direct)';
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .map(([key, total]) => ({ key, total }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 10);
   };
 
-  const results = {};
-  await Promise.all(
-    Object.entries(candidates).map(async ([key, url]) => {
-      try {
-        const r = await fetch(url, { headers });
-        const text = await r.text();
-        let json;
-        try { json = JSON.parse(text); } catch { json = text.slice(0, 200); }
-        results[key] = { status: r.status, body: json };
-      } catch (e) {
-        results[key] = { error: e.message };
-      }
-    })
-  );
+  // Build daily buckets for last 30 days
+  const daily = {};
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+    daily[d.toISOString().slice(0, 10)] = 0;
+  }
+  rows.forEach(r => {
+    const key = r.created_at.slice(0, 10);
+    if (key in daily) daily[key]++;
+  });
+  const dailyData = Object.entries(daily).map(([date, total]) => ({ date, total }));
 
-  res.status(200).json(results);
+  res.status(200).json({
+    total,
+    daily: dailyData,
+    pages: tally('page'),
+    countries: tally('country'),
+    devices: tally('device'),
+    referrers: tally('referrer'),
+  });
 }

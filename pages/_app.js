@@ -2,6 +2,7 @@ import '../styles/globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { useState, useEffect, createContext, useContext } from 'react';
+import { useRouter } from 'next/router';
 
 export const MusicContext = createContext({ musicOn: false, toggleMusic: () => {} });
 export const useMusic = () => useContext(MusicContext);
@@ -23,6 +24,20 @@ function getAudio() {
 
 export default function App({ Component, pageProps }) {
   const [musicOn, setMusicOn] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const track = (url) => {
+      fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page: url, referrer: document.referrer }),
+      });
+    };
+    track(router.asPath);
+    router.events.on('routeChangeComplete', track);
+    return () => router.events.off('routeChangeComplete', track);
+  }, []);
 
   useEffect(() => {
     const audio = getAudio();

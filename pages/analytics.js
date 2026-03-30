@@ -99,9 +99,6 @@ function Dashboard() {
     </div>
   );
 
-  const pageviews = data.stats?.data?.reduce((s, d) => s + (d.total ?? 0), 0);
-  const visitors  = data.stats?.data?.reduce((s, d) => s + (d.unique ?? 0), 0);
-
   return (
     <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 20px 60px' }}>
       {/* Header */}
@@ -114,27 +111,23 @@ function Dashboard() {
 
       {/* Stat row */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
-        <StatCard label="Page Views" value={pageviews?.toLocaleString()} />
-        <StatCard label="Unique Visitors" value={visitors?.toLocaleString()} />
+        <StatCard label="Page Views" value={data.total?.toLocaleString()} />
       </div>
 
       {/* Daily chart */}
-      <DailyChart data={data.stats?.data} />
+      <DailyChart data={data.daily} />
 
       {/* Pages + Countries */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
-        <BreakdownCard title="Top Pages" data={data.pages?.data} accent="#7C3AED,#EC4899" />
-        <BreakdownCard title="Countries" data={data.countries?.data} accent="#06B6D4,#3B82F6" />
+        <BreakdownCard title="Top Pages" data={data.pages} accent="#7C3AED,#EC4899" />
+        <BreakdownCard title="Countries" data={data.countries} accent="#06B6D4,#3B82F6" />
       </div>
 
       {/* Devices + Referrers */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
-        <BreakdownCard title="Devices" data={data.devices?.data} accent="#10B981,#06B6D4" />
-        <BreakdownCard title="Referrers" data={data.referrers?.data} accent="#F59E0B,#EF4444" />
+        <BreakdownCard title="Devices" data={data.devices} accent="#10B981,#06B6D4" />
+        <BreakdownCard title="Referrers" data={data.referrers} accent="#F59E0B,#EF4444" />
       </div>
-
-      {/* Browsers */}
-      <BreakdownCard title="Browsers" data={data.browsers?.data} accent="#8B5CF6,#EC4899" />
     </div>
   );
 }
