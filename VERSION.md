@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.4.2 — Fix music truly persisting across pages
+- Move audio to module-level singleton so React lifecycle can never destroy it
+- Cleanup no longer pauses/clears audio on navigation
+
 ## v0.4.1 — Persistent background music across pages
 - Moved audio to _app.js so it never resets on navigation
 - Shared music state via React context
