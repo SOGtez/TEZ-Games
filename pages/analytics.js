@@ -75,6 +75,31 @@ function StatCard({ label, value }) {
   );
 }
 
+// ── Live visitors card ─────────────────────────────────────────────────────
+function LiveCard() {
+  const [live, setLive] = useState(null);
+
+  useEffect(() => {
+    const fetch_ = () => fetch('/api/live').then(r => r.json()).then(d => setLive(d.live ?? 0)).catch(() => {});
+    fetch_();
+    const id = setInterval(fetch_, 30000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '20px 24px', flex: 1, minWidth: 130 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', display: 'inline-block', boxShadow: '0 0 6px #10b981', animation: 'pulse 2s infinite' }} />
+        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, fontFamily: 'Nunito, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Live Now</span>
+      </div>
+      <div style={{ fontSize: 36, fontWeight: 700, fontFamily: "'Segoe UI', sans-serif", background: 'linear-gradient(135deg, #10b981, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+        {live ?? '—'}
+      </div>
+      <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: 11, fontFamily: 'Nunito, sans-serif', marginTop: 4 }}>active last 5 min · refreshes every 30s</div>
+    </div>
+  );
+}
+
 // ── Main dashboard ─────────────────────────────────────────────────────────
 function Dashboard() {
   const [data, setData] = useState(null);
@@ -112,6 +137,7 @@ function Dashboard() {
       {/* Stat row */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
         <StatCard label="Page Views" value={data.total?.toLocaleString()} />
+        <LiveCard />
       </div>
 
       {/* Daily chart */}
@@ -164,6 +190,10 @@ export default function AnalyticsPage() {
           40%,80%  { transform: translateX(8px); }
         }
         .shake { animation: shake 0.4s ease; }
+        @keyframes pulse {
+          0%,100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
       `}</style>
       <div style={{
         minHeight: '100vh',

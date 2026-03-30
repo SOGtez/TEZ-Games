@@ -18,13 +18,13 @@ function getBrowser(ua) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { page, referrer } = req.body;
+  const { page, referrer, sessionId } = req.body;
   const country = req.headers['x-vercel-ip-country'] || null;
   const ua = req.headers['user-agent'] || '';
   const device = /mobile/i.test(ua) ? 'Mobile' : /tablet/i.test(ua) ? 'Tablet' : 'Desktop';
   const browser = getBrowser(ua);
 
-  await supabase.from('pageviews').insert({ page, referrer: referrer || null, country, device, browser });
+  await supabase.from('pageviews').insert({ page, referrer: referrer || null, country, device, browser, session_id: sessionId || null });
 
   res.status(200).json({ ok: true });
 }

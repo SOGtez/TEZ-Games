@@ -1,5 +1,10 @@
 # TEZ Games Changelog
 
+## v0.4.5 — Live visitors card
+- Track session IDs to identify unique visitors
+- /api/live counts distinct sessions active in last 5 minutes
+- Live Now card on analytics dashboard with pulsing green dot, auto-refreshes every 30s
+
 ## v0.4.4 — Full analytics dashboard restored
 - Added browser tracking (Chrome, Safari, Firefox, Edge, etc.)
 - Browsers breakdown card restored to /analytics dashboard

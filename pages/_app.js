@@ -27,11 +27,18 @@ export default function App({ Component, pageProps }) {
   const router = useRouter();
 
   useEffect(() => {
+    // Generate a session ID once per browser session
+    let sessionId = sessionStorage.getItem('tez_sid');
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      sessionStorage.setItem('tez_sid', sessionId);
+    }
+
     const track = (url) => {
       fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page: url, referrer: document.referrer }),
+        body: JSON.stringify({ page: url, referrer: document.referrer, sessionId }),
       });
     };
     track(router.asPath);
