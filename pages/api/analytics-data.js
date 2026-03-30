@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   const { data: rows, error } = await supabase
     .from('pageviews')
-    .select('page, referrer, country, device, created_at')
+    .select('page, referrer, country, device, browser, created_at')
     .gte('created_at', since);
 
   if (error) return res.status(500).json({ error: error.message });
@@ -48,5 +48,6 @@ export default async function handler(req, res) {
     countries: tally('country'),
     devices: tally('device'),
     referrers: tally('referrer'),
+    browsers: tally('browser'),
   });
 }

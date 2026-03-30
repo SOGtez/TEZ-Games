@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.4.4 — Full analytics dashboard restored
+- Added browser tracking (Chrome, Safari, Firefox, Edge, etc.)
+- Browsers breakdown card restored to /analytics dashboard
+
 ## v0.4.3 — Custom analytics with Supabase
 - Track page views in Supabase (page, country, device, referrer)
 - /api/track logs each page visit server-side

@@ -128,6 +128,9 @@ function Dashboard() {
         <BreakdownCard title="Devices" data={data.devices} accent="#10B981,#06B6D4" />
         <BreakdownCard title="Referrers" data={data.referrers} accent="#F59E0B,#EF4444" />
       </div>
+
+      {/* Browsers */}
+      <BreakdownCard title="Browsers" data={data.browsers} accent="#8B5CF6,#EC4899" />
     </div>
   );
 }
