@@ -10,7 +10,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const audio = new Audio('/sounds/bg-music.wav');
+    const audio = new Audio('/sounds/bg-music.mp3');
     audio.loop = true;
     audio.volume = 0.3;
     audio.preload = 'auto';

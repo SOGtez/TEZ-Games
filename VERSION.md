@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.4.0 — Switch background music to MP3
+- Converted bg-music from WAV (20MB) to MP3 for faster loading
+
 ## v0.3.9 — Fix music autoplay reliability
 - Add preload=auto so audio buffers before first interaction
 - Fix retry logic so play can re-attempt if initial attempt fails
