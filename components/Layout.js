@@ -36,12 +36,8 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
   const toggleMusic = () => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (musicOn) {
-      audio.pause();
-      setMusicOn(false);
-    } else {
-      audio.play().then(() => setMusicOn(true)).catch(() => {});
-    }
+    audio.muted = musicOn;
+    setMusicOn(!musicOn);
   };
 
   return (

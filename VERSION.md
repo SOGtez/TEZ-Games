@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.3.8 — Fix music mute toggle
+- Mute/unmute now uses audio.muted instead of pause/play to avoid browser blocking
+
 ## v0.3.7 — Background music WAV support
 - Switched background music from .m4a to .wav format
 
