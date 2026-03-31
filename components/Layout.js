@@ -226,33 +226,37 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                 {/* Volume slider popup */}
                 {showVolumeSlider && (
                   <div style={{
-                    position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-                    background: 'rgba(13,6,24,0.95)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    borderRadius: 12,
-                    padding: '10px 12px',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-                    backdropFilter: 'blur(12px)',
+                    position: 'absolute', top: '100%', right: 0,
+                    paddingTop: 8,
                     minWidth: 36,
                   }}>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: "'Nunito', sans-serif", userSelect: 'none' }}>
-                      {Math.round(volume * 100)}%
-                    </span>
-                    <input
-                      type="range"
-                      min="0" max="1" step="0.01"
-                      value={volume}
-                      onChange={e => setVolume(parseFloat(e.target.value))}
-                      style={{
-                        writingMode: 'vertical-lr',
-                        direction: 'rtl',
-                        height: 80,
-                        width: 4,
-                        cursor: 'pointer',
-                        accentColor: '#fde047',
-                      }}
-                    />
+                    <div style={{
+                      background: 'rgba(13,6,24,0.95)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: 12,
+                      padding: '10px 12px',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                      backdropFilter: 'blur(12px)',
+                    }}>
+                      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: "'Nunito', sans-serif", userSelect: 'none' }}>
+                        {Math.round(volume * 100)}%
+                      </span>
+                      <input
+                        type="range"
+                        min="0" max="1" step="0.01"
+                        value={volume}
+                        onChange={e => setVolume(parseFloat(e.target.value))}
+                        style={{
+                          writingMode: 'vertical-lr',
+                          direction: 'rtl',
+                          height: 80,
+                          width: 4,
+                          cursor: 'pointer',
+                          accentColor: '#fde047',
+                        }}
+                      />
+                    </div>
                   </div>
                 )}
               </div>

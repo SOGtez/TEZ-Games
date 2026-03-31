@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.5.3 — Fix volume slider staying open while hovering
+- Removed gap between button and slider popup so hover stays continuous
+
 ## v0.5.2 — Move volume slider below music button
 - Volume slider popup now appears below the button instead of above
 
