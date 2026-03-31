@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.4.9 — Remove analytics from sidebar
+- Removed Analytics link from sidebar nav
+
 ## v0.4.8 — Toggleable sidebar navigation
 - Added slide-in sidebar on the left side of every page
 - Hamburger ☰ button in the header opens the sidebar

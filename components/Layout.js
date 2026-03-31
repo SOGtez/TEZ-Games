@@ -6,7 +6,6 @@ import { version } from '../lib/version';
 
 const NAV_ITEMS = [
   { href: '/', label: 'All Games', emoji: '🎮' },
-  { href: '/analytics', label: 'Analytics', emoji: '📊' },
 ];
 
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
