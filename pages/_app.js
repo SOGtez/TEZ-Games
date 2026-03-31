@@ -14,7 +14,7 @@ let _playedOnce = false;
 function getAudio() {
   if (typeof window === 'undefined') return null;
   if (!_audio) {
-    _audio = new Audio('/sounds/bg-music.mp3');
+    _audio = new Audio('/sounds/swaggot 155 Cphy @prod.blinder.mp3');
     _audio.loop = true;
     _audio.volume = 0.3;
     _audio.preload = 'auto';

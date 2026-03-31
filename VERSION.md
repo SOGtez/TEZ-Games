@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.5.0 — New background music
+- Replaced bg-music.mp3 with new track (swaggot 155 Cphy @prod.blinder.mp3)
+
 ## v0.4.9 — Remove analytics from sidebar
 - Removed Analytics link from sidebar nav
 
