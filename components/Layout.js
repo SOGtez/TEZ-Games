@@ -226,7 +226,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                 {/* Volume slider popup */}
                 {showVolumeSlider && (
                   <div style={{
-                    position: 'absolute', bottom: 'calc(100% + 8px)', right: 0,
+                    position: 'absolute', top: 'calc(100% + 8px)', right: 0,
                     background: 'rgba(13,6,24,0.95)',
                     border: '1px solid rgba(255,255,255,0.12)',
                     borderRadius: 12,

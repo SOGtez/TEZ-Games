@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.5.2 — Move volume slider below music button
+- Volume slider popup now appears below the button instead of above
+
 ## v0.5.1 — Volume slider on music button hover
 - Hovering the music button shows a vertical volume slider popup
 - Slider shows current volume percentage and controls audio level in real time
