@@ -54,37 +54,16 @@ export default function App({ Component, pageProps }) {
     return () => router.events.off('routeChangeComplete', track);
   }, []);
 
-  useEffect(() => {
-    const audio = getAudio();
-    if (!audio || _playedOnce) return;
-
-    const tryPlay = () => {
-      if (_playedOnce) return;
-      _playedOnce = true;
-      window.removeEventListener('click', tryPlay);
-      window.removeEventListener('keydown', tryPlay);
-      audio.play().then(() => setMusicOn(true)).catch(() => {
-        _playedOnce = false;
-        window.addEventListener('click', tryPlay);
-        window.addEventListener('keydown', tryPlay);
-      });
-    };
-
-    window.addEventListener('click', tryPlay);
-    window.addEventListener('keydown', tryPlay);
-
-    // Only remove listeners on cleanup — never touch the audio element
-    return () => {
-      window.removeEventListener('click', tryPlay);
-      window.removeEventListener('keydown', tryPlay);
-    };
-  }, []);
-
   const toggleMusic = () => {
     const audio = getAudio();
     if (!audio) return;
-    audio.muted = musicOn;
-    setMusicOn(!musicOn);
+    if (!_playedOnce) {
+      _playedOnce = true;
+      audio.play().then(() => setMusicOn(true)).catch(() => { _playedOnce = false; });
+    } else {
+      audio.muted = musicOn;
+      setMusicOn(!musicOn);
+    }
   };
 
   return (

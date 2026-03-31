@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.5.4 — Music only plays on explicit button press
+- Removed auto-play on first page interaction
+- Music now starts only when the user clicks the music button
+
 ## v0.5.3 — Fix volume slider staying open while hovering
 - Removed gap between button and slider popup so hover stays continuous
 
