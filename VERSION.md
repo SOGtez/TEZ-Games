@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.5.1 — Volume slider on music button hover
+- Hovering the music button shows a vertical volume slider popup
+- Slider shows current volume percentage and controls audio level in real time
+
 ## v0.5.0 — New background music
 - Replaced bg-music.mp3 with new track (swaggot 155 Cphy @prod.blinder.mp3)
 

@@ -4,7 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { useState, useEffect, createContext, useContext } from 'react';
 import { useRouter } from 'next/router';
 
-export const MusicContext = createContext({ musicOn: false, toggleMusic: () => {} });
+export const MusicContext = createContext({ musicOn: false, toggleMusic: () => {}, volume: 0.3, setVolume: () => {} });
 export const useMusic = () => useContext(MusicContext);
 
 // Module-level — created once, never destroyed by React lifecycle
@@ -24,6 +24,14 @@ function getAudio() {
 
 export default function App({ Component, pageProps }) {
   const [musicOn, setMusicOn] = useState(false);
+  const [volume, setVolumeState] = useState(0.3);
+
+  const setVolume = (v) => {
+    const audio = getAudio();
+    if (!audio) return;
+    audio.volume = v;
+    setVolumeState(v);
+  };
   const router = useRouter();
 
   useEffect(() => {
@@ -80,7 +88,7 @@ export default function App({ Component, pageProps }) {
   };
 
   return (
-    <MusicContext.Provider value={{ musicOn, toggleMusic }}>
+    <MusicContext.Provider value={{ musicOn, toggleMusic, volume, setVolume }}>
       <Component {...pageProps} />
       <Analytics />
       <SpeedInsights />
