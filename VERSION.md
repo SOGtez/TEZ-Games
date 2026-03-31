@@ -1,5 +1,11 @@
 # TEZ Games Changelog
 
+## v0.4.8 — Toggleable sidebar navigation
+- Added slide-in sidebar on the left side of every page
+- Hamburger ☰ button in the header opens the sidebar
+- Sidebar closes on backdrop click or ✕ button
+- NAV_ITEMS array in Layout.js for easy future page additions
+
 ## v0.4.7 — TEZ War Tutorial Mode
 - Added "LEARN TO PLAY" button on TEZ War menu
 - Full interactive tutorial with 20 scripted steps

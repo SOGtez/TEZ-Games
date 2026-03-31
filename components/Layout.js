@@ -1,10 +1,17 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useState } from 'react';
 import { useMusic } from '../pages/_app';
 import { version } from '../lib/version';
 
+const NAV_ITEMS = [
+  { href: '/', label: 'All Games', emoji: '🎮' },
+  { href: '/analytics', label: 'Analytics', emoji: '📊' },
+];
+
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
   const { musicOn, toggleMusic } = useMusic();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <>
@@ -45,6 +52,94 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
           }} />
         </div>
 
+        {/* Sidebar */}
+        {!hideChrome && (
+          <>
+            {/* Backdrop */}
+            {sidebarOpen && (
+              <div
+                onClick={() => setSidebarOpen(false)}
+                style={{
+                  position: 'fixed', inset: 0, zIndex: 60,
+                  background: 'rgba(0,0,0,0.5)',
+                  backdropFilter: 'blur(2px)',
+                }}
+              />
+            )}
+
+            {/* Sidebar panel */}
+            <aside style={{
+              position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 70,
+              width: 240,
+              background: 'rgba(13,6,24,0.97)',
+              borderRight: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: sidebarOpen ? '4px 0 40px rgba(0,0,0,0.6)' : 'none',
+              transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+              transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+              display: 'flex', flexDirection: 'column',
+              padding: '0',
+            }}>
+              {/* Sidebar header */}
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '16px 16px 12px',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
+              }}>
+                <span style={{
+                  fontFamily: "'Fredoka', sans-serif",
+                  fontSize: 18, fontWeight: 600,
+                  background: 'linear-gradient(135deg, #fde047, #f59e0b)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>
+                  Menu
+                </span>
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  style={{
+                    background: 'rgba(255,255,255,0.07)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: 8, width: 30, height: 30,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', color: 'rgba(255,255,255,0.5)',
+                    fontSize: 16, transition: 'background 0.2s, color 0.2s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.color = 'white'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Nav links */}
+              <nav style={{ padding: '12px 8px', flex: 1 }}>
+                {NAV_ITEMS.map(({ href, label, emoji }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setSidebarOpen(false)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '10px 12px', borderRadius: 10,
+                      color: 'rgba(255,255,255,0.75)',
+                      fontFamily: "'Nunito', sans-serif",
+                      fontWeight: 600, fontSize: 15,
+                      textDecoration: 'none',
+                      transition: 'background 0.2s, color 0.2s',
+                      marginBottom: 4,
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(253,224,71,0.1)'; e.currentTarget.style.color = '#fde047'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
+                  >
+                    <span style={{ fontSize: 18 }}>{emoji}</span>
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+            </aside>
+          </>
+        )}
+
         {/* Header */}
         {!hideChrome && <header style={{
           position: 'sticky', top: 0, zIndex: 50,
@@ -55,6 +150,25 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
           boxShadow: '0 4px 30px rgba(0,0,0,0.5)',
         }}>
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            {/* Hamburger toggle */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              title="Open menu"
+              style={{
+                background: 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: 8, width: 34, height: 34,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: 'rgba(255,255,255,0.7)',
+                fontSize: 16, flexShrink: 0,
+                transition: 'background 0.2s, color 0.2s',
+                marginRight: 8,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.color = 'white'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
+            >
+              ☰
+            </button>
             <Link href="/" className="flex items-center gap-2 group">
               <span
                 className="text-3xl font-bold group-hover:scale-105 transition-transform duration-200 inline-block"
