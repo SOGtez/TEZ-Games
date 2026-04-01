@@ -7,6 +7,9 @@ import { useRouter } from 'next/router';
 export const MusicContext = createContext({ musicOn: false, toggleMusic: () => {}, volume: 0.3, setVolume: () => {} });
 export const useMusic = () => useContext(MusicContext);
 
+export const UserContext = createContext({ username: null, setUsername: () => {}, clearUsername: () => {} });
+export const useUser = () => useContext(UserContext);
+
 // Module-level — created once, never destroyed by React lifecycle
 let _audio = null;
 let _playedOnce = false;
@@ -25,6 +28,22 @@ function getAudio() {
 export default function App({ Component, pageProps }) {
   const [musicOn, setMusicOn] = useState(false);
   const [volume, setVolumeState] = useState(0.3);
+  const [username, setUsernameState] = useState(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('tez_username');
+    if (saved) setUsernameState(saved);
+  }, []);
+
+  const setUsername = (name) => {
+    localStorage.setItem('tez_username', name);
+    setUsernameState(name);
+  };
+
+  const clearUsername = () => {
+    localStorage.removeItem('tez_username');
+    setUsernameState(null);
+  };
 
   const setVolume = (v) => {
     const audio = getAudio();
@@ -67,10 +86,12 @@ export default function App({ Component, pageProps }) {
   };
 
   return (
-    <MusicContext.Provider value={{ musicOn, toggleMusic, volume, setVolume }}>
-      <Component {...pageProps} />
-      <Analytics />
-      <SpeedInsights />
-    </MusicContext.Provider>
+    <UserContext.Provider value={{ username, setUsername, clearUsername }}>
+      <MusicContext.Provider value={{ musicOn, toggleMusic, volume, setVolume }}>
+        <Component {...pageProps} />
+        <Analytics />
+        <SpeedInsights />
+      </MusicContext.Provider>
+    </UserContext.Provider>
   );
 }

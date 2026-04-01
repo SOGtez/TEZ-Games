@@ -1,8 +1,9 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useMusic } from '../pages/_app';
+import { useMusic, useUser } from '../pages/_app';
 import { version } from '../lib/version';
+import UsernameBanner from './UsernameBanner';
 
 const NAV_ITEMS = [
   { href: '/', label: 'All Games', emoji: '🎮' },
@@ -10,6 +11,7 @@ const NAV_ITEMS = [
 
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
   const { musicOn, toggleMusic, volume, setVolume } = useMusic();
+  const { username, clearUsername } = useUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
 
@@ -135,6 +137,27 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                     {label}
                   </Link>
                 ))}
+                {username && (
+                  <button
+                    onClick={() => { clearUsername(); setSidebarOpen(false); }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '10px 12px', borderRadius: 10,
+                      color: 'rgba(255,255,255,0.75)',
+                      fontFamily: "'Nunito', sans-serif",
+                      fontWeight: 600, fontSize: 15,
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      width: '100%', textAlign: 'left',
+                      transition: 'background 0.2s, color 0.2s',
+                      marginBottom: 4,
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(253,224,71,0.1)'; e.currentTarget.style.color = '#fde047'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
+                  >
+                    <span style={{ fontSize: 18 }}>✏️</span>
+                    Change Username
+                  </button>
+                )}
               </nav>
             </aside>
           </>
@@ -191,6 +214,16 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               <span className="text-2xl animate-float ml-1">🎮</span>
             </Link>
             <nav style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              {username && (
+                <span style={{
+                  fontFamily: "'Nunito', sans-serif",
+                  fontSize: 13, fontWeight: 700,
+                  color: 'rgba(253,224,71,0.85)',
+                  display: 'flex', alignItems: 'center', gap: 5,
+                }}>
+                  👤 {username}
+                </span>
+              )}
               <Link
                 href="/"
                 className="font-semibold font-nunito transition-all duration-200"
@@ -263,6 +296,8 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
             </nav>
           </div>
         </header>}
+
+        {!hideChrome && !username && <UsernameBanner />}
 
         <main className="max-w-6xl mx-auto px-4 py-8" style={{ position: 'relative', zIndex: 1 }}>
           {children}

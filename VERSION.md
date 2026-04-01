@@ -1,5 +1,12 @@
 # TEZ Games Changelog
 
+## v0.6.2 — Username system
+- Username claim banner below header for new visitors
+- POST /api/claim-username validates and stores username in Supabase players table
+- Username persisted in localStorage via UserContext
+- Header displays 👤 username once claimed
+- Sidebar "Change Username" button to reset and re-claim
+
 ## v0.6.1 — BETA tags & game ordering
 - New games now appear at the top of the home screen grid
 - BETA badge on TEZ Connect 4 and TEZ War cards
