@@ -1,5 +1,12 @@
 # TEZ Games Changelog
 
+## v0.6.4 — Username banner & modal animations
+- Banner sticks to top with the header on scroll
+- Animated shifting gradient on the banner background
+- "Create Username" button has animated gradient + orbiting glow
+- Modal popup enters with a spring scale + fade animation
+- "Claim Username" button has animated gradient and pulsing glow
+
 ## v0.6.3 — Username banner redesign
 - Banner text larger and white
 - Replaced inline input with a "Create Username" button

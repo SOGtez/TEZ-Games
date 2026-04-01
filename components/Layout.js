@@ -295,9 +295,8 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               </div>
             </nav>
           </div>
+          {!username && <UsernameBanner />}
         </header>}
-
-        {!hideChrome && !username && <UsernameBanner />}
 
         <main className="max-w-6xl mx-auto px-4 py-8" style={{ position: 'relative', zIndex: 1 }}>
           {children}
