@@ -74,7 +74,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
             {/* Sidebar panel */}
             <aside style={{
               position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 70,
-              width: 240,
+              width: 300,
               background: 'rgba(13,6,24,0.97)',
               borderRight: '1px solid rgba(255,255,255,0.08)',
               boxShadow: sidebarOpen ? '4px 0 40px rgba(0,0,0,0.6)' : 'none',
