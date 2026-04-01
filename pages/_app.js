@@ -35,7 +35,20 @@ export default function App({ Component, pageProps }) {
     const saved = localStorage.getItem('tez_username');
     const savedId = localStorage.getItem('tez_player_id');
     if (saved) setUsernameState(saved);
-    if (savedId) setPlayerIdState(savedId);
+    if (savedId) {
+      setPlayerIdState(savedId);
+    } else if (saved) {
+      // Existing player without a stored ID — look it up and backfill
+      fetch(`/api/get-player?username=${encodeURIComponent(saved)}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data?.id) {
+            localStorage.setItem('tez_player_id', data.id);
+            setPlayerIdState(data.id);
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const setUsername = (name, id) => {
