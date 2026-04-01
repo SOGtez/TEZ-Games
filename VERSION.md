@@ -1,5 +1,14 @@
 # TEZ Games Changelog
 
+## v0.7.2 — Full Profile Page
+- New /profile page with avatar, username, level badge, TP, and member since date
+- Stats grid: total games, win rate, best streak, current streak
+- TEZ Points progress bar + full level milestone timeline (Rookie → GOAT)
+- Per-game breakdown cards for Blackjack, Connect 4, and War
+- Recent activity feed (last 10 results) with game emoji, result badge, TP earned, and time ago
+- New /api/get-profile endpoint aggregating player + game_stats data
+- Responsive layout (2-col mobile, 4-col desktop grid)
+
 ## v0.7.1 — Sidebar Stats Card & TP Toast Notifications
 - Sidebar shows compact stats card when logged in: level badge, TEZ Points, progress bar to next level, W/L record, streak indicator
 - +X TP toast notification (bottom-left) after every game result
