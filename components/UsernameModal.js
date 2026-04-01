@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useUser } from '../pages/_app';
 
 export default function UsernameModal({ open, onClose }) {
-  const { setUsername } = useUser();
+  const { username, setUsername } = useUser();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -112,7 +112,7 @@ export default function UsernameModal({ open, onClose }) {
           </button>
 
           <span style={{ fontSize: 24, fontWeight: 800, color: 'white', display: 'block', marginBottom: 6 }}>
-            Create your username
+            {username ? 'Change your username' : 'Create your username'}
           </span>
           <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
             3–16 characters · letters, numbers and _ only
@@ -163,7 +163,7 @@ export default function UsernameModal({ open, onClose }) {
             onMouseEnter={e => { if (!loading) e.currentTarget.style.transform = 'scale(1.02)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
           >
-            {loading ? 'Claiming...' : 'Claim Username'}
+            {loading ? (username ? 'Changing...' : 'Claiming...') : (username ? 'Change Username' : 'Claim Username')}
           </button>
         </div>
       </div>

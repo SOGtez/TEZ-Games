@@ -13,7 +13,7 @@ const LEVEL_COLORS = {
   Champion: '#3b82f6', Master: '#a855f7', Legend: '#f97316', GOAT: '#fde047',
 };
 
-function SidebarStatsCard({ stats, onClose }) {
+function SidebarStatsCard({ stats, expanded, onClose, onChangeUsername }) {
   const level = stats.level || 'Rookie';
   const points = stats.tez_points || 0;
   const color = LEVEL_COLORS[level] || '#9ca3af';
@@ -28,113 +28,142 @@ function SidebarStatsCard({ stats, onClose }) {
 
   return (
     <div style={{
-      margin: '0 10px 16px',
-      padding: '14px 14px 12px',
-      borderRadius: 12,
-      background: 'rgba(255,255,255,0.04)',
-      border: '1px solid rgba(255,255,255,0.08)',
+      overflow: 'hidden',
+      maxHeight: expanded ? 400 : 0,
+      opacity: expanded ? 1 : 0,
+      transition: 'max-height 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease',
     }}>
-      {/* Level badge + TP */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-          <span style={{
-            width: 9, height: 9, borderRadius: '50%',
-            background: color,
-            boxShadow: `0 0 6px ${color}99`,
-            flexShrink: 0,
-            display: 'inline-block',
-          }} />
+      <div style={{
+        margin: '0 12px 10px',
+        padding: '13px 13px 11px',
+        borderRadius: 11,
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.08)',
+      }}>
+        {/* Level badge + TP */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <span style={{
+              width: 9, height: 9, borderRadius: '50%',
+              background: color,
+              boxShadow: `0 0 6px ${color}99`,
+              flexShrink: 0,
+              display: 'inline-block',
+            }} />
+            <span style={{
+              fontFamily: "'Fredoka', sans-serif",
+              fontWeight: 600, fontSize: 14,
+              color,
+            }}>
+              {isGoat ? '👑 ' : ''}{level}
+            </span>
+          </div>
           <span style={{
             fontFamily: "'Fredoka', sans-serif",
-            fontWeight: 600, fontSize: 14,
-            color,
+            fontSize: 15, fontWeight: 700,
+            color: '#fde047',
+            textShadow: '0 0 8px rgba(253,224,71,0.5)',
           }}>
-            {isGoat ? '👑 ' : ''}{level}
+            {points.toLocaleString()} TP
           </span>
         </div>
-        <span style={{
-          fontFamily: "'Fredoka', sans-serif",
-          fontSize: 15, fontWeight: 700,
-          color: '#fde047',
-          textShadow: '0 0 8px rgba(253,224,71,0.5)',
-        }}>
-          {points.toLocaleString()} TP
-        </span>
-      </div>
 
-      {/* Progress bar */}
-      {!isGoat && (
-        <div style={{ marginBottom: 10 }}>
-          <div style={{
-            height: 5, borderRadius: 3,
-            background: 'rgba(255,255,255,0.08)',
-            overflow: 'hidden',
-          }}>
+        {/* Progress bar */}
+        {!isGoat && (
+          <div style={{ marginBottom: 10 }}>
             <div style={{
-              height: '100%',
-              width: `${Math.round(progress * 100)}%`,
-              borderRadius: 3,
-              background: `linear-gradient(90deg, ${color}, ${color}bb)`,
-              transition: 'width 0.5s ease',
-            }} />
+              height: 5, borderRadius: 3,
+              background: 'rgba(255,255,255,0.08)',
+              overflow: 'hidden',
+            }}>
+              <div style={{
+                height: '100%',
+                width: `${Math.round(progress * 100)}%`,
+                borderRadius: 3,
+                background: `linear-gradient(90deg, ${color}, ${color}bb)`,
+                transition: 'width 0.5s ease',
+              }} />
+            </div>
+            <div style={{
+              marginTop: 4, fontSize: 10,
+              color: 'rgba(255,255,255,0.35)',
+              fontFamily: "'Nunito', sans-serif",
+              display: 'flex', justifyContent: 'space-between',
+            }}>
+              <span>Next: {nextLevel} ({nextThreshold?.toLocaleString()} TP)</span>
+              <span>{tpToNext} away</span>
+            </div>
           </div>
-          <div style={{
-            marginTop: 4, fontSize: 10,
-            color: 'rgba(255,255,255,0.35)',
-            fontFamily: "'Nunito', sans-serif",
-            display: 'flex', justifyContent: 'space-between',
-          }}>
-            <span>Next: {nextLevel}</span>
-            <span>{tpToNext} TP away</span>
-          </div>
-        </div>
-      )}
-
-      {/* W / L / Streak */}
-      <div style={{
-        display: 'flex', gap: 8,
-        fontFamily: "'Nunito', sans-serif",
-        fontSize: 12, fontWeight: 600,
-        color: 'rgba(255,255,255,0.5)',
-        marginBottom: 10,
-      }}>
-        <span style={{ color: '#4ade80' }}>W {stats.total_wins || 0}</span>
-        <span>·</span>
-        <span style={{ color: '#f87171' }}>L {stats.total_losses || 0}</span>
-        {streak >= 3 && (
-          <>
-            <span>·</span>
-            <span style={{ color: '#fde047' }}>🔥 {streak}</span>
-          </>
         )}
-        {streak > 0 && streak < 3 && (
-          <>
-            <span>·</span>
-            <span>🎯 {streak} streak</span>
-          </>
-        )}
-      </div>
 
-      {/* View Profile link */}
-      <Link
-        href="/profile"
-        onClick={onClose}
-        style={{
-          display: 'block', textAlign: 'center',
-          padding: '6px 0',
-          borderRadius: 8,
-          fontSize: 12, fontWeight: 700,
+        {/* W / L / Streak */}
+        <div style={{
+          display: 'flex', gap: 8,
           fontFamily: "'Nunito', sans-serif",
-          color: 'rgba(253,224,71,0.6)',
-          border: '1px solid rgba(253,224,71,0.15)',
-          textDecoration: 'none',
-          transition: 'background 0.2s, color 0.2s',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(253,224,71,0.08)'; e.currentTarget.style.color = '#fde047'; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(253,224,71,0.6)'; }}
-      >
-        View Profile →
-      </Link>
+          fontSize: 12, fontWeight: 600,
+          color: 'rgba(255,255,255,0.5)',
+          marginBottom: 10,
+        }}>
+          <span>W: <span style={{ color: '#4ade80' }}>{stats.total_wins || 0}</span></span>
+          <span>·</span>
+          <span>L: <span style={{ color: '#f87171' }}>{stats.total_losses || 0}</span></span>
+          {streak >= 3 && (
+            <>
+              <span>·</span>
+              <span style={{ color: '#fde047' }}>🔥 {streak} streak</span>
+            </>
+          )}
+          {streak > 0 && streak < 3 && (
+            <>
+              <span>·</span>
+              <span>🎯 {streak} streak</span>
+            </>
+          )}
+        </div>
+
+        {/* View Full Profile */}
+        <Link
+          href="/profile"
+          onClick={onClose}
+          style={{
+            display: 'block', textAlign: 'center',
+            padding: '6px 0',
+            borderRadius: 8,
+            fontSize: 12, fontWeight: 700,
+            fontFamily: "'Nunito', sans-serif",
+            color: 'rgba(253,224,71,0.6)',
+            border: '1px solid rgba(253,224,71,0.15)',
+            textDecoration: 'none',
+            transition: 'background 0.2s, color 0.2s',
+            marginBottom: 7,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(253,224,71,0.08)'; e.currentTarget.style.color = '#fde047'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(253,224,71,0.6)'; }}
+        >
+          View Full Profile →
+        </Link>
+
+        {/* Change Username */}
+        <button
+          onClick={onChangeUsername}
+          style={{
+            display: 'block', width: '100%',
+            padding: '5px 0',
+            borderRadius: 8,
+            fontSize: 11, fontWeight: 600,
+            fontFamily: "'Nunito', sans-serif",
+            color: 'rgba(255,255,255,0.3)',
+            background: 'transparent',
+            border: '1px solid rgba(255,255,255,0.07)',
+            cursor: 'pointer',
+            transition: 'background 0.2s, color 0.2s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; }}
+        >
+          Change Username
+        </button>
+      </div>
     </div>
   );
 }
@@ -149,6 +178,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [usernameModalOpen, setUsernameModalOpen] = useState(false);
+  const [statsExpanded, setStatsExpanded] = useState(false);
 
   return (
     <>
@@ -215,6 +245,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
               display: 'flex', flexDirection: 'column',
               padding: '0',
+              overflowY: 'auto',
             }}>
               {/* Sidebar header */}
               <div style={{
@@ -247,28 +278,63 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                 </button>
               </div>
 
-              {/* User profile block */}
+              {/* User profile block — clickable to expand stats */}
               {username && (
-                <div style={{
-                  padding: '12px 16px 14px',
-                  borderBottom: '1px solid rgba(255,255,255,0.08)',
-                  display: 'flex', alignItems: 'center', gap: 12,
-                }}>
-                  <img
-                    src={`https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(username)}`}
-                    alt="avatar"
-                    width={44} height={44}
-                    style={{ borderRadius: 10, background: 'rgba(255,255,255,0.07)', flexShrink: 0 }}
-                  />
-                  <div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: "'Nunito', sans-serif", marginBottom: 2 }}>
-                      Signed in as
+                <>
+                  <div
+                    onClick={() => setStatsExpanded(v => !v)}
+                    style={{
+                      padding: '12px 16px 14px',
+                      borderBottom: statsExpanded ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                      userSelect: 'none',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <img
+                      src={`https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(username)}`}
+                      alt="avatar"
+                      width={44} height={44}
+                      style={{ borderRadius: 10, background: 'rgba(255,255,255,0.07)', flexShrink: 0 }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: "'Nunito', sans-serif", marginBottom: 2 }}>
+                        Signed in as
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: 'white', fontFamily: "'Nunito', sans-serif" }}>
+                        {username}
+                      </div>
                     </div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: 'white', fontFamily: "'Nunito', sans-serif" }}>
-                      {username}
-                    </div>
+                    {/* Chevron */}
+                    <span style={{
+                      color: 'rgba(255,255,255,0.25)',
+                      fontSize: 11,
+                      transform: statsExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.25s ease',
+                      flexShrink: 0,
+                    }}>
+                      ▼
+                    </span>
                   </div>
-                </div>
+
+                  {/* Expandable stats card */}
+                  <div style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                    {playerStats && (
+                      <SidebarStatsCard
+                        stats={playerStats}
+                        expanded={statsExpanded}
+                        onClose={() => setSidebarOpen(false)}
+                        onChangeUsername={() => {
+                          setStatsExpanded(false);
+                          setUsernameModalOpen(true);
+                        }}
+                      />
+                    )}
+                  </div>
+                </>
               )}
 
               {/* Divider below profile / above nav */}
@@ -299,9 +365,6 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                   </Link>
                 ))}
               </nav>
-
-              {/* Stats card */}
-              {username && playerStats && <SidebarStatsCard stats={playerStats} onClose={() => setSidebarOpen(false)} />}
             </aside>
           </>
         )}
@@ -357,16 +420,6 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               <span className="text-2xl animate-float ml-1">🎮</span>
             </Link>
             <nav style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              {username && (
-                <span style={{
-                  fontFamily: "'Nunito', sans-serif",
-                  fontSize: 13, fontWeight: 700,
-                  color: 'rgba(253,224,71,0.85)',
-                  display: 'flex', alignItems: 'center', gap: 5,
-                }}>
-                  👤 {username}
-                </span>
-              )}
               <Link
                 href="/"
                 className="font-semibold font-nunito transition-all duration-200"
@@ -441,7 +494,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
           {!username && <UsernameBanner onOpenModal={() => setUsernameModalOpen(true)} />}
         </header>}
 
-        {!username && <UsernameModal open={usernameModalOpen} onClose={() => setUsernameModalOpen(false)} />}
+        <UsernameModal open={usernameModalOpen} onClose={() => setUsernameModalOpen(false)} />
 
         <main className="max-w-6xl mx-auto px-4 py-8" style={{ position: 'relative', zIndex: 1 }}>
           {children}
