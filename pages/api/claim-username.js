@@ -8,7 +8,7 @@ const supabase = createClient(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { username } = req.body;
+  const { username, playerId } = req.body;
 
   if (!username || typeof username !== 'string') return res.status(400).json({ error: 'invalid' });
   const clean = username.trim();
@@ -16,14 +16,26 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'invalid' });
   }
 
+  // Check if name is taken by someone else
   const { data: existing } = await supabase
     .from('players')
     .select('id')
     .ilike('username', clean)
     .maybeSingle();
 
-  if (existing) return res.status(409).json({ error: 'taken' });
+  if (existing && existing.id !== playerId) return res.status(409).json({ error: 'taken' });
 
+  if (playerId) {
+    // Update existing player's username
+    const { error } = await supabase
+      .from('players')
+      .update({ username: clean })
+      .eq('id', playerId);
+    if (error) return res.status(500).json({ error: 'server' });
+    return res.status(200).json({ ok: true, username: clean, id: playerId });
+  }
+
+  // New player — insert
   const { data, error } = await supabase
     .from('players')
     .insert({ username: clean })

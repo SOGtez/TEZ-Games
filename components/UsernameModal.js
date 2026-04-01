@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useUser } from '../pages/_app';
 
 export default function UsernameModal({ open, onClose }) {
-  const { username, setUsername } = useUser();
+  const { username, playerId, setUsername } = useUser();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +21,7 @@ export default function UsernameModal({ open, onClose }) {
       const res = await fetch('/api/claim-username', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: clean }),
+        body: JSON.stringify({ username: clean, ...(playerId ? { playerId } : {}) }),
       });
       const data = await res.json();
       if (res.ok) {
