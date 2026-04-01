@@ -1,5 +1,10 @@
 # TEZ Games Changelog
 
+## v0.6.3 — Username banner redesign
+- Banner text larger and white
+- Replaced inline input with a "Create Username" button
+- Clicking opens a centered modal with input, validation, and claim button
+
 ## v0.6.2 — Username system
 - Username claim banner below header for new visitors
 - POST /api/claim-username validates and stores username in Supabase players table
