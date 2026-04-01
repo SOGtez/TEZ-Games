@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.6.6 — Fix username modal full-screen (proper fix)
+- Split banner and modal into separate components (UsernameBanner + UsernameModal)
+- Modal now renders in Layout outside the header — fully escapes backdropFilter stacking context
+
 ## v0.6.5 — Fix username modal rendering full-screen
 - Modal now uses a React portal (renders at document.body) to escape header stacking context
 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useMusic, useUser } from '../pages/_app';
 import { version } from '../lib/version';
 import UsernameBanner from './UsernameBanner';
+import UsernameModal from './UsernameModal';
 
 const NAV_ITEMS = [
   { href: '/', label: 'All Games', emoji: '🎮' },
@@ -14,6 +15,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
   const { username, clearUsername } = useUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const [usernameModalOpen, setUsernameModalOpen] = useState(false);
 
   return (
     <>
@@ -295,8 +297,10 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               </div>
             </nav>
           </div>
-          {!username && <UsernameBanner />}
+          {!username && <UsernameBanner onOpenModal={() => setUsernameModalOpen(true)} />}
         </header>}
+
+        {!username && <UsernameModal open={usernameModalOpen} onClose={() => setUsernameModalOpen(false)} />}
 
         <main className="max-w-6xl mx-auto px-4 py-8" style={{ position: 'relative', zIndex: 1 }}>
           {children}
