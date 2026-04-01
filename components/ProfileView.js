@@ -115,8 +115,8 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
               lineHeight: 1.1, marginBottom: 6,
               display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
             }}>
-              {flag && <span style={{ fontSize: 24 }}>{flag}</span>}
               {player.username}
+              {flag && <span style={{ fontSize: 24 }}>{flag}</span>}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
               <div style={{

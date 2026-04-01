@@ -53,8 +53,8 @@ function PlayerName({ row, isMe }) {
         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         display: 'flex', alignItems: 'center', gap: 5,
       }}>
-        {row.country && <span style={{ fontSize: 14 }}>{countryFlag(row.country)}</span>}
         <span>{row.username}</span>
+        {row.country && <span style={{ fontSize: 14 }}>{countryFlag(row.country)}</span>}
         {isMe && <span style={{ fontSize: 11, color: '#a78bfa', flexShrink: 0 }}>(you)</span>}
       </div>
       <LevelBadge level={row.level || 'Rookie'} />

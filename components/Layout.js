@@ -307,8 +307,8 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                         Signed in as
                       </div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: 'white', fontFamily: "'Nunito', sans-serif", display: 'flex', alignItems: 'center', gap: 6 }}>
-                        {playerStats?.country && <span style={{ fontSize: 16 }}>{countryFlag(playerStats.country)}</span>}
                         {username}
+                        {playerStats?.country && <span style={{ fontSize: 16 }}>{countryFlag(playerStats.country)}</span>}
                       </div>
                     </div>
                     {/* Chevron */}
