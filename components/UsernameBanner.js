@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useUser } from '../pages/_app';
 
 export default function UsernameBanner() {
   const { setUsername } = useUser();
   const [modalOpen, setModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -115,12 +118,12 @@ export default function UsernameBanner() {
         </button>
       </div>
 
-      {/* Modal */}
-      {modalOpen && (
+      {/* Modal — portaled to document.body to escape header stacking context */}
+      {mounted && modalOpen && createPortal(
         <div
           onClick={closeModal}
           style={{
-            position: 'fixed', inset: 0, zIndex: 200,
+            position: 'fixed', inset: 0, zIndex: 1000,
             background: 'rgba(0,0,0,0.65)',
             backdropFilter: 'blur(5px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -216,7 +219,8 @@ export default function UsernameBanner() {
               {loading ? 'Claiming...' : 'Claim Username'}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

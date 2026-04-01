@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.6.5 — Fix username modal rendering full-screen
+- Modal now uses a React portal (renders at document.body) to escape header stacking context
+
 ## v0.6.4 — Username banner & modal animations
 - Banner sticks to top with the header on scroll
 - Animated shifting gradient on the banner background
