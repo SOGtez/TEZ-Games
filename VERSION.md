@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.6.1 — BETA tags & game ordering
+- New games now appear at the top of the home screen grid
+- BETA badge on TEZ Connect 4 and TEZ War cards
+
 ## v0.6.0 — TEZ Connect 4 V1 BETA
 - Full Connect 4 game with Normal and Rumble modes
 - Normal: classic 2-player or vs AI

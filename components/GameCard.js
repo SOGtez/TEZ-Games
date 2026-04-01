@@ -70,6 +70,21 @@ export default function GameCard({ game, index = 0 }) {
           </p>
         </div>
 
+        {/* BETA badge (always visible) */}
+        {!locked && game.beta && (
+          <div style={{
+            position: 'absolute', top: 12, left: 12,
+            background: 'linear-gradient(135deg, #F59E0B, #EF4444)',
+            color: 'white', fontSize: 10, fontWeight: 800,
+            padding: '3px 10px', borderRadius: 20,
+            letterSpacing: '0.12em', textTransform: 'uppercase',
+            boxShadow: '0 2px 10px rgba(239,68,68,0.4)',
+            fontFamily: 'Nunito, sans-serif',
+          }}>
+            BETA
+          </div>
+        )}
+
         {/* Play badge (unlocked only) */}
         {!locked && (
           <div style={{
