@@ -33,7 +33,7 @@ export default function UsernameModal({ open, onClose }) {
       } else if (data.error === 'invalid') {
         setError('3–16 characters, letters, numbers and _ only');
       } else {
-        setError('Something went wrong, try again');
+        setError(data.detail ? `Server error: ${data.detail}` : 'Something went wrong, try again');
       }
     } catch {
       setError('Something went wrong, try again');
