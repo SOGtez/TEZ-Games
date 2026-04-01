@@ -1,13 +1,14 @@
 import '../styles/globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { useRouter } from 'next/router';
+import TezToast from '../components/TezToast';
 
 export const MusicContext = createContext({ musicOn: false, toggleMusic: () => {}, volume: 0.3, setVolume: () => {} });
 export const useMusic = () => useContext(MusicContext);
 
-export const UserContext = createContext({ username: null, playerId: null, setUsername: () => {}, clearUsername: () => {} });
+export const UserContext = createContext({ username: null, playerId: null, playerStats: null, setUsername: () => {}, clearUsername: () => {}, refreshStats: () => {} });
 export const useUser = () => useContext(UserContext);
 
 // Module-level — created once, never destroyed by React lifecycle
@@ -30,6 +31,8 @@ export default function App({ Component, pageProps }) {
   const [volume, setVolumeState] = useState(0.3);
   const [username, setUsernameState] = useState(null);
   const [playerId, setPlayerIdState] = useState(null);
+  const [playerStats, setPlayerStats] = useState(null);
+  const [toasts, setToasts] = useState([]);
 
   useEffect(() => {
     const saved = localStorage.getItem('tez_username');
@@ -51,6 +54,11 @@ export default function App({ Component, pageProps }) {
     }
   }, []);
 
+  // Fetch stats whenever playerId is resolved
+  useEffect(() => {
+    if (playerId) refreshStats(playerId);
+  }, [playerId]);
+
   const setUsername = (name, id) => {
     localStorage.setItem('tez_username', name);
     if (id) localStorage.setItem('tez_player_id', id);
@@ -64,6 +72,57 @@ export default function App({ Component, pageProps }) {
     setUsernameState(null);
     setPlayerIdState(null);
   };
+
+  const refreshStats = useCallback(async (id) => {
+    const pid = id || playerId;
+    if (!pid) return;
+    try {
+      const res = await fetch(`/api/get-player-by-id?id=${encodeURIComponent(pid)}`);
+      if (res.ok) setPlayerStats(await res.json());
+    } catch {}
+  }, [playerId]);
+
+  // Listen for tez-result events dispatched by reportGameResult
+  useEffect(() => {
+    const handler = (e) => {
+      const data = e.detail;
+      if (!data?.ok) return;
+      const leveledUp = data.newLevel && data.previousLevel && data.newLevel !== data.previousLevel;
+      const id = Date.now();
+      const baseToast = {
+        id,
+        pointsEarned: data.pointsEarned,
+        dailyBonus: data.dailyBonus,
+        level: data.newLevel,
+        exiting: false,
+      };
+      const newToasts = [];
+      if (leveledUp) {
+        newToasts.push({ ...baseToast, id: id + 1, type: 'levelup' });
+      } else {
+        newToasts.push({ ...baseToast, type: 'points' });
+      }
+      setToasts(prev => [...prev, ...newToasts]);
+      // Refresh sidebar stats
+      setPlayerStats(prev => prev ? {
+        ...prev,
+        tez_points: data.newPoints,
+        level: data.newLevel,
+        current_streak: data.newStreak,
+      } : null);
+      // Fade out after 2.5s
+      setTimeout(() => {
+        setToasts(prev => prev.map(t =>
+          newToasts.some(n => n.id === t.id) ? { ...t, exiting: true } : t
+        ));
+        setTimeout(() => {
+          setToasts(prev => prev.filter(t => !newToasts.some(n => n.id === t.id)));
+        }, 350);
+      }, 2500);
+    };
+    window.addEventListener('tez-result', handler);
+    return () => window.removeEventListener('tez-result', handler);
+  }, []);
 
   const setVolume = (v) => {
     const audio = getAudio();
@@ -106,11 +165,12 @@ export default function App({ Component, pageProps }) {
   };
 
   return (
-    <UserContext.Provider value={{ username, playerId, setUsername, clearUsername }}>
+    <UserContext.Provider value={{ username, playerId, playerStats, setUsername, clearUsername, refreshStats }}>
       <MusicContext.Provider value={{ musicOn, toggleMusic, volume, setVolume }}>
         <Component {...pageProps} />
         <Analytics />
         <SpeedInsights />
+        <TezToast toasts={toasts} />
       </MusicContext.Provider>
     </UserContext.Provider>
   );

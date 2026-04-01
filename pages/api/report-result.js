@@ -90,6 +90,7 @@ export default async function handler(req, res) {
     dailyBonus,
     newPoints,
     newLevel,
+    previousLevel: player.level,
     newStreak,
   });
 }

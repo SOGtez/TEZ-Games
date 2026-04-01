@@ -6,13 +6,146 @@ import { version } from '../lib/version';
 import UsernameBanner from './UsernameBanner';
 import UsernameModal from './UsernameModal';
 
+const LEVEL_ORDER = ['Rookie', 'Player', 'Competitor', 'Champion', 'Master', 'Legend', 'GOAT'];
+const LEVEL_THRESHOLDS = { Rookie: 0, Player: 100, Competitor: 500, Champion: 2000, Master: 5000, Legend: 10000, GOAT: 25000 };
+const LEVEL_COLORS = {
+  Rookie: '#92400e', Player: '#9ca3af', Competitor: '#eab308',
+  Champion: '#3b82f6', Master: '#a855f7', Legend: '#f97316', GOAT: '#fde047',
+};
+
+function SidebarStatsCard({ stats, onClose }) {
+  const level = stats.level || 'Rookie';
+  const points = stats.tez_points || 0;
+  const color = LEVEL_COLORS[level] || '#9ca3af';
+  const idx = LEVEL_ORDER.indexOf(level);
+  const isGoat = level === 'GOAT';
+  const nextLevel = isGoat ? null : LEVEL_ORDER[idx + 1];
+  const nextThreshold = nextLevel ? LEVEL_THRESHOLDS[nextLevel] : null;
+  const curThreshold = LEVEL_THRESHOLDS[level] || 0;
+  const progress = isGoat ? 1 : Math.min(1, (points - curThreshold) / (nextThreshold - curThreshold));
+  const tpToNext = isGoat ? 0 : nextThreshold - points;
+  const streak = stats.current_streak || 0;
+
+  return (
+    <div style={{
+      margin: '0 10px 16px',
+      padding: '14px 14px 12px',
+      borderRadius: 12,
+      background: 'rgba(255,255,255,0.04)',
+      border: '1px solid rgba(255,255,255,0.08)',
+    }}>
+      {/* Level badge + TP */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span style={{
+            width: 9, height: 9, borderRadius: '50%',
+            background: color,
+            boxShadow: `0 0 6px ${color}99`,
+            flexShrink: 0,
+            display: 'inline-block',
+          }} />
+          <span style={{
+            fontFamily: "'Fredoka', sans-serif",
+            fontWeight: 600, fontSize: 14,
+            color,
+          }}>
+            {isGoat ? '👑 ' : ''}{level}
+          </span>
+        </div>
+        <span style={{
+          fontFamily: "'Fredoka', sans-serif",
+          fontSize: 15, fontWeight: 700,
+          color: '#fde047',
+          textShadow: '0 0 8px rgba(253,224,71,0.5)',
+        }}>
+          {points.toLocaleString()} TP
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      {!isGoat && (
+        <div style={{ marginBottom: 10 }}>
+          <div style={{
+            height: 5, borderRadius: 3,
+            background: 'rgba(255,255,255,0.08)',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              height: '100%',
+              width: `${Math.round(progress * 100)}%`,
+              borderRadius: 3,
+              background: `linear-gradient(90deg, ${color}, ${color}bb)`,
+              transition: 'width 0.5s ease',
+            }} />
+          </div>
+          <div style={{
+            marginTop: 4, fontSize: 10,
+            color: 'rgba(255,255,255,0.35)',
+            fontFamily: "'Nunito', sans-serif",
+            display: 'flex', justifyContent: 'space-between',
+          }}>
+            <span>Next: {nextLevel}</span>
+            <span>{tpToNext} TP away</span>
+          </div>
+        </div>
+      )}
+
+      {/* W / L / Streak */}
+      <div style={{
+        display: 'flex', gap: 8,
+        fontFamily: "'Nunito', sans-serif",
+        fontSize: 12, fontWeight: 600,
+        color: 'rgba(255,255,255,0.5)',
+        marginBottom: 10,
+      }}>
+        <span style={{ color: '#4ade80' }}>W {stats.total_wins || 0}</span>
+        <span>·</span>
+        <span style={{ color: '#f87171' }}>L {stats.total_losses || 0}</span>
+        {streak >= 3 && (
+          <>
+            <span>·</span>
+            <span style={{ color: '#fde047' }}>🔥 {streak}</span>
+          </>
+        )}
+        {streak > 0 && streak < 3 && (
+          <>
+            <span>·</span>
+            <span>🎯 {streak} streak</span>
+          </>
+        )}
+      </div>
+
+      {/* View Profile link */}
+      <Link
+        href="/profile"
+        onClick={onClose}
+        style={{
+          display: 'block', textAlign: 'center',
+          padding: '6px 0',
+          borderRadius: 8,
+          fontSize: 12, fontWeight: 700,
+          fontFamily: "'Nunito', sans-serif",
+          color: 'rgba(253,224,71,0.6)',
+          border: '1px solid rgba(253,224,71,0.15)',
+          textDecoration: 'none',
+          transition: 'background 0.2s, color 0.2s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(253,224,71,0.08)'; e.currentTarget.style.color = '#fde047'; }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(253,224,71,0.6)'; }}
+      >
+        View Profile →
+      </Link>
+    </div>
+  );
+}
+
 const NAV_ITEMS = [
   { href: '/', label: 'All Games', emoji: '🎮' },
 ];
 
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
   const { musicOn, toggleMusic, volume, setVolume } = useMusic();
-  const { username } = useUser();
+  const { username, playerStats } = useUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [usernameModalOpen, setUsernameModalOpen] = useState(false);
@@ -142,7 +275,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               {!username && <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }} />}
 
               {/* Nav links */}
-              <nav style={{ padding: '12px 8px', flex: 1 }}>
+              <nav style={{ padding: '12px 8px' }}>
                 {NAV_ITEMS.map(({ href, label, emoji }) => (
                   <Link
                     key={href}
@@ -166,6 +299,9 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                   </Link>
                 ))}
               </nav>
+
+              {/* Stats card */}
+              {username && playerStats && <SidebarStatsCard stats={playerStats} onClose={() => setSidebarOpen(false)} />}
             </aside>
           </>
         )}

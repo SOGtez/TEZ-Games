@@ -1,5 +1,13 @@
 # TEZ Games Changelog
 
+## v0.7.1 — Sidebar Stats Card & TP Toast Notifications
+- Sidebar shows compact stats card when logged in: level badge, TEZ Points, progress bar to next level, W/L record, streak indicator
+- +X TP toast notification (bottom-left) after every game result
+- Level Up toast variant with level color and crown for GOAT
+- playerStats added to UserContext, refreshed on login and after each game
+- Added /api/get-player-by-id endpoint
+- report-result now returns previousLevel for level-up detection
+
 ## v0.7.0 — TEZ Points & Stats Tracking
 - game_stats table tracking every game result
 - TEZ Points system: earn TP from wins (+10), losses (+2), pushes (+3), blackjacks (+15), streaks (+5), daily bonus (+5)
