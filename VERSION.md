@@ -1,5 +1,7 @@
 # TEZ Games Changelog
 
+## v0.6.8 — Remove Change Username from sidebar
+
 ## v0.6.7 — Username system fully working
 - Supabase players table created and connected
 - Removed debug error detail from API and modal

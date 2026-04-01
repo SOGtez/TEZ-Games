@@ -12,7 +12,7 @@ const NAV_ITEMS = [
 
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
   const { musicOn, toggleMusic, volume, setVolume } = useMusic();
-  const { username, clearUsername } = useUser();
+  const { username } = useUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [usernameModalOpen, setUsernameModalOpen] = useState(false);
@@ -139,27 +139,6 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                     {label}
                   </Link>
                 ))}
-                {username && (
-                  <button
-                    onClick={() => { clearUsername(); setSidebarOpen(false); }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      padding: '10px 12px', borderRadius: 10,
-                      color: 'rgba(255,255,255,0.75)',
-                      fontFamily: "'Nunito', sans-serif",
-                      fontWeight: 600, fontSize: 15,
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      width: '100%', textAlign: 'left',
-                      transition: 'background 0.2s, color 0.2s',
-                      marginBottom: 4,
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(253,224,71,0.1)'; e.currentTarget.style.color = '#fde047'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
-                  >
-                    <span style={{ fontSize: 18 }}>✏️</span>
-                    Change Username
-                  </button>
-                )}
               </nav>
             </aside>
           </>
