@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 export const MusicContext = createContext({ musicOn: false, toggleMusic: () => {}, volume: 0.3, setVolume: () => {} });
 export const useMusic = () => useContext(MusicContext);
 
-export const UserContext = createContext({ username: null, setUsername: () => {}, clearUsername: () => {} });
+export const UserContext = createContext({ username: null, playerId: null, setUsername: () => {}, clearUsername: () => {} });
 export const useUser = () => useContext(UserContext);
 
 // Module-level — created once, never destroyed by React lifecycle
@@ -29,20 +29,27 @@ export default function App({ Component, pageProps }) {
   const [musicOn, setMusicOn] = useState(false);
   const [volume, setVolumeState] = useState(0.3);
   const [username, setUsernameState] = useState(null);
+  const [playerId, setPlayerIdState] = useState(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('tez_username');
+    const savedId = localStorage.getItem('tez_player_id');
     if (saved) setUsernameState(saved);
+    if (savedId) setPlayerIdState(savedId);
   }, []);
 
-  const setUsername = (name) => {
+  const setUsername = (name, id) => {
     localStorage.setItem('tez_username', name);
+    if (id) localStorage.setItem('tez_player_id', id);
     setUsernameState(name);
+    if (id) setPlayerIdState(id);
   };
 
   const clearUsername = () => {
     localStorage.removeItem('tez_username');
+    localStorage.removeItem('tez_player_id');
     setUsernameState(null);
+    setPlayerIdState(null);
   };
 
   const setVolume = (v) => {
@@ -86,7 +93,7 @@ export default function App({ Component, pageProps }) {
   };
 
   return (
-    <UserContext.Provider value={{ username, setUsername, clearUsername }}>
+    <UserContext.Provider value={{ username, playerId, setUsername, clearUsername }}>
       <MusicContext.Provider value={{ musicOn, toggleMusic, volume, setVolume }}>
         <Component {...pageProps} />
         <Analytics />

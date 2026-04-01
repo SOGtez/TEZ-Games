@@ -24,8 +24,12 @@ export default async function handler(req, res) {
 
   if (existing) return res.status(409).json({ error: 'taken' });
 
-  const { error } = await supabase.from('players').insert({ username: clean });
+  const { data, error } = await supabase
+    .from('players')
+    .insert({ username: clean })
+    .select('id')
+    .single();
   if (error) return res.status(500).json({ error: 'server' });
 
-  return res.status(200).json({ ok: true, username: clean });
+  return res.status(200).json({ ok: true, username: clean, id: data.id });
 }

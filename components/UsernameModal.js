@@ -25,7 +25,7 @@ export default function UsernameModal({ open, onClose }) {
       });
       const data = await res.json();
       if (res.ok) {
-        setUsername(clean);
+        setUsername(clean, data.id);
         setInput('');
         onClose();
       } else if (data.error === 'taken') {

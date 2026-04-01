@@ -1,5 +1,13 @@
 # TEZ Games Changelog
 
+## v0.7.0 — TEZ Points & Stats Tracking
+- game_stats table tracking every game result
+- TEZ Points system: earn TP from wins (+10), losses (+2), pushes (+3), blackjacks (+15), streaks (+5), daily bonus (+5)
+- Level system: Rookie → Player → Competitor → Champion → Master → Legend → GOAT
+- reportGameResult() utility for all games to use
+- Wired up TEZ Blackjack as first tracked game
+- claim-username now returns and stores player UUID for stat attribution
+
 ## v0.6.8 — Remove Change Username from sidebar
 
 ## v0.6.7 — Username system fully working

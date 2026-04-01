@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { reportGameResult } from "../../lib/reportGameResult";
 
 const SUITS = ["♠","♥","♦","♣"];
 const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
@@ -312,6 +313,24 @@ export default function BlackjackGame() {
   const [dealKey,setDealKey]       = useState(0);
   const [burst,setBurst]           = useState(null);
   const [chipAnim,setChipAnim]     = useState(false);
+  const reportedRef = useRef(false);
+
+  // Report result to TEZ Points system whenever a hand resolves
+  useEffect(() => {
+    if (phase !== "result" || results.length === 0) { reportedRef.current = false; return; }
+    if (reportedRef.current) return;
+    reportedRef.current = true;
+    const hasBJ  = results.some(r => r.type === "blackjack");
+    const hasWin = results.some(r => r.delta > 0);
+    const allPush = results.every(r => r.delta === 0);
+    const apiResult = hasWin ? 'win' : allPush ? 'push' : 'lose';
+    const totalDelta = results.reduce((s, r) => s + r.delta, 0);
+    reportGameResult('blackjack', apiResult, {
+      isBlackjack: hasBJ,
+      payout: totalDelta,
+      handsPlayed: results.length,
+    });
+  }, [phase, results]);
   const [muted,setMuted]           = useState(false);
 
   const toggleMute = () => {
