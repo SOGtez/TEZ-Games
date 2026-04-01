@@ -170,6 +170,7 @@ function SidebarStatsCard({ stats, expanded, onClose, onChangeUsername }) {
 
 const NAV_ITEMS = [
   { href: '/', label: 'All Games', emoji: '🎮' },
+  { href: '/leaderboard', label: 'Leaderboard', emoji: '🏆' },
 ];
 
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {

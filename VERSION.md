@@ -1,5 +1,15 @@
 # TEZ Games Changelog
 
+## v0.7.3 — Leaderboard
+- New /leaderboard page with Global, Blackjack, Connect 4, and War tabs
+- Global tab: ranked by TEZ Points, shows level badge, wins, win rate
+- Per-game tabs: ranked by wins, shows games played and win rate
+- Top 3 rows highlighted with gold/silver/bronze medals
+- Current user's row highlighted with purple glow
+- If user is outside top 50, rank pinned at bottom with divider
+- Leaderboard link added to sidebar nav with 🏆 icon
+- New /api/leaderboard endpoint
+
 ## v0.7.2 — Full Profile Page
 - New /profile page with avatar, username, level badge, TP, and member since date
 - Stats grid: total games, win rate, best streak, current streak
