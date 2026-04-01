@@ -25,10 +25,7 @@ export default async function handler(req, res) {
   if (existing) return res.status(409).json({ error: 'taken' });
 
   const { error } = await supabase.from('players').insert({ username: clean });
-  if (error) {
-    console.error('[claim-username] Supabase insert error:', error);
-    return res.status(500).json({ error: 'server', detail: error.message });
-  }
+  if (error) return res.status(500).json({ error: 'server' });
 
   return res.status(200).json({ ok: true, username: clean });
 }

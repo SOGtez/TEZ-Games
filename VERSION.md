@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.6.7 — Username system fully working
+- Supabase players table created and connected
+- Removed debug error detail from API and modal
+
 ## v0.6.6 — Fix username modal full-screen (proper fix)
 - Split banner and modal into separate components (UsernameBanner + UsernameModal)
 - Modal now renders in Layout outside the header — fully escapes backdropFilter stacking context
