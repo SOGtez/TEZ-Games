@@ -74,7 +74,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
             {/* Sidebar panel */}
             <aside style={{
               position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 70,
-              width: 300,
+              width: 290,
               background: 'rgba(13,6,24,0.97)',
               borderRight: '1px solid rgba(255,255,255,0.08)',
               boxShadow: sidebarOpen ? '4px 0 40px rgba(0,0,0,0.6)' : 'none',
@@ -87,7 +87,6 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '16px 16px 12px',
-                borderBottom: '1px solid rgba(255,255,255,0.06)',
               }}>
                 <span style={{
                   fontFamily: "'Fredoka', sans-serif",
@@ -114,6 +113,33 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                   ✕
                 </button>
               </div>
+
+              {/* User profile block */}
+              {username && (
+                <div style={{
+                  padding: '12px 16px 14px',
+                  borderBottom: '1px solid rgba(255,255,255,0.08)',
+                  display: 'flex', alignItems: 'center', gap: 12,
+                }}>
+                  <img
+                    src={`https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(username)}`}
+                    alt="avatar"
+                    width={44} height={44}
+                    style={{ borderRadius: 10, background: 'rgba(255,255,255,0.07)', flexShrink: 0 }}
+                  />
+                  <div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: "'Nunito', sans-serif", marginBottom: 2 }}>
+                      Signed in as
+                    </div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: 'white', fontFamily: "'Nunito', sans-serif" }}>
+                      {username}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Divider below profile / above nav */}
+              {!username && <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }} />}
 
               {/* Nav links */}
               <nav style={{ padding: '12px 8px', flex: 1 }}>
