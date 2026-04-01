@@ -10,12 +10,21 @@ export default async function handler(req, res) {
 
   const { data, error } = await supabase
     .from('players')
-    .select('id, username, tez_points, level, total_games, total_wins, total_losses, current_streak, best_streak')
+    .select('id, username, tez_points, level, total_games, total_wins, total_losses, current_streak, best_streak, country')
     .eq('id', id)
     .single();
 
   if (error) return res.status(500).json({ error: 'server' });
   if (!data) return res.status(404).json({ error: 'not_found' });
+
+  // Backfill country for existing players who don't have one yet
+  if (!data.country) {
+    const country = req.headers['x-vercel-ip-country'] || null;
+    if (country) {
+      await supabase.from('players').update({ country }).eq('id', id);
+      data.country = country;
+    }
+  }
 
   return res.status(200).json(data);
 }

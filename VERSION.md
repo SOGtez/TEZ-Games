@@ -1,5 +1,13 @@
 # TEZ Games Changelog
 
+## v0.7.4 — Clickable Profiles & Country Flags
+- Leaderboard rows are clickable links to /profile/[username]
+- New public profile route at /profile/[username] (read-only, fetches by username)
+- Own /profile page shows "Your profile" badge; both routes share ProfileView component
+- Country auto-detected via Vercel header on username claim; backfilled on next visit
+- Country flag emoji shown in sidebar, leaderboard rows, and profile headers
+- lib/countryFlag.js utility for flag emoji conversion
+
 ## v0.7.3 — Leaderboard
 - New /leaderboard page with Global, Blackjack, Connect 4, and War tabs
 - Global tab: ranked by TEZ Points, shows level badge, wins, win rate

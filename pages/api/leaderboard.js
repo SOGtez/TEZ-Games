@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (tab === 'global') {
     const { data: top50, error } = await supabase
       .from('players')
-      .select('id, username, level, tez_points, total_wins, total_games')
+      .select('id, username, level, tez_points, total_wins, total_games, country')
       .order('tez_points', { ascending: false })
       .limit(50);
 
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     if (playerId && !(top50 || []).find(p => p.id === playerId)) {
       const { data: userRow } = await supabase
         .from('players')
-        .select('id, username, level, tez_points, total_wins, total_games')
+        .select('id, username, level, tez_points, total_wins, total_games, country')
         .eq('id', playerId)
         .single();
 
@@ -36,7 +36,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ rows: top50 || [], userRank });
   }
 
-  // Per-game tab
   const gameType = tab;
   if (!['blackjack', 'connect4', 'war'].includes(gameType)) {
     return res.status(400).json({ error: 'invalid_tab' });
@@ -49,7 +48,6 @@ export default async function handler(req, res) {
 
   if (!gameStats?.length) return res.status(200).json({ rows: [], userRank: null });
 
-  // Aggregate per player
   const agg = {};
   for (const s of gameStats) {
     if (!agg[s.player_id]) agg[s.player_id] = { wins: 0, played: 0 };
@@ -64,7 +62,7 @@ export default async function handler(req, res) {
   const playerIds = sorted.map(([id]) => id);
   const { data: players } = await supabase
     .from('players')
-    .select('id, username, level')
+    .select('id, username, level, country')
     .in('id', playerIds);
 
   const playerMap = Object.fromEntries((players || []).map(p => [p.id, p]));
@@ -78,7 +76,7 @@ export default async function handler(req, res) {
     const rank = Object.values(agg).filter(a => a.wins > userStats.wins).length + 1;
     const { data: userPlayer } = await supabase
       .from('players')
-      .select('id, username, level')
+      .select('id, username, level, country')
       .eq('id', playerId)
       .single();
     if (userPlayer) userRank = { ...userPlayer, ...userStats, rank };

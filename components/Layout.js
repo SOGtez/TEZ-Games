@@ -5,6 +5,7 @@ import { useMusic, useUser } from '../pages/_app';
 import { version } from '../lib/version';
 import UsernameBanner from './UsernameBanner';
 import UsernameModal from './UsernameModal';
+import { countryFlag } from '../lib/countryFlag';
 
 const LEVEL_ORDER = ['Rookie', 'Player', 'Competitor', 'Champion', 'Master', 'Legend', 'GOAT'];
 const LEVEL_THRESHOLDS = { Rookie: 0, Player: 100, Competitor: 500, Champion: 2000, Master: 5000, Legend: 10000, GOAT: 25000 };
@@ -305,7 +306,8 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                       <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: "'Nunito', sans-serif", marginBottom: 2 }}>
                         Signed in as
                       </div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: 'white', fontFamily: "'Nunito', sans-serif" }}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: 'white', fontFamily: "'Nunito', sans-serif", display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {playerStats?.country && <span style={{ fontSize: 16 }}>{countryFlag(playerStats.country)}</span>}
                         {username}
                       </div>
                     </div>

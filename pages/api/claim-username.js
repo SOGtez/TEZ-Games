@@ -25,11 +25,15 @@ export default async function handler(req, res) {
 
   if (existing && existing.id !== playerId) return res.status(409).json({ error: 'taken' });
 
+  const country = req.headers['x-vercel-ip-country'] || null;
+
   if (playerId) {
-    // Update existing player's username
+    // Update existing player's username (and country if not yet set)
+    const update = { username: clean };
+    if (country) update.country = country;
     const { error } = await supabase
       .from('players')
-      .update({ username: clean })
+      .update(update)
       .eq('id', playerId);
     if (error) return res.status(500).json({ error: 'server' });
     return res.status(200).json({ ok: true, username: clean, id: playerId });
@@ -38,7 +42,7 @@ export default async function handler(req, res) {
   // New player — insert
   const { data, error } = await supabase
     .from('players')
-    .insert({ username: clean })
+    .insert({ username: clean, ...(country ? { country } : {}) })
     .select('id')
     .single();
   if (error) return res.status(500).json({ error: 'server' });

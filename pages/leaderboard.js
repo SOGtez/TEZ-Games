@@ -2,12 +2,13 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Layout from '../components/Layout';
 import { useUser } from './_app';
+import { countryFlag } from '../lib/countryFlag';
 
 const TABS = [
-  { key: 'global',    label: 'Global',      emoji: '🌍' },
-  { key: 'blackjack', label: 'Blackjack',   emoji: '🃏' },
-  { key: 'connect4',  label: 'Connect 4',   emoji: '🔴' },
-  { key: 'war',       label: 'War',         emoji: '⚔️'  },
+  { key: 'global',    label: 'Global',    emoji: '🌍' },
+  { key: 'blackjack', label: 'Blackjack', emoji: '🃏' },
+  { key: 'connect4',  label: 'Connect 4', emoji: '🔴' },
+  { key: 'war',       label: 'War',       emoji: '⚔️'  },
 ];
 
 const LEVEL_COLORS = {
@@ -42,138 +43,95 @@ function LevelBadge({ level }) {
   );
 }
 
-function GlobalRow({ row, rank, isMe }) {
-  const rs = RANK_STYLES[rank];
+function PlayerName({ row, isMe }) {
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: '40px 1fr auto auto auto',
-      alignItems: 'center',
-      gap: 10,
-      padding: '11px 16px',
-      borderRadius: 10,
-      background: rs ? rs.bg : isMe ? 'rgba(124,58,237,0.08)' : 'transparent',
-      border: `1px solid ${rs ? rs.border : isMe ? 'rgba(124,58,237,0.3)' : 'transparent'}`,
-      boxShadow: isMe ? '0 0 12px rgba(124,58,237,0.15)' : 'none',
-      marginBottom: 4,
-      transition: 'background 0.15s',
-    }}>
-      {/* Rank */}
+    <div style={{ minWidth: 0 }}>
       <div style={{
-        fontFamily: "'Fredoka', sans-serif",
-        fontSize: rs ? 18 : 15,
-        fontWeight: 700,
-        color: rs ? (rank === 1 ? '#fde047' : rank === 2 ? '#9ca3af' : '#cd7c3f') : 'rgba(255,255,255,0.35)',
-        textAlign: 'center',
-        lineHeight: 1,
+        fontFamily: "'Nunito', sans-serif",
+        fontSize: 14, fontWeight: 700,
+        color: isMe ? '#c084fc' : 'rgba(255,255,255,0.85)',
+        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+        display: 'flex', alignItems: 'center', gap: 5,
       }}>
-        {rs ? rs.medal : `#${rank}`}
+        {row.country && <span style={{ fontSize: 14 }}>{countryFlag(row.country)}</span>}
+        <span>{row.username}</span>
+        {isMe && <span style={{ fontSize: 11, color: '#a78bfa', flexShrink: 0 }}>(you)</span>}
       </div>
-
-      {/* Username + level */}
-      <div style={{ minWidth: 0 }}>
-        <div style={{
-          fontFamily: "'Nunito', sans-serif",
-          fontSize: 14, fontWeight: 700,
-          color: isMe ? '#c084fc' : 'rgba(255,255,255,0.85)',
-          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-        }}>
-          {row.username}{isMe && <span style={{ fontSize: 11, color: '#a78bfa', marginLeft: 6 }}>(you)</span>}
-        </div>
-        <LevelBadge level={row.level || 'Rookie'} />
-      </div>
-
-      {/* Win rate */}
-      <div style={{ textAlign: 'right', minWidth: 42 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>Win %</div>
-        <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: '#4ade80' }}>
-          {winRate(row.total_wins, row.total_games)}
-        </div>
-      </div>
-
-      {/* Total wins */}
-      <div style={{ textAlign: 'right', minWidth: 36 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>Wins</div>
-        <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: 'rgba(255,255,255,0.7)' }}>
-          {row.total_wins || 0}
-        </div>
-      </div>
-
-      {/* TP */}
-      <div style={{ textAlign: 'right', minWidth: 52 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>TP</div>
-        <div style={{
-          fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif",
-          color: '#fde047', textShadow: '0 0 6px rgba(253,224,71,0.4)',
-        }}>
-          {(row.tez_points || 0).toLocaleString()}
-        </div>
-      </div>
+      <LevelBadge level={row.level || 'Rookie'} />
     </div>
   );
 }
 
-function GameRow({ row, rank, isMe }) {
+function RowWrapper({ row, rank, isMe, isGlobal }) {
   const rs = RANK_STYLES[rank];
+  const [hovered, setHovered] = useState(false);
+
+  const baseStyle = {
+    display: 'grid',
+    gridTemplateColumns: '40px 1fr auto auto auto',
+    alignItems: 'center',
+    gap: 10,
+    padding: '11px 16px',
+    borderRadius: 10,
+    background: rs ? rs.bg : isMe ? 'rgba(124,58,237,0.08)' : hovered ? 'rgba(255,255,255,0.04)' : 'transparent',
+    border: `1px solid ${rs ? rs.border : isMe ? 'rgba(124,58,237,0.3)' : hovered ? 'rgba(255,255,255,0.1)' : 'transparent'}`,
+    boxShadow: isMe ? '0 0 12px rgba(124,58,237,0.15)' : 'none',
+    marginBottom: 4,
+    cursor: 'pointer',
+    textDecoration: 'none',
+    transition: 'background 0.15s, border 0.15s',
+  };
+
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: '40px 1fr auto auto auto',
-      alignItems: 'center',
-      gap: 10,
-      padding: '11px 16px',
-      borderRadius: 10,
-      background: rs ? rs.bg : isMe ? 'rgba(124,58,237,0.08)' : 'transparent',
-      border: `1px solid ${rs ? rs.border : isMe ? 'rgba(124,58,237,0.3)' : 'transparent'}`,
-      boxShadow: isMe ? '0 0 12px rgba(124,58,237,0.15)' : 'none',
-      marginBottom: 4,
-    }}>
+    <Link
+      href={`/profile/${encodeURIComponent(row.username)}`}
+      style={baseStyle}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Rank */}
       <div style={{
         fontFamily: "'Fredoka', sans-serif",
-        fontSize: rs ? 18 : 15,
-        fontWeight: 700,
+        fontSize: rs ? 18 : 15, fontWeight: 700,
         color: rs ? (rank === 1 ? '#fde047' : rank === 2 ? '#9ca3af' : '#cd7c3f') : 'rgba(255,255,255,0.35)',
         textAlign: 'center', lineHeight: 1,
       }}>
         {rs ? rs.medal : `#${rank}`}
       </div>
 
-      <div style={{ minWidth: 0 }}>
-        <div style={{
-          fontFamily: "'Nunito', sans-serif",
-          fontSize: 14, fontWeight: 700,
-          color: isMe ? '#c084fc' : 'rgba(255,255,255,0.85)',
-          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-        }}>
-          {row.username}{isMe && <span style={{ fontSize: 11, color: '#a78bfa', marginLeft: 6 }}>(you)</span>}
-        </div>
-        <LevelBadge level={row.level || 'Rookie'} />
-      </div>
+      <PlayerName row={row} isMe={isMe} />
 
+      {/* Win rate */}
       <div style={{ textAlign: 'right', minWidth: 42 }}>
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>Win %</div>
         <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: '#4ade80' }}>
-          {winRate(row.wins, row.played)}
+          {isGlobal ? winRate(row.total_wins, row.total_games) : winRate(row.wins, row.played)}
         </div>
       </div>
 
+      {/* Col 4 */}
+      <div style={{ textAlign: 'right', minWidth: 40 }}>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
+          {isGlobal ? 'Wins' : 'Played'}
+        </div>
+        <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: 'rgba(255,255,255,0.7)' }}>
+          {isGlobal ? (row.total_wins || 0) : row.played}
+        </div>
+      </div>
+
+      {/* Col 5 */}
       <div style={{ textAlign: 'right', minWidth: 52 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>Played</div>
-        <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: 'rgba(255,255,255,0.6)' }}>
-          {row.played}
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
+          {isGlobal ? 'TP' : 'Wins'}
         </div>
-      </div>
-
-      <div style={{ textAlign: 'right', minWidth: 48 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>Wins</div>
         <div style={{
           fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif",
           color: '#fde047', textShadow: '0 0 6px rgba(253,224,71,0.4)',
         }}>
-          {row.wins}
+          {isGlobal ? (row.tez_points || 0).toLocaleString() : row.wins}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -205,7 +163,6 @@ export default function LeaderboardPage() {
   const rows = tabData?.rows || [];
   const userRank = tabData?.userRank;
   const isGlobal = activeTab === 'global';
-  const RowComponent = isGlobal ? GlobalRow : GameRow;
 
   return (
     <Layout title="Leaderboard — TEZ Games">
@@ -227,27 +184,20 @@ export default function LeaderboardPage() {
       {/* Page title */}
       <div style={{ marginBottom: 24 }}>
         <h1 style={{
-          fontFamily: "'Fredoka', sans-serif",
-          fontSize: 32, fontWeight: 700,
+          fontFamily: "'Fredoka', sans-serif", fontSize: 32, fontWeight: 700,
           background: 'linear-gradient(135deg, #fde047, #f59e0b)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           margin: 0, marginBottom: 4,
         }}>
           🏆 Leaderboard
         </h1>
-        <p style={{
-          fontFamily: "'Nunito', sans-serif",
-          fontSize: 14, color: 'rgba(255,255,255,0.35)', margin: 0,
-        }}>
+        <p style={{ fontFamily: "'Nunito', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.35)', margin: 0 }}>
           Top players across all TEZ Games
         </p>
       </div>
 
       {/* Tab pills */}
-      <div style={{
-        display: 'flex', gap: 8, marginBottom: 20,
-        flexWrap: 'wrap',
-      }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
         {TABS.map(({ key, label, emoji }) => {
           const active = key === activeTab;
           return (
@@ -257,8 +207,7 @@ export default function LeaderboardPage() {
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '8px 16px', borderRadius: 20,
-                fontFamily: "'Nunito', sans-serif",
-                fontSize: 13, fontWeight: 700,
+                fontFamily: "'Nunito', sans-serif", fontSize: 13, fontWeight: 700,
                 cursor: 'pointer',
                 border: active ? '1px solid rgba(253,224,71,0.4)' : '1px solid rgba(255,255,255,0.1)',
                 background: active
@@ -282,96 +231,61 @@ export default function LeaderboardPage() {
       <div style={{
         background: 'rgba(255,255,255,0.02)',
         border: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 18,
-        padding: '14px 12px 12px',
-        minHeight: 200,
+        borderRadius: 18, padding: '14px 12px 12px', minHeight: 200,
       }}>
         {/* Column headers */}
         {!loading && rows.length > 0 && (
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: isGlobal ? '40px 1fr auto auto auto' : '40px 1fr auto auto auto',
+            display: 'grid', gridTemplateColumns: '40px 1fr auto auto auto',
             gap: 10, padding: '0 16px 8px',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-            marginBottom: 8,
+            borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: 8,
           }}>
-            <div style={headerStyle}>#</div>
-            <div style={headerStyle}>Player</div>
-            <div style={{ ...headerStyle, textAlign: 'right' }}>Win %</div>
-            <div style={{ ...headerStyle, textAlign: 'right' }}>{isGlobal ? 'Wins' : 'Played'}</div>
-            <div style={{ ...headerStyle, textAlign: 'right' }}>{isGlobal ? 'TP' : 'Wins'}</div>
+            {['#', 'Player', 'Win %', isGlobal ? 'Wins' : 'Played', isGlobal ? 'TP' : 'Wins'].map((h, i) => (
+              <div key={i} style={{
+                fontSize: 11, fontFamily: "'Nunito', sans-serif", fontWeight: 700,
+                color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.06em',
+                textAlign: i > 1 ? 'right' : 'left',
+              }}>{h}</div>
+            ))}
           </div>
         )}
 
         {loading && (
-          <div style={{
-            textAlign: 'center', padding: '60px 0',
-            color: 'rgba(255,255,255,0.25)',
-            fontFamily: "'Nunito', sans-serif", fontSize: 14,
-          }}>
+          <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.25)', fontFamily: "'Nunito', sans-serif", fontSize: 14 }}>
             Loading...
           </div>
         )}
 
         {!loading && rows.length === 0 && (
-          <div style={{
-            textAlign: 'center', padding: '60px 20px',
-          }}>
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
             <div style={{ fontSize: 44, marginBottom: 14 }}>🏆</div>
-            <div style={{
-              fontFamily: "'Fredoka', sans-serif",
-              fontSize: 20, color: 'rgba(255,255,255,0.5)', marginBottom: 8,
-            }}>
+            <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 20, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>
               No players yet
             </div>
-            <div style={{
-              fontFamily: "'Nunito', sans-serif",
-              fontSize: 13, color: 'rgba(255,255,255,0.25)',
-            }}>
+            <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>
               No games played yet — be the first to claim the top spot!
             </div>
           </div>
         )}
 
         {!loading && rows.map((row, i) => (
-          <RowComponent
-            key={row.id}
-            row={row}
-            rank={i + 1}
-            isMe={row.id === playerId}
-          />
+          <RowWrapper key={row.id} row={row} rank={i + 1} isMe={row.id === playerId} isGlobal={isGlobal} />
         ))}
 
         {/* User rank pinned at bottom */}
         {!loading && userRank && (
           <>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              margin: '16px 0 10px',
-            }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '16px 0 10px' }}>
               <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-              <span style={{
-                fontSize: 11, fontFamily: "'Nunito', sans-serif",
-                color: 'rgba(255,255,255,0.3)', fontWeight: 600,
-                whiteSpace: 'nowrap',
-              }}>
+              <span style={{ fontSize: 11, fontFamily: "'Nunito', sans-serif", color: 'rgba(255,255,255,0.3)', fontWeight: 600, whiteSpace: 'nowrap' }}>
                 Your Ranking
               </span>
               <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
             </div>
-            <RowComponent row={userRank} rank={userRank.rank} isMe={true} />
+            <RowWrapper row={userRank} rank={userRank.rank} isMe={true} isGlobal={isGlobal} />
           </>
         )}
       </div>
     </Layout>
   );
 }
-
-const headerStyle = {
-  fontSize: 11,
-  fontFamily: "'Nunito', sans-serif",
-  fontWeight: 700,
-  color: 'rgba(255,255,255,0.25)',
-  textTransform: 'uppercase',
-  letterSpacing: '0.06em',
-};
