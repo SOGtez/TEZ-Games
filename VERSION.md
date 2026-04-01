@@ -1,5 +1,12 @@
 # TEZ Games Changelog
 
+## v0.6.0 — TEZ Connect 4 V1 BETA
+- Full Connect 4 game with Normal and Rumble modes
+- Normal: classic 2-player or vs AI
+- Rumble: power-ups, mystery boxes, fog of war, gravity flip, poison piece, and more
+- Particle effects, animated piece drops, spin wheel for power-ups
+- Unlocked Connect 4 card on home screen
+
 ## v0.5.4 — Music only plays on explicit button press
 - Removed auto-play on first page interaction
 - Music now starts only when the user clicks the music button
