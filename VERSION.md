@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.7.6 — Fix game breakdown and recent activity
+- Added missing created_at column to game_stats table in Supabase
+- Per-game breakdown and recent activity now correctly populate on profile page
+
 ## v0.7.5 — Wire Connect 4 & War result reporting
 - TEZ Connect 4 now calls reportGameResult on win/loss (skip draws); includes mode and opponent type
 - TEZ War now calls reportGameResult on win/loss; includes rounds, wars, biggestHaul stats
