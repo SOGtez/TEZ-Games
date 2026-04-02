@@ -807,44 +807,46 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
           borderBottom: '1px solid rgba(255,255,255,0.06)',
           boxShadow: '0 4px 30px rgba(0,0,0,0.5)',
         }}>
-          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-            {/* Hamburger toggle */}
-            <button
-              onClick={() => setSidebarOpen(true)}
-              title="Open menu"
-              style={{
-                background: 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: 8, width: 34, height: 34,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', color: 'rgba(255,255,255,0.7)',
-                fontSize: 16, flexShrink: 0,
-                transition: 'background 0.2s, color 0.2s',
-                marginRight: 8,
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.color = 'white'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
-            >
-              ☰
-            </button>
-            {playerStats && (
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 5,
-                border: '1px solid rgba(251,191,36,0.35)',
-                borderRadius: 8, padding: '4px 10px',
-                background: 'rgba(251,191,36,0.07)',
-                marginRight: 8, flexShrink: 0,
-              }}>
-                <span style={{ fontSize: 13 }}>💰</span>
-                <span style={{
-                  fontFamily: "'Fredoka', sans-serif", fontSize: 14, fontWeight: 700,
-                  color: '#fbbf24',
+          <div className="max-w-6xl mx-auto px-4 py-3" style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+            {/* Left group: hamburger + bucks */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+              <button
+                onClick={() => setSidebarOpen(true)}
+                title="Open menu"
+                style={{
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: 8, width: 34, height: 34,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', color: 'rgba(255,255,255,0.7)',
+                  fontSize: 16, flexShrink: 0,
+                  transition: 'background 0.2s, color 0.2s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.color = 'white'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
+              >
+                ☰
+              </button>
+              {playerStats && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  border: '1px solid rgba(251,191,36,0.35)',
+                  borderRadius: 8, padding: '4px 10px',
+                  background: 'rgba(251,191,36,0.07)', flexShrink: 0,
                 }}>
-                  {(playerStats.tez_bucks || 0).toLocaleString()}
-                </span>
-              </div>
-            )}
-            <Link href="/" className="flex items-center gap-2 group">
+                  <span style={{ fontSize: 13 }}>💰</span>
+                  <span style={{
+                    fontFamily: "'Fredoka', sans-serif", fontSize: 14, fontWeight: 700,
+                    color: '#fbbf24',
+                  }}>
+                    {(playerStats.tez_bucks || 0).toLocaleString()}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Center: absolutely positioned logo */}
+            <Link href="/" className="flex items-center gap-2 group" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
               <span
                 className="text-3xl font-bold group-hover:scale-105 transition-transform duration-200 inline-block"
                 style={{
@@ -865,7 +867,9 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               </span>
               <span className="text-2xl animate-float ml-1">🎮</span>
             </Link>
-            <nav style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+
+            {/* Right group: nav */}
+            <nav style={{ display: 'flex', alignItems: 'center', gap: 16, marginLeft: 'auto' }}>
               <Link
                 href="/"
                 className="font-semibold font-nunito transition-all duration-200"

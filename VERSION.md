@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.9.2 — Fix navbar layout centering
+- TEZ Games logo is now absolutely centered in the navbar and stays centered regardless of left/right content
+- Hamburger and TEZ Bucks pill grouped on the left; nav items on the right
+
 ## v0.9.1 — TEZ Bucks in navbar
 - Show TEZ Bucks balance as a bordered pill in the top navbar next to the sidebar button
 
