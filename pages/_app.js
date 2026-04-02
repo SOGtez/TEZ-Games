@@ -82,6 +82,11 @@ export default function App({ Component, pageProps }) {
         const data = await res.json();
         setPlayerStats(data);
         if (data.dailyLoginBucks > 0) {
+          // Deduplicate: only show the toast once per calendar day per device
+          const todayStr = new Date().toISOString().slice(0, 10);
+          const bonusKey = `tez_daily_bonus_${pid}`;
+          if (localStorage.getItem(bonusKey) === todayStr) return;
+          localStorage.setItem(bonusKey, todayStr);
           const toastId = Date.now();
           setToasts(prev => [...prev, { id: toastId, type: 'daily_bucks', bucksEarned: data.dailyLoginBucks, exiting: false }]);
           setTimeout(() => {

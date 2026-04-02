@@ -35,19 +35,34 @@ export default async function handler(req, res) {
   }
 
   // Daily login bonus — award 10 TEZ Bucks once per calendar day on site load.
-  // Uses a conditional UPDATE filtered to rows where last_login_bonus < today (or null),
-  // so concurrent requests can't both award the bonus (only one write wins).
+  // Normalize to YYYY-MM-DD (column may return a full timestamp string).
+  // Two separate conditional UPDATEs (null case vs. old-date case) avoid .or() filter
+  // quirks — only one concurrent request can win the write.
   const today = new Date().toISOString().slice(0, 10);
   let dailyLoginBucks = 0;
-  if (data.last_login_bonus !== today) {
-    const { count } = await supabase
-      .from('players')
-      .update({ tez_bucks: (data.tez_bucks || 0) + 10, last_login_bonus: today }, { count: 'exact' })
-      .eq('id', id)
-      .or(`last_login_bonus.is.null,last_login_bonus.lt.${today}`);
-    if (count > 0) {
+  const storedBonus = data.last_login_bonus ? String(data.last_login_bonus).slice(0, 10) : null;
+  if (storedBonus !== today) {
+    const newBucks = (data.tez_bucks || 0) + 10;
+    const bonusPayload = { tez_bucks: newBucks, last_login_bonus: today };
+    let updateCount = 0;
+    if (!data.last_login_bonus) {
+      const { count } = await supabase
+        .from('players')
+        .update(bonusPayload, { count: 'exact' })
+        .eq('id', id)
+        .is('last_login_bonus', null);
+      updateCount = count ?? 0;
+    } else {
+      const { count } = await supabase
+        .from('players')
+        .update(bonusPayload, { count: 'exact' })
+        .eq('id', id)
+        .lt('last_login_bonus', today);
+      updateCount = count ?? 0;
+    }
+    if (updateCount > 0) {
       dailyLoginBucks = 10;
-      data.tez_bucks = (data.tez_bucks || 0) + 10;
+      data.tez_bucks = newBucks;
       data.last_login_bonus = today;
     }
   }

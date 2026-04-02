@@ -1,5 +1,10 @@
 # TEZ Games Changelog
 
+## v0.9.5 — Fix daily login bonus repeating on refresh
+- Normalize stored `last_login_bonus` to `YYYY-MM-DD` before comparing (full timestamp strings caused the check to always be `true`)
+- Replace `.or()` Supabase filter with two separate `.is(null)` / `.lt()` conditional UPDATEs — avoids filter quirks in Supabase JS
+- Add client-side localStorage guard: toast only shows once per calendar day per device, even if concurrent requests fire
+
 ## v0.9.4 — Fix daily login bonus race condition
 - Daily login bonus now uses a conditional server-side UPDATE filtered to rows where `last_login_bonus` is null or before today — only one concurrent request can win the write, preventing duplicate awards on rapid page loads/refreshes
 

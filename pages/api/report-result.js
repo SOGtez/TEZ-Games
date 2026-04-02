@@ -62,7 +62,8 @@ export default async function handler(req, res) {
   if (result === 'win' && newStreak >= 2) bucks += 3;
 
   // Bucks daily login bonus
-  const dailyBucksBonus = player.last_login_bonus !== today;
+  const storedBucksBonus = player.last_login_bonus ? String(player.last_login_bonus).slice(0, 10) : null;
+  const dailyBucksBonus = storedBucksBonus !== today;
   if (dailyBucksBonus) bucks += 10;
 
   const newBucks = (player.tez_bucks || 0) + bucks;
