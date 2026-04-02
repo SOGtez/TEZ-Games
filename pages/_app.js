@@ -8,7 +8,7 @@ import TezToast from '../components/TezToast';
 export const MusicContext = createContext({ musicOn: false, toggleMusic: () => {}, volume: 0.3, setVolume: () => {} });
 export const useMusic = () => useContext(MusicContext);
 
-export const UserContext = createContext({ username: null, playerId: null, playerStats: null, setUsername: () => {}, clearUsername: () => {}, refreshStats: () => {} });
+export const UserContext = createContext({ username: null, playerId: null, playerStats: null, isEmailLinked: false, setUsername: () => {}, clearUsername: () => {}, refreshStats: () => {} });
 export const useUser = () => useContext(UserContext);
 
 // Module-level — created once, never destroyed by React lifecycle
@@ -165,7 +165,7 @@ export default function App({ Component, pageProps }) {
   };
 
   return (
-    <UserContext.Provider value={{ username, playerId, playerStats, setUsername, clearUsername, refreshStats }}>
+    <UserContext.Provider value={{ username, playerId, playerStats, isEmailLinked: !!(playerStats?.auth_id), setUsername, clearUsername, refreshStats }}>
       <MusicContext.Provider value={{ musicOn, toggleMusic, volume, setVolume }}>
         <Component {...pageProps} />
         <Analytics />

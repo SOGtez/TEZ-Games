@@ -1,5 +1,15 @@
 # TEZ Games Changelog
 
+## v0.8.0 — Email account system
+- Sign Up with email + password to create a cross-device account
+- Log In from any device using email + password to restore username and stats
+- Existing guests can Link Email from the sidebar to secure their account
+- Forgot password sends a reset email via Supabase Auth
+- Email-linked accounts show a ✉ badge next to the username in the sidebar
+- Log Out button in sidebar clears local session
+- All Supabase Auth calls are server-side (API routes); client session remains localStorage-based
+- Guest (username-only) mode continues working exactly as before
+
 ## v0.7.8 — Real-time profile stats & rolling animations
 - Profile page polls every 30s and refreshes instantly on game result (tez-result event)
 - Rolling counter animation on all numeric stats (700ms cubic ease-out, glow on increase)

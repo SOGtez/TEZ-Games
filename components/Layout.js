@@ -5,6 +5,7 @@ import { useMusic, useUser } from '../pages/_app';
 import { version } from '../lib/version';
 import UsernameBanner from './UsernameBanner';
 import UsernameModal from './UsernameModal';
+import AuthModal from './AuthModal';
 import { countryFlag } from '../lib/countryFlag';
 
 const LEVEL_ORDER = ['Rookie', 'Player', 'Competitor', 'Champion', 'Master', 'Legend', 'GOAT'];
@@ -176,11 +177,12 @@ const NAV_ITEMS = [
 
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
   const { musicOn, toggleMusic, volume, setVolume } = useMusic();
-  const { username, playerStats } = useUser();
+  const { username, playerStats, isEmailLinked, clearUsername } = useUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [usernameModalOpen, setUsernameModalOpen] = useState(false);
   const [statsExpanded, setStatsExpanded] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState(null);
 
   return (
     <>
@@ -309,6 +311,9 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                       <div style={{ fontSize: 15, fontWeight: 700, color: 'white', fontFamily: "'Nunito', sans-serif", display: 'flex', alignItems: 'center', gap: 6 }}>
                         {username}
                         {playerStats?.country && <span style={{ fontSize: 16 }}>{countryFlag(playerStats.country)}</span>}
+                        {isEmailLinked && (
+                          <span title="Email linked" style={{ fontSize: 12, color: '#4ade80', background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.25)', borderRadius: 6, padding: '1px 5px', lineHeight: 1.4 }}>✉</span>
+                        )}
                       </div>
                     </div>
                     {/* Chevron */}
@@ -343,6 +348,40 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               {/* Divider below profile / above nav */}
               {!username && <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }} />}
 
+              {/* Sign Up / Log In (no user) */}
+              {!username && (
+                <div style={{ padding: '14px 12px 6px', display: 'flex', gap: 8 }}>
+                  <button
+                    onClick={() => { setAuthModalMode('signup'); setSidebarOpen(false); }}
+                    style={{
+                      flex: 1, padding: '9px 0', borderRadius: 10, cursor: 'pointer',
+                      background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(236,72,153,0.15))',
+                      border: '1px solid rgba(124,58,237,0.4)',
+                      color: '#c084fc', fontWeight: 700, fontSize: 13,
+                      fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(124,58,237,0.4), rgba(236,72,153,0.25))'; e.currentTarget.style.color = 'white'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(236,72,153,0.15))'; e.currentTarget.style.color = '#c084fc'; }}
+                  >
+                    Sign Up
+                  </button>
+                  <button
+                    onClick={() => { setAuthModalMode('login'); setSidebarOpen(false); }}
+                    style={{
+                      flex: 1, padding: '9px 0', borderRadius: 10, cursor: 'pointer',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      color: 'rgba(255,255,255,0.6)', fontWeight: 700, fontSize: 13,
+                      fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'white'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
+                  >
+                    Log In
+                  </button>
+                </div>
+              )}
+
               {/* Nav links */}
               <nav style={{ padding: '12px 8px' }}>
                 {NAV_ITEMS.map(({ href, label, emoji }) => (
@@ -368,6 +407,42 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                   </Link>
                 ))}
               </nav>
+
+              {/* Link Email + Log Out (logged-in users) */}
+              {username && (
+                <div style={{ padding: '6px 12px 16px', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {!isEmailLinked && (
+                    <button
+                      onClick={() => { setAuthModalMode('link'); setSidebarOpen(false); }}
+                      style={{
+                        padding: '8px 0', borderRadius: 9, cursor: 'pointer',
+                        background: 'rgba(74,222,128,0.06)',
+                        border: '1px solid rgba(74,222,128,0.2)',
+                        color: 'rgba(74,222,128,0.7)', fontWeight: 600, fontSize: 12,
+                        fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.12)'; e.currentTarget.style.color = '#4ade80'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.06)'; e.currentTarget.style.color = 'rgba(74,222,128,0.7)'; }}
+                    >
+                      ✉ Link Email
+                    </button>
+                  )}
+                  <button
+                    onClick={() => { clearUsername(); setSidebarOpen(false); }}
+                    style={{
+                      padding: '8px 0', borderRadius: 9, cursor: 'pointer',
+                      background: 'rgba(239,68,68,0.05)',
+                      border: '1px solid rgba(239,68,68,0.15)',
+                      color: 'rgba(239,68,68,0.5)', fontWeight: 600, fontSize: 12,
+                      fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#f87171'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.05)'; e.currentTarget.style.color = 'rgba(239,68,68,0.5)'; }}
+                  >
+                    Log Out
+                  </button>
+                </div>
+              )}
             </aside>
           </>
         )}
@@ -498,6 +573,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
         </header>}
 
         <UsernameModal open={usernameModalOpen} onClose={() => setUsernameModalOpen(false)} />
+        <AuthModal open={!!authModalMode} onClose={() => setAuthModalMode(null)} initialMode={authModalMode || 'signup'} />
 
         <main className="max-w-6xl mx-auto px-4 py-8" style={{ position: 'relative', zIndex: 1 }}>
           {children}
