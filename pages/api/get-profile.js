@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   let query = supabase
     .from('players')
-    .select('id, username, tez_points, level, total_games, total_wins, total_losses, current_streak, best_streak, created_at, country');
+    .select('id, username, tez_points, level, total_games, total_wins, total_losses, current_streak, best_streak, created_at, country, blackjack_biggest_win');
 
   if (id) query = query.eq('id', id);
   else query = query.ilike('username', username);
@@ -37,6 +37,7 @@ export default async function handler(req, res) {
       pushes: gs.filter(s => s.result === 'push').length,
     };
   }
+  perGame.blackjack.biggestWin = player.blackjack_biggest_win || 0;
 
   return res.status(200).json({
     player,

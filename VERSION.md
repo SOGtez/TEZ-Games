@@ -1,5 +1,11 @@
 # TEZ Games Changelog
 
+## v0.7.7 — Blackjack balance persistence & biggest win tracking
+- Blackjack balance saved to Supabase (blackjack_balance column); persists across sessions
+- Guests (no username) default to $500 with no saving; balance 0 resets to $500 on next load
+- Tracks biggest single-hand profit (blackjack_biggest_win column); included in reportGameResult details
+- Profile page Blackjack card shows 'Biggest Win' dollar amount
+
 ## v0.7.6 — Fix game breakdown and recent activity
 - Added missing created_at column to game_stats table in Supabase
 - Per-game breakdown and recent activity now correctly populate on profile page

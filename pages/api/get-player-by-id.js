@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   const { data, error } = await supabase
     .from('players')
-    .select('id, username, tez_points, level, total_games, total_wins, total_losses, current_streak, best_streak, country')
+    .select('id, username, tez_points, level, total_games, total_wins, total_losses, current_streak, best_streak, country, blackjack_balance, blackjack_biggest_win')
     .eq('id', id)
     .single();
 

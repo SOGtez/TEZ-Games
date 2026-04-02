@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   // Fetch current player stats
   const { data: player, error: fetchErr } = await supabase
     .from('players')
-    .select('tez_points, level, daily_bonus_date, total_games, total_wins, total_losses, current_streak, best_streak')
+    .select('tez_points, level, daily_bonus_date, total_games, total_wins, total_losses, current_streak, best_streak, blackjack_biggest_win')
     .eq('id', playerId)
     .single();
 
@@ -76,6 +76,12 @@ export default async function handler(req, res) {
     best_streak: newBestStreak,
   };
   if (dailyBonus) updatePayload.daily_bonus_date = today;
+  if (gameType === 'blackjack') {
+    if (details?.balance !== undefined) updatePayload.blackjack_balance = details.balance;
+    if (details?.biggestWin !== undefined) {
+      updatePayload.blackjack_biggest_win = Math.max(player.blackjack_biggest_win || 0, details.biggestWin);
+    }
+  }
 
   const { error: updateErr } = await supabase
     .from('players')

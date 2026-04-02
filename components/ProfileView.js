@@ -284,6 +284,9 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
                       <StatRow label="Wins" value={gs.wins} color="#4ade80" />
                       <StatRow label="Losses" value={gs.losses} color="#f87171" />
                       {meta.hasPush && <StatRow label="Pushes" value={gs.pushes} color="#fde047" />}
+                      {key === 'blackjack' && gs.biggestWin > 0 && (
+                        <StatRow label="Biggest Win" value={`$${gs.biggestWin}`} color="#fbbf24" />
+                      )}
                       <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 4, paddingTop: 8 }}>
                         <StatRow label="Win Rate" value={winRate(gs.wins, gs.played)} color="#a78bfa" />
                       </div>

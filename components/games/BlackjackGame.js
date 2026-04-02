@@ -303,6 +303,7 @@ export default function BlackjackGame() {
   const [bet,setBet]               = useState(0);
   const [splitBets,setSplitBets]   = useState([0]);
   const [balance,setBalance]       = useState(500);
+  const [biggestWin,setBiggestWin] = useState(0);
   const [results,setResults]       = useState([]);
   const [learnMode,setLearnMode]   = useState(true);
   const [hint,setHint]             = useState(null);
@@ -315,6 +316,21 @@ export default function BlackjackGame() {
   const [chipAnim,setChipAnim]     = useState(false);
   const reportedRef = useRef(false);
 
+  // Load saved balance and biggest win on mount
+  useEffect(() => {
+    const id = typeof window !== 'undefined' ? localStorage.getItem('tez_player_id') : null;
+    if (!id) return;
+    fetch(`/api/get-player-by-id?id=${encodeURIComponent(id)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return;
+        const saved = data.blackjack_balance;
+        setBalance(saved > 0 ? saved : 500);
+        if (data.blackjack_biggest_win) setBiggestWin(data.blackjack_biggest_win);
+      })
+      .catch(() => {});
+  }, []);
+
   // Report result to TEZ Points system whenever a hand resolves
   useEffect(() => {
     if (phase !== "result" || results.length === 0) { reportedRef.current = false; return; }
@@ -324,13 +340,18 @@ export default function BlackjackGame() {
     const hasWin = results.some(r => r.delta > 0);
     const allPush = results.every(r => r.delta === 0);
     const apiResult = hasWin ? 'win' : allPush ? 'push' : 'lose';
-    const totalDelta = results.reduce((s, r) => s + r.delta, 0);
+    const insDelta = insResult === 'win' ? insBet * 2 : (insResult === 'lose' ? -insBet : 0);
+    const netProfit = results.reduce((s, r) => s + r.delta, 0) + insDelta;
+    let newBiggestWin = biggestWin;
+    if (netProfit > biggestWin) { newBiggestWin = netProfit; setBiggestWin(netProfit); }
     reportGameResult('blackjack', apiResult, {
       isBlackjack: hasBJ,
-      payout: totalDelta,
+      payout: netProfit,
       handsPlayed: results.length,
+      balance,
+      biggestWin: newBiggestWin,
     });
-  }, [phase, results]);
+  }, [phase, results, insResult, insBet, biggestWin, balance]);
   const [muted,setMuted]           = useState(false);
 
   const toggleMute = () => {
