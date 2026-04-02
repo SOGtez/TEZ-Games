@@ -1,5 +1,10 @@
 # TEZ Games Changelog
 
+## v0.7.8 — Real-time profile stats & rolling animations
+- Profile page polls every 30s and refreshes instantly on game result (tez-result event)
+- Rolling counter animation on all numeric stats (700ms cubic ease-out, glow on increase)
+- Animated values: TP, Games Played, Best/Current Streak, W/L record, per-game breakdown counts
+
 ## v0.7.7 — Blackjack balance persistence & biggest win tracking
 - Blackjack balance saved to Supabase (blackjack_balance column); persists across sessions
 - Guests (no username) default to $500 with no saving; balance 0 resets to $500 on next load

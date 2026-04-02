@@ -1,5 +1,37 @@
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { countryFlag } from '../lib/countryFlag';
+
+function RollingNumber({ value, prefix = '', suffix = '', color }) {
+  const [display, setDisplay] = useState(value);
+  const [glow, setGlow] = useState(false);
+  const prev = useRef(value);
+  const raf = useRef(null);
+  useEffect(() => {
+    if (prev.current === value) return;
+    const increased = value > prev.current;
+    const start = prev.current, end = value, dur = 700, t0 = Date.now();
+    setGlow(increased);
+    cancelAnimationFrame(raf.current);
+    const tick = () => {
+      const p = Math.min(1, (Date.now() - t0) / dur);
+      const ease = 1 - Math.pow(1 - p, 3);
+      setDisplay(Math.round(start + (end - start) * ease));
+      if (p < 1) { raf.current = requestAnimationFrame(tick); }
+      else { setTimeout(() => setGlow(false), 500); }
+    };
+    raf.current = requestAnimationFrame(tick);
+    prev.current = value;
+  }, [value]);
+  return (
+    <span style={{
+      color: color || 'white',
+      textShadow: glow ? `0 0 18px ${color || '#4ade80'}aa` : 'none',
+      transition: 'text-shadow 0.4s',
+      fontVariantNumeric: 'tabular-nums',
+    }}>{prefix}{display}{suffix}</span>
+  );
+}
 
 const LEVEL_ORDER = ['Rookie', 'Player', 'Competitor', 'Champion', 'Master', 'Legend', 'GOAT'];
 const LEVEL_THRESHOLDS = { Rookie: 0, Player: 100, Competitor: 500, Champion: 2000, Master: 5000, Legend: 10000, GOAT: 25000 };
@@ -133,12 +165,8 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
                   {isGoat ? '👑 ' : ''}{level}
                 </span>
               </div>
-              <span style={{
-                fontFamily: "'Fredoka', sans-serif",
-                fontSize: 18, fontWeight: 700,
-                color: '#fde047', textShadow: '0 0 12px rgba(253,224,71,0.6)',
-              }}>
-                {points.toLocaleString()} TP
+              <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 700 }}>
+                <RollingNumber value={points} suffix=" TP" color="#fde047" />
               </span>
             </div>
             {memberSince && (
@@ -152,10 +180,14 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
         {/* ── Stats grid ── */}
         <div className="profile-grid">
           {[
-            { label: 'Games Played', value: totalGames, icon: '🎮' },
-            { label: 'Win Rate', value: winRate(totalWins, totalGames), sub: `${totalWins}W / ${totalLosses}L`, icon: '📊' },
-            { label: 'Best Streak', value: player.best_streak || 0, icon: '🔥' },
-            { label: 'Current Streak', value: player.current_streak || 0, icon: (player.current_streak || 0) >= 3 ? '🔥' : '🎯' },
+            { label: 'Games Played', value: <RollingNumber value={totalGames} />, icon: '🎮' },
+            {
+              label: 'Win Rate', icon: '📊',
+              value: winRate(totalWins, totalGames),
+              sub: <span><RollingNumber value={totalWins} color="rgba(255,255,255,0.4)" />W / <RollingNumber value={totalLosses} color="rgba(255,255,255,0.4)" />L</span>,
+            },
+            { label: 'Best Streak', value: <RollingNumber value={player.best_streak || 0} />, icon: '🔥' },
+            { label: 'Current Streak', value: <RollingNumber value={player.current_streak || 0} />, icon: (player.current_streak || 0) >= 3 ? '🔥' : '🎯' },
           ].map(({ label, value, sub, icon }) => (
             <div key={label} style={{
               background: 'rgba(255,255,255,0.03)',
@@ -280,12 +312,12 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <StatRow label="Played" value={gs.played} />
-                      <StatRow label="Wins" value={gs.wins} color="#4ade80" />
-                      <StatRow label="Losses" value={gs.losses} color="#f87171" />
-                      {meta.hasPush && <StatRow label="Pushes" value={gs.pushes} color="#fde047" />}
+                      <StatRow label="Played" value={<RollingNumber value={gs.played} />} />
+                      <StatRow label="Wins" value={<RollingNumber value={gs.wins} color="#4ade80" />} color="#4ade80" />
+                      <StatRow label="Losses" value={<RollingNumber value={gs.losses} color="#f87171" />} color="#f87171" />
+                      {meta.hasPush && <StatRow label="Pushes" value={<RollingNumber value={gs.pushes} color="#fde047" />} color="#fde047" />}
                       {key === 'blackjack' && gs.biggestWin > 0 && (
-                        <StatRow label="Biggest Win" value={`$${gs.biggestWin}`} color="#fbbf24" />
+                        <StatRow label="Biggest Win" value={<RollingNumber value={gs.biggestWin} prefix="$" color="#fbbf24" />} color="#fbbf24" />
                       )}
                       <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 4, paddingTop: 8 }}>
                         <StatRow label="Win Rate" value={winRate(gs.wins, gs.played)} color="#a78bfa" />

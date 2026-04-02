@@ -11,10 +11,21 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!playerId) { setLoading(false); return; }
-    fetch(`/api/get-profile?id=${encodeURIComponent(playerId)}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => { setProfile(data); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
+
+    const load = () =>
+      fetch(`/api/get-profile?id=${encodeURIComponent(playerId)}`)
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => { setProfile(data); setLoading(false); })
+        .catch(() => { setError(true); setLoading(false); });
+
+    load();
+    const interval = setInterval(load, 30000);
+    const onResult = () => load();
+    window.addEventListener('tez-result', onResult);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('tez-result', onResult);
+    };
   }, [playerId]);
 
   return (
