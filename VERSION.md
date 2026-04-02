@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.9.1 — TEZ Bucks in navbar
+- Show TEZ Bucks balance as a bordered pill in the top navbar next to the sidebar button
+
 ## v0.9.0 — TEZ Bucks system
 - New currency: TEZ Bucks earned from gameplay (win +5, lose +1, push +2, natural blackjack +10, win streak +3)
 - Daily login bonus: +10 TEZ Bucks once per calendar day (on site load or first game)

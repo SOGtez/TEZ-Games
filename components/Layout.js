@@ -827,6 +827,23 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
             >
               ☰
             </button>
+            {playerStats && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                border: '1px solid rgba(251,191,36,0.35)',
+                borderRadius: 8, padding: '4px 10px',
+                background: 'rgba(251,191,36,0.07)',
+                marginRight: 8, flexShrink: 0,
+              }}>
+                <span style={{ fontSize: 13 }}>💰</span>
+                <span style={{
+                  fontFamily: "'Fredoka', sans-serif", fontSize: 14, fontWeight: 700,
+                  color: '#fbbf24',
+                }}>
+                  {(playerStats.tez_bucks || 0).toLocaleString()}
+                </span>
+              </div>
+            )}
             <Link href="/" className="flex items-center gap-2 group">
               <span
                 className="text-3xl font-bold group-hover:scale-105 transition-transform duration-200 inline-block"
