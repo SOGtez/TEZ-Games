@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     : query.ilike('username', target.trim());
 
   const { data: targetPlayer, error: lookupErr } = await query.maybeSingle();
-  if (lookupErr) return res.status(500).json({ error: 'lookup_failed', detail: lookupErr.message });
+  if (lookupErr) return res.status(500).json({ error: 'server' });
   if (!targetPlayer) return res.status(404).json({ error: 'not_found' });
   if (targetPlayer.id === playerId) return res.status(400).json({ error: 'self' });
 
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       .eq('requester_id', targetPlayer.id).eq('addressee_id', playerId).maybeSingle(),
   ]);
 
-  if (e1 || e2) return res.status(500).json({ error: 'check_failed', detail: (e1 || e2).message });
+  if (e1 || e2) return res.status(500).json({ error: 'server' });
 
   const existing = f1 || f2;
   if (existing) {
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     .from('friendships')
     .insert({ requester_id: playerId, addressee_id: targetPlayer.id });
 
-  if (insertErr) return res.status(500).json({ error: 'insert_failed', detail: insertErr.message });
+  if (insertErr) return res.status(500).json({ error: 'server' });
 
   return res.status(200).json({ ok: true, username: targetPlayer.username });
 }

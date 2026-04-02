@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.8.3 — Clean up debug error output
+- Remove debug error details from friend add API and frontend; errors now show friendly messages only
+
 ## v0.8.2 — Friend request notifications
 - Slide-down notification when a new friend request arrives (polls every 30s)
 - Notification shows sender's username, flag, level badge with Accept and X buttons
