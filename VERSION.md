@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.9.4 — Fix daily login bonus race condition
+- Daily login bonus now uses a conditional server-side UPDATE filtered to rows where `last_login_bonus` is null or before today — only one concurrent request can win the write, preventing duplicate awards on rapid page loads/refreshes
+
 ## v0.9.3 — Connect 4 AI upgrade + stat gating
 - Replaced simple AI with Minimax + alpha-beta pruning (depth 6): never misses a win or obvious block, evaluates center control and multi-in-a-row patterns
 - Small random factor among near-best moves so AI varies its play

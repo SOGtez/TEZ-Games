@@ -34,14 +34,22 @@ export default async function handler(req, res) {
     data.friend_code = friend_code;
   }
 
-  // Daily login bonus — award 10 TEZ Bucks once per calendar day on site load
+  // Daily login bonus — award 10 TEZ Bucks once per calendar day on site load.
+  // Uses a conditional UPDATE filtered to rows where last_login_bonus < today (or null),
+  // so concurrent requests can't both award the bonus (only one write wins).
   const today = new Date().toISOString().slice(0, 10);
   let dailyLoginBucks = 0;
   if (data.last_login_bonus !== today) {
-    dailyLoginBucks = 10;
-    data.tez_bucks = (data.tez_bucks || 0) + 10;
-    data.last_login_bonus = today;
-    await supabase.from('players').update({ tez_bucks: data.tez_bucks, last_login_bonus: today }).eq('id', id);
+    const { count } = await supabase
+      .from('players')
+      .update({ tez_bucks: (data.tez_bucks || 0) + 10, last_login_bonus: today }, { count: 'exact' })
+      .eq('id', id)
+      .or(`last_login_bonus.is.null,last_login_bonus.lt.${today}`);
+    if (count > 0) {
+      dailyLoginBucks = 10;
+      data.tez_bucks = (data.tez_bucks || 0) + 10;
+      data.last_login_bonus = today;
+    }
   }
 
   return res.status(200).json({ ...data, dailyLoginBucks });
