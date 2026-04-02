@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { reportGameResult } from "../../lib/reportGameResult";
 
 var SUITS = ["♠", "♥", "♦", "♣"];
 var SUIT_COLORS = { "♠": "#1a1a2e", "♣": "#1a1a2e", "♥": "#dc2626", "♦": "#dc2626" };
@@ -446,6 +447,7 @@ function TEZWar() {
   var [autoFlip, setAutoFlip] = useState(false);
   var [autoSpeed, setAutoSpeed] = useState(1200);
   var [winner, setWinner] = useState(null);
+  var reportedRef = useRef(false);
   var [screenShake, setScreenShake] = useState(false);
   var [flipStage, setFlipStage] = useState("idle");
   var [particleTrigger, setParticleTrigger] = useState(0);
@@ -760,6 +762,19 @@ function TEZWar() {
     }
     return function() { if (autoTimerRef.current) clearTimeout(autoTimerRef.current); };
   }, [autoFlip, gamePhase, isAnimating, flipCards, autoSpeed]);
+
+  // Report game result to TEZ Points
+  useEffect(function() {
+    if (gamePhase !== "gameOver") { reportedRef.current = false; return; }
+    if (reportedRef.current) return;
+    reportedRef.current = true;
+    var apiResult = winner === "player" ? "win" : "lose";
+    reportGameResult("war", apiResult, {
+      rounds: stats.rounds,
+      wars: stats.wars,
+      biggestHaul: stats.biggestHaul,
+    });
+  }, [gamePhase, winner, stats]);
 
   function getResultColor() {
     if (roundResult === "win") return "#22c55e";

@@ -1,5 +1,11 @@
 # TEZ Games Changelog
 
+## v0.7.5 — Wire Connect 4 & War result reporting
+- TEZ Connect 4 now calls reportGameResult on win/loss (skip draws); includes mode and opponent type
+- TEZ War now calls reportGameResult on win/loss; includes rounds, wars, biggestHaul stats
+- TEZ Blackjack verified still reporting correctly
+- Per-game breakdown and recent activity on profile page will now populate as games are played
+
 ## v0.7.4 — Clickable Profiles & Country Flags
 - Leaderboard rows are clickable links to /profile/[username]
 - New public profile route at /profile/[username] (read-only, fetches by username)

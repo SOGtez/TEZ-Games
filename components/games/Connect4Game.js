@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { reportGameResult } from "../../lib/reportGameResult";
 
 const ROWS = 6, COLS = 7, PAD = 12, GAP = 5, CELL = 44, STRIDE = CELL + GAP;
 const P1G = ["#FF6B6B", "#E24B4A"], P2G = ["#5EB8FF", "#378ADD"];
@@ -115,6 +116,7 @@ export default function Connect4Game() {
   const [board, setBoard] = useState(emptyBoard());
   const [turn, setTurn] = useState(1);
   const [result, setResult] = useState(null);
+  const reportedRef = useRef(false);
   const [winCells, setWinCells] = useState([]);
   const [turnCount, setTurnCount] = useState(0);
   const [animPieces, setAnimPieces] = useState([]);
@@ -511,6 +513,16 @@ export default function Connect4Game() {
   }, []);
 
   useEffect(() => () => { cancelAnimationFrame(rafRef.current); bombTimers.current.forEach(clearTimeout); }, []);
+
+  // Report game result to TEZ Points
+  useEffect(() => {
+    if (!result) { reportedRef.current = false; return; }
+    if (reportedRef.current) return;
+    reportedRef.current = true;
+    if (result.winner === 0) return; // draw — skip
+    const apiResult = result.winner === 1 ? 'win' : 'lose';
+    reportGameResult('connect4', apiResult, { mode, opponent: vsAI ? 'ai' : 'player' });
+  }, [result, mode, vsAI]);
 
   const poisonGlow = poisonCell ? Math.sin(pulseT * Math.PI * 1.4) * 0.5 + 0.5 : 0;
   const poisonShadow = `0 0 ${10 + poisonGlow * 28}px rgba(140,50,255,${0.6 + poisonGlow * 0.4}),0 0 ${6 + poisonGlow * 16}px rgba(40,200,80,${0.35 + poisonGlow * 0.45}),0 0 ${3 + poisonGlow * 8}px rgba(180,80,255,0.9),inset 0 -3px 8px rgba(0,0,0,0.6)`;
