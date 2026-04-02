@@ -1,5 +1,11 @@
 # TEZ Games Changelog
 
+## v0.9.3 — Connect 4 AI upgrade + stat gating
+- Replaced simple AI with Minimax + alpha-beta pruning (depth 6): never misses a win or obvious block, evaluates center control and multi-in-a-row patterns
+- Small random factor among near-best moves so AI varies its play
+- AI response capped at 300ms (feels like thinking, not instant)
+- Local 2-player games no longer report stats — only vs AI games count toward leaderboard/TEZ Points/TEZ Bucks
+
 ## v0.9.2 — Fix navbar layout centering
 - TEZ Games logo is now absolutely centered in the navbar and stays centered regardless of left/right content
 - Hamburger and TEZ Bucks pill grouped on the left; nav items on the right

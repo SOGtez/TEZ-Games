@@ -43,11 +43,83 @@ function easeOutBounce(t) { const n = 7.5625, d = 2.75; if (t < 1 / d) return n 
 function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 function pGrad(p) { if (p === 1) return `linear-gradient(135deg,${P1G[0]},${P1G[1]})`; if (p === 2) return `linear-gradient(135deg,${P2G[0]},${P2G[1]})`; return "#12102a"; }
 function pShadow(p) { if (p === 1) return `0 2px 8px rgba(226,75,74,0.4),inset 0 -3px 6px rgba(0,0,0,0.3)`; if (p === 2) return `0 2px 8px rgba(55,138,221,0.4),inset 0 -3px 6px rgba(0,0,0,0.3)`; return "inset 0 2px 6px rgba(0,0,0,0.6)"; }
+// ─── Minimax AI (depth-6 with alpha-beta pruning) ───────────────
+function scoreWindow(win, piece) {
+  const opp = piece === 2 ? 1 : 2;
+  const pc = win.filter(c => c === piece).length;
+  const ec = win.filter(c => c === null).length;
+  const oc = win.filter(c => c === opp).length;
+  if (pc === 4) return 1000;
+  if (pc === 3 && ec === 1) return 5;
+  if (pc === 2 && ec === 2) return 2;
+  if (oc === 3 && ec === 1) return -4;
+  return 0;
+}
+function scorePosition(board, piece) {
+  let score = 0;
+  const mid = Math.floor(COLS / 2);
+  for (let r = 0; r < ROWS; r++) {
+    if (board[r][mid] === piece) score += 3;
+    if (mid - 1 >= 0 && board[r][mid - 1] === piece) score++;
+    if (mid + 1 < COLS && board[r][mid + 1] === piece) score++;
+  }
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c <= COLS - 4; c++)
+      score += scoreWindow([board[r][c], board[r][c+1], board[r][c+2], board[r][c+3]], piece);
+  for (let c = 0; c < COLS; c++)
+    for (let r = 0; r <= ROWS - 4; r++)
+      score += scoreWindow([board[r][c], board[r+1][c], board[r+2][c], board[r+3][c]], piece);
+  for (let r = 3; r < ROWS; r++)
+    for (let c = 0; c <= COLS - 4; c++)
+      score += scoreWindow([board[r][c], board[r-1][c+1], board[r-2][c+2], board[r-3][c+3]], piece);
+  for (let r = 0; r <= ROWS - 4; r++)
+    for (let c = 0; c <= COLS - 4; c++)
+      score += scoreWindow([board[r][c], board[r+1][c+1], board[r+2][c+2], board[r+3][c+3]], piece);
+  return score;
+}
+function mmBoard(board, depth, alpha, beta, maxing, fromTop) {
+  const win = checkWinner(board);
+  if (win) return win.winner === 2 ? 100000 + depth : -100000 - depth;
+  const isFull = board[fromTop ? ROWS - 1 : 0].every(c => c !== null);
+  if (depth === 0 || isFull) return scorePosition(board, 2) - scorePosition(board, 1);
+  const order = [3, 2, 4, 1, 5, 0, 6];
+  const cols = order.filter(c => getLandRow(board, c, fromTop) >= 0);
+  if (maxing) {
+    let best = -Infinity;
+    for (const c of cols) {
+      const r = getLandRow(board, c, fromTop);
+      const nb = board.map(row => [...row]); nb[r][c] = 2;
+      best = Math.max(best, mmBoard(nb, depth - 1, alpha, beta, false, fromTop));
+      alpha = Math.max(alpha, best);
+      if (alpha >= beta) break;
+    }
+    return best;
+  } else {
+    let best = Infinity;
+    for (const c of cols) {
+      const r = getLandRow(board, c, fromTop);
+      const nb = board.map(row => [...row]); nb[r][c] = 1;
+      best = Math.min(best, mmBoard(nb, depth - 1, alpha, beta, true, fromTop));
+      beta = Math.min(beta, best);
+      if (alpha >= beta) break;
+    }
+    return best;
+  }
+}
 function getAIMove(board, fromTop) {
-  for (let c = 0; c < COLS; c++) { const r = getLandRow(board, c, fromTop); if (r < 0) continue; const nb = board.map(row => [...row]); nb[r][c] = 2; if (checkWinner(nb)) return c; }
-  for (let c = 0; c < COLS; c++) { const r = getLandRow(board, c, fromTop); if (r < 0) continue; const nb = board.map(row => [...row]); nb[r][c] = 1; if (checkWinner(nb)) return c; }
-  for (const c of [3, 2, 4, 1, 5, 0, 6]) { if (getLandRow(board, c, fromTop) >= 0) return c; }
-  return null;
+  const order = [3, 2, 4, 1, 5, 0, 6];
+  const cols = order.filter(c => getLandRow(board, c, fromTop) >= 0);
+  if (!cols.length) return null;
+  const scored = cols.map(c => {
+    const r = getLandRow(board, c, fromTop);
+    const nb = board.map(row => [...row]); nb[r][c] = 2;
+    return { c, s: mmBoard(nb, 5, -Infinity, Infinity, false, fromTop) };
+  });
+  const best = Math.max(...scored.map(x => x.s));
+  if (best >= 99999) return scored.find(x => x.s === best).c;
+  // Small random factor among near-best moves for variety
+  const near = scored.filter(x => x.s >= best - 1.5);
+  return near[Math.floor(Math.random() * near.length)].c;
 }
 
 function MenuOrbs() {
@@ -496,7 +568,7 @@ export default function Connect4Game() {
         boxTriggeredRef.current = true;
         setBoxes(prev => { const n = { ...prev }; delete n[key]; return n; });
       });
-    }, 600);
+    }, 300);
     return () => clearTimeout(t);
   }, [turn, vsAI, board, result, spinning, dropping, pendingAction, screen, bombPhase, flipping, gravityTurns, turnCount, fog, shields, inventory, poisonCell, mode, fromTop, animateDrop, finishTurn, animateFog, boardToPieces, boxes, beginSpin]);
 
@@ -514,14 +586,15 @@ export default function Connect4Game() {
 
   useEffect(() => () => { cancelAnimationFrame(rafRef.current); bombTimers.current.forEach(clearTimeout); }, []);
 
-  // Report game result to TEZ Points
+  // Report game result to TEZ Points — only for vs AI, not local 2P
   useEffect(() => {
     if (!result) { reportedRef.current = false; return; }
     if (reportedRef.current) return;
     reportedRef.current = true;
+    if (!vsAI) return; // no stats for local 2-player — not competitive
     if (result.winner === 0) return; // draw — skip
     const apiResult = result.winner === 1 ? 'win' : 'lose';
-    reportGameResult('connect4', apiResult, { mode, opponent: vsAI ? 'ai' : 'player' });
+    reportGameResult('connect4', apiResult, { mode, opponent: 'ai' });
   }, [result, mode, vsAI]);
 
   const poisonGlow = poisonCell ? Math.sin(pulseT * Math.PI * 1.4) * 0.5 + 0.5 : 0;
