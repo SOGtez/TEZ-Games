@@ -55,6 +55,7 @@ export default function FriendsPage() {
   const [addError, setAddError] = useState('');
   const [adding, setAdding] = useState(null);
   const [acting, setActing] = useState(null);
+  const [acceptedMsg, setAcceptedMsg] = useState(null);
   const debounce = useRef(null);
 
   const friendCode = playerStats?.friend_code;
@@ -107,13 +108,17 @@ export default function FriendsPage() {
     }
   };
 
-  const respond = async (friendshipId, action) => {
+  const respond = async (friendshipId, action, username) => {
     setActing(friendshipId);
     await fetch('/api/friends/respond', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ playerId, friendshipId, action }),
     });
+    if (action === 'accept') {
+      setAcceptedMsg(username);
+      setTimeout(() => setAcceptedMsg(null), 3000);
+    }
     load();
     setActing(null);
   };
@@ -155,6 +160,85 @@ export default function FriendsPage() {
                   {friendCode}
                 </span>
                 <CopyButton text={friendCode} />
+              </div>
+            )}
+          </div>
+
+          {/* Friend Requests — always shown */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 600, color: 'white' }}>
+                Friend Requests
+              </div>
+              {data?.incoming?.length > 0 && (
+                <span style={{ background: '#7C3AED', color: 'white', borderRadius: 20, fontSize: 12, fontWeight: 800, padding: '2px 9px' }}>
+                  {data.incoming.length}
+                </span>
+              )}
+            </div>
+
+            {acceptedMsg && (
+              <div style={{ marginBottom: 14, fontSize: 13, color: '#4ade80', background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.22)', borderRadius: 9, padding: '10px 14px', fontFamily: "'Nunito', sans-serif" }}>
+                ✅ You and {acceptedMsg} are now friends!
+              </div>
+            )}
+
+            {(!data || data.incoming.length === 0) && !acceptedMsg && (
+              <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(255,255,255,0.25)', fontFamily: "'Nunito', sans-serif", fontSize: 13 }}>
+                No pending requests
+              </div>
+            )}
+
+            {data?.incoming?.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {data.incoming.map(req => (
+                  <div
+                    key={req.id}
+                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 12, background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.12)' }}
+                  >
+                    <img
+                      src={`https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(req.requester.username)}`}
+                      width={42} height={42}
+                      style={{ borderRadius: 10, background: 'rgba(255,255,255,0.07)', flexShrink: 0 }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 15, fontWeight: 700, color: 'white' }}>
+                        {req.requester.username}{req.requester.country ? ` ${countryFlag(req.requester.country)}` : ''}
+                      </div>
+                      <div style={{ fontSize: 12, color: LEVEL_COLORS[req.requester.level] || '#9ca3af', fontFamily: "'Nunito', sans-serif" }}>
+                        {req.requester.level} · {(req.requester.tez_points || 0).toLocaleString()} TP
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => respond(req.id, 'accept', req.requester.username)}
+                      disabled={acting === req.id}
+                      style={{
+                        padding: '8px 18px', borderRadius: 9, cursor: 'pointer',
+                        background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.35)',
+                        color: '#4ade80', fontWeight: 700, fontSize: 13,
+                        fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s', flexShrink: 0,
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.22)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.12)'; }}
+                    >
+                      {acting === req.id ? '...' : '✓ Accept'}
+                    </button>
+                    <button
+                      onClick={() => respond(req.id, 'decline')}
+                      disabled={acting === req.id}
+                      style={{
+                        padding: '8px 14px', borderRadius: 9, cursor: 'pointer',
+                        background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.2)',
+                        color: '#f87171', fontWeight: 700, fontSize: 13,
+                        fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s', flexShrink: 0,
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.07)'; }}
+                    >
+                      Decline
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -272,68 +356,6 @@ export default function FriendsPage() {
               </div>
             )}
           </div>
-
-          {/* Pending Requests */}
-          {data?.incoming?.length > 0 && (
-            <div style={cardStyle}>
-              <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 16 }}>
-                Pending Requests
-                <span style={{ marginLeft: 10, background: '#7C3AED', color: 'white', borderRadius: 20, fontSize: 12, fontWeight: 800, padding: '2px 9px' }}>
-                  {data.incoming.length}
-                </span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {data.incoming.map(req => (
-                  <div
-                    key={req.id}
-                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 12, background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.12)' }}
-                  >
-                    <img
-                      src={`https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(req.requester.username)}`}
-                      width={42} height={42}
-                      style={{ borderRadius: 10, background: 'rgba(255,255,255,0.07)', flexShrink: 0 }}
-                    />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 15, fontWeight: 700, color: 'white' }}>
-                        {req.requester.username}{req.requester.country ? ` ${countryFlag(req.requester.country)}` : ''}
-                      </div>
-                      <div style={{ fontSize: 12, color: LEVEL_COLORS[req.requester.level] || '#9ca3af', fontFamily: "'Nunito', sans-serif" }}>
-                        {req.requester.level} · {(req.requester.tez_points || 0).toLocaleString()} TP
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => respond(req.id, 'accept')}
-                      disabled={acting === req.id}
-                      style={{
-                        padding: '8px 18px', borderRadius: 9, cursor: 'pointer',
-                        background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.35)',
-                        color: '#4ade80', fontWeight: 700, fontSize: 13,
-                        fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s', flexShrink: 0,
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.22)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.12)'; }}
-                    >
-                      {acting === req.id ? '...' : '✓ Accept'}
-                    </button>
-                    <button
-                      onClick={() => respond(req.id, 'decline')}
-                      disabled={acting === req.id}
-                      style={{
-                        padding: '8px 14px', borderRadius: 9, cursor: 'pointer',
-                        background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.2)',
-                        color: '#f87171', fontWeight: 700, fontSize: 13,
-                        fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s', flexShrink: 0,
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.07)'; }}
-                    >
-                      Decline
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Friends list */}
           <div style={cardStyle}>

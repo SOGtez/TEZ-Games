@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useMusic, useUser } from '../pages/_app';
 import { version } from '../lib/version';
 import UsernameBanner from './UsernameBanner';
@@ -176,6 +176,94 @@ const NAV_ITEMS = [
   { href: '/leaderboard', label: 'Leaderboard', emoji: '🏆' },
 ];
 
+function FriendRequestNotif({ notif, onAccept, onDismiss }) {
+  const [show, setShow] = useState(false);
+  const timerRef = useRef(null);
+
+  const scheduleExit = useCallback((delay) => {
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => onDismiss(notif.notifId), delay);
+  }, [notif.notifId, onDismiss]);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setShow(true));
+    scheduleExit(4000);
+    return () => { cancelAnimationFrame(raf); clearTimeout(timerRef.current); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (notif.accepted) scheduleExit(2000);
+  }, [notif.accepted, scheduleExit]);
+
+  return (
+    <div style={{
+      pointerEvents: 'auto',
+      transform: show && !notif.exiting ? 'translateY(0)' : 'translateY(calc(-100% - 24px))',
+      opacity: notif.exiting ? 0 : 1,
+      transition: 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease',
+      background: 'rgba(13,6,24,0.97)',
+      border: `1px solid ${notif.accepted ? 'rgba(74,222,128,0.4)' : 'rgba(124,58,237,0.4)'}`,
+      borderRadius: 16,
+      padding: '13px 16px',
+      display: 'flex', alignItems: 'center', gap: 12,
+      boxShadow: '0 8px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      minWidth: 300, maxWidth: 420,
+      fontFamily: "'Nunito', sans-serif",
+    }}>
+      {notif.accepted ? (
+        <>
+          <span style={{ fontSize: 22, flexShrink: 0 }}>✅</span>
+          <span style={{ color: '#4ade80', fontWeight: 700, fontSize: 14 }}>
+            You and {notif.requester.username} are now friends!
+          </span>
+        </>
+      ) : (
+        <>
+          <img
+            src={`https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(notif.requester.username)}`}
+            width={38} height={38}
+            style={{ borderRadius: 9, background: 'rgba(255,255,255,0.07)', flexShrink: 0 }}
+          />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'white', lineHeight: 1.3 }}>
+              {notif.requester.username}{notif.requester.country ? ` ${countryFlag(notif.requester.country)}` : ''}{' '}
+              <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.6)' }}>wants to be your friend!</span>
+            </div>
+            <div style={{ fontSize: 11, marginTop: 2, color: LEVEL_COLORS[notif.requester.level] || '#9ca3af' }}>
+              {notif.requester.level}
+            </div>
+          </div>
+          <button
+            onClick={() => { clearTimeout(timerRef.current); onAccept(notif.notifId, notif.friendshipId); }}
+            style={{
+              padding: '6px 14px', borderRadius: 8, cursor: 'pointer', flexShrink: 0,
+              background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.4)',
+              color: '#4ade80', fontWeight: 800, fontSize: 13,
+              fontFamily: "'Nunito', sans-serif", transition: 'background 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.28)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.15)'; }}
+          >Accept</button>
+          <button
+            onClick={() => { clearTimeout(timerRef.current); onDismiss(notif.notifId); }}
+            style={{
+              width: 28, height: 28, borderRadius: 7, cursor: 'pointer', flexShrink: 0,
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+              color: 'rgba(255,255,255,0.45)', fontSize: 14,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'background 0.2s, color 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; }}
+          >✕</button>
+        </>
+      )}
+    </div>
+  );
+}
+
 function SidebarFriendsPanel({ expanded, data, acting, onRespond, onAddFriend, onCloseSidebar }) {
   return (
     <div style={{
@@ -317,6 +405,9 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
   const [addFriendOpen, setAddFriendOpen] = useState(false);
   const [friendsData, setFriendsData] = useState(null);
   const [friendsActing, setFriendsActing] = useState(null);
+  const [friendNotifs, setFriendNotifs] = useState([]);
+  const seenRequestIds = useRef(new Set());
+  const isFirstLoad = useRef(true);
 
   const refreshFriends = useCallback(() => {
     if (!playerId) return;
@@ -326,8 +417,53 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
       .catch(() => {});
   }, [playerId]);
 
-  useEffect(() => { if (friendsExpanded && !friendsData) refreshFriends(); }, [friendsExpanded]);
-  useEffect(() => { if (playerId) refreshFriends(); }, [playerId]);
+  // Poll every 30s
+  useEffect(() => {
+    if (!playerId) return;
+    refreshFriends();
+    const interval = setInterval(refreshFriends, 30000);
+    return () => clearInterval(interval);
+  }, [playerId, refreshFriends]);
+
+  useEffect(() => { if (friendsExpanded && !friendsData) refreshFriends(); }, [friendsExpanded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Detect new incoming requests and fire notifications
+  useEffect(() => {
+    if (!friendsData?.incoming) return;
+    if (isFirstLoad.current) {
+      friendsData.incoming.forEach(r => seenRequestIds.current.add(r.id));
+      isFirstLoad.current = false;
+      return;
+    }
+    const newRequests = friendsData.incoming.filter(r => !seenRequestIds.current.has(r.id));
+    if (newRequests.length > 0) {
+      setFriendNotifs(prev => [
+        ...prev,
+        ...newRequests.map(r => ({
+          notifId: `${r.id}_${Date.now()}`,
+          friendshipId: r.id,
+          requester: r.requester,
+          accepted: false,
+          exiting: false,
+        })),
+      ]);
+    }
+    friendsData.incoming.forEach(r => seenRequestIds.current.add(r.id));
+  }, [friendsData]);
+
+  const dismissNotif = useCallback((notifId) => {
+    setFriendNotifs(prev => prev.map(n => n.notifId === notifId ? { ...n, exiting: true } : n));
+    setTimeout(() => setFriendNotifs(prev => prev.filter(n => n.notifId !== notifId)), 400);
+  }, []);
+
+  const acceptNotif = useCallback(async (notifId, friendshipId) => {
+    await fetch('/api/friends/respond', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId, friendshipId, action: 'accept' }),
+    });
+    refreshFriends();
+    setFriendNotifs(prev => prev.map(n => n.notifId === notifId ? { ...n, accepted: true } : n));
+  }, [playerId, refreshFriends]);
 
   const handleFriendRespond = async (friendshipId, action) => {
     setFriendsActing(friendshipId);
@@ -782,6 +918,24 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
           playerId={playerId}
           onAdded={() => refreshFriends()}
         />
+
+        {/* Friend request slide-down notifications */}
+        {friendNotifs.length > 0 && (
+          <div style={{
+            position: 'fixed', top: 16, left: 0, right: 0, zIndex: 2000,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+            pointerEvents: 'none',
+          }}>
+            {friendNotifs.map(n => (
+              <FriendRequestNotif
+                key={n.notifId}
+                notif={n}
+                onAccept={acceptNotif}
+                onDismiss={dismissNotif}
+              />
+            ))}
+          </div>
+        )}
 
         <main className="max-w-6xl mx-auto px-4 py-8" style={{ position: 'relative', zIndex: 1 }}>
           {children}

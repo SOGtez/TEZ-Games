@@ -1,5 +1,15 @@
 # TEZ Games Changelog
 
+## v0.8.2 — Friend request notifications
+- Slide-down notification when a new friend request arrives (polls every 30s)
+- Notification shows sender's username, flag, level badge with Accept and X buttons
+- Accept on notification → changes to "You and X are now friends!" → auto-dismisses after 2s
+- X dismisses immediately; request stays pending and is visible on /friends
+- Auto-dismisses after 4s if no interaction; multiple requests stack
+- Sidebar pending badge updates on the same 30s poll
+- Friend Requests card moved to top of /friends page, always shown (shows "No pending requests" when empty)
+- Inline acceptance confirmation on /friends page
+
 ## v0.8.1 — Friend system
 - Auto-generated friend codes (TEZ-XXXX) for all players; backfilled on next login for existing players
 - Add friends by username search or friend code
