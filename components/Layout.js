@@ -541,32 +541,9 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
 
               {/* Nav links */}
               <nav style={{ padding: '12px 8px' }}>
-                {NAV_ITEMS.map(({ href, label, emoji }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={() => setSidebarOpen(false)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      padding: '10px 12px', borderRadius: 10,
-                      color: 'rgba(255,255,255,0.75)',
-                      fontFamily: "'Nunito', sans-serif",
-                      fontWeight: 600, fontSize: 15,
-                      textDecoration: 'none',
-                      transition: 'background 0.2s, color 0.2s',
-                      marginBottom: 4,
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(253,224,71,0.1)'; e.currentTarget.style.color = '#fde047'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
-                  >
-                    <span style={{ fontSize: 18 }}>{emoji}</span>
-                    {label}
-                  </Link>
-                ))}
-
                 {/* Friends section */}
                 {username && playerId && (
-                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 6, paddingTop: 6 }}>
+                  <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: 6, paddingBottom: 6 }}>
                     <div
                       onClick={() => setFriendsExpanded(v => !v)}
                       style={{
@@ -608,6 +585,29 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                     />
                   </div>
                 )}
+
+                {NAV_ITEMS.map(({ href, label, emoji }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setSidebarOpen(false)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '10px 12px', borderRadius: 10,
+                      color: 'rgba(255,255,255,0.75)',
+                      fontFamily: "'Nunito', sans-serif",
+                      fontWeight: 600, fontSize: 15,
+                      textDecoration: 'none',
+                      transition: 'background 0.2s, color 0.2s',
+                      marginBottom: 4,
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(253,224,71,0.1)'; e.currentTarget.style.color = '#fde047'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
+                  >
+                    <span style={{ fontSize: 18 }}>{emoji}</span>
+                    {label}
+                  </Link>
+                ))}
               </nav>
 
               {/* Link Email + Log Out (logged-in users) */}
