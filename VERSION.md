@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.8.4 — Hide "Add Friend" when already friends
+- Sidebar hides "+ Add Friend" button when viewing a profile of someone already in your friends list
+
 ## v0.8.3 — Clean up debug error output
 - Remove debug error details from friend add API and frontend; errors now show friendly messages only
 

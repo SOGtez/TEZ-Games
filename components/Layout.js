@@ -264,7 +264,7 @@ function FriendRequestNotif({ notif, onAccept, onDismiss }) {
   );
 }
 
-function SidebarFriendsPanel({ expanded, data, acting, onRespond, onAddFriend, onCloseSidebar }) {
+function SidebarFriendsPanel({ expanded, data, acting, onRespond, onAddFriend, onCloseSidebar, alreadyFriend }) {
   return (
     <div style={{
       overflow: 'hidden',
@@ -358,19 +358,21 @@ function SidebarFriendsPanel({ expanded, data, acting, onRespond, onAddFriend, o
         )}
 
         <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
-          <button
-            onClick={onAddFriend}
-            style={{
-              flex: 1, padding: '7px 0', borderRadius: 8, cursor: 'pointer',
-              background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)',
-              color: '#c084fc', fontWeight: 700, fontSize: 12,
-              fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.28)'; e.currentTarget.style.color = 'white'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.15)'; e.currentTarget.style.color = '#c084fc'; }}
-          >
-            + Add Friend
-          </button>
+          {!alreadyFriend && (
+            <button
+              onClick={onAddFriend}
+              style={{
+                flex: 1, padding: '7px 0', borderRadius: 8, cursor: 'pointer',
+                background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)',
+                color: '#c084fc', fontWeight: 700, fontSize: 12,
+                fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.28)'; e.currentTarget.style.color = 'white'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.15)'; e.currentTarget.style.color = '#c084fc'; }}
+            >
+              + Add Friend
+            </button>
+          )}
           <Link
             href="/friends"
             onClick={onCloseSidebar}
@@ -393,7 +395,7 @@ function SidebarFriendsPanel({ expanded, data, acting, onRespond, onAddFriend, o
   );
 }
 
-export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
+export default function Layout({ children, title = 'TEZ Games', hideChrome = false, viewedPlayerId = null }) {
   const { musicOn, toggleMusic, volume, setVolume } = useMusic();
   const { username, playerId, playerStats, isEmailLinked, clearUsername } = useUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -718,6 +720,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                       onRespond={handleFriendRespond}
                       onAddFriend={() => { setAddFriendOpen(true); setSidebarOpen(false); }}
                       onCloseSidebar={() => setSidebarOpen(false)}
+                      alreadyFriend={viewedPlayerId ? friendsData?.friends?.some(f => f.id === viewedPlayerId) : false}
                     />
                   </div>
                 )}

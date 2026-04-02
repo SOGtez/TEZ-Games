@@ -25,7 +25,7 @@ export default function PublicProfilePage() {
   const isOwn = profile?.player && playerId && profile.player.id === playerId;
 
   return (
-    <Layout title={profile?.player ? `${profile.player.username} — TEZ Games` : 'Player Profile — TEZ Games'}>
+    <Layout title={profile?.player ? `${profile.player.username} — TEZ Games` : 'Player Profile — TEZ Games'} viewedPlayerId={!isOwn && profile?.player ? profile.player.id : null}>
       {loading && (
         <div style={{ textAlign: 'center', padding: '80px 0', color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
           Loading profile...
