@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { generateFriendCode } from '../../../lib/friendCode';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
@@ -33,7 +34,7 @@ export default async function handler(req, res) {
   const country = req.headers['x-vercel-ip-country'] || null;
   const { data: player, error: playerErr } = await supabase
     .from('players')
-    .insert({ username: clean, auth_id: uid, ...(country ? { country } : {}) })
+    .insert({ username: clean, auth_id: uid, friend_code: generateFriendCode(), ...(country ? { country } : {}) })
     .select('id')
     .single();
 

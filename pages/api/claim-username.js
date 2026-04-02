@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { generateFriendCode } from '../../lib/friendCode';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -42,7 +43,7 @@ export default async function handler(req, res) {
   // New player — insert
   const { data, error } = await supabase
     .from('players')
-    .insert({ username: clean, ...(country ? { country } : {}) })
+    .insert({ username: clean, friend_code: generateFriendCode(), ...(country ? { country } : {}) })
     .select('id')
     .single();
   if (error) return res.status(500).json({ error: 'server' });

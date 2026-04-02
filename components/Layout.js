@@ -1,11 +1,12 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useMusic, useUser } from '../pages/_app';
 import { version } from '../lib/version';
 import UsernameBanner from './UsernameBanner';
 import UsernameModal from './UsernameModal';
 import AuthModal from './AuthModal';
+import AddFriendModal from './AddFriendModal';
 import { countryFlag } from '../lib/countryFlag';
 
 const LEVEL_ORDER = ['Rookie', 'Player', 'Competitor', 'Champion', 'Master', 'Legend', 'GOAT'];
@@ -175,14 +176,170 @@ const NAV_ITEMS = [
   { href: '/leaderboard', label: 'Leaderboard', emoji: '🏆' },
 ];
 
+function SidebarFriendsPanel({ expanded, data, acting, onRespond, onAddFriend, onCloseSidebar }) {
+  return (
+    <div style={{
+      overflow: 'hidden',
+      maxHeight: expanded ? 500 : 0,
+      opacity: expanded ? 1 : 0,
+      transition: 'max-height 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease',
+    }}>
+      <div style={{ margin: '0 12px 10px', padding: '2px 0 6px' }}>
+        {!data && (
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif", textAlign: 'center', padding: '12px 0' }}>
+            Loading...
+          </div>
+        )}
+
+        {data?.incoming?.length > 0 && (
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif", letterSpacing: '0.06em', marginBottom: 7, paddingLeft: 2 }}>
+              REQUESTS
+            </div>
+            {data.incoming.map(req => (
+              <div key={req.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
+                <img
+                  src={`https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(req.requester.username)}`}
+                  width={28} height={28}
+                  style={{ borderRadius: 7, background: 'rgba(255,255,255,0.07)', flexShrink: 0 }}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'white', fontFamily: "'Nunito', sans-serif", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {req.requester.username}
+                  </div>
+                  <div style={{ fontSize: 10, color: LEVEL_COLORS[req.requester.level] || '#9ca3af', fontFamily: "'Nunito', sans-serif" }}>
+                    {req.requester.level}
+                  </div>
+                </div>
+                <button
+                  onClick={() => onRespond(req.id, 'accept')}
+                  disabled={acting === req.id}
+                  title="Accept"
+                  style={{ width: 26, height: 26, borderRadius: 6, cursor: 'pointer', border: '1px solid rgba(74,222,128,0.35)', background: 'rgba(74,222,128,0.1)', color: '#4ade80', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                >✓</button>
+                <button
+                  onClick={() => onRespond(req.id, 'decline')}
+                  disabled={acting === req.id}
+                  title="Decline"
+                  style={{ width: 26, height: 26, borderRadius: 6, cursor: 'pointer', border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.08)', color: '#f87171', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                >✕</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {data?.friends?.length > 0 && (
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif", letterSpacing: '0.06em', marginBottom: 7, paddingLeft: 2 }}>
+              FRIENDS
+            </div>
+            {data.friends.slice(0, 5).map(f => (
+              <Link
+                key={f.id}
+                href={`/profile/${f.username}`}
+                onClick={onCloseSidebar}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, textDecoration: 'none', borderRadius: 8, padding: '4px', transition: 'background 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+              >
+                <img
+                  src={`https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(f.username)}`}
+                  width={28} height={28}
+                  style={{ borderRadius: 7, background: 'rgba(255,255,255,0.07)', flexShrink: 0 }}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'white', fontFamily: "'Nunito', sans-serif", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {f.username}{f.country ? ` ${countryFlag(f.country)}` : ''}
+                  </div>
+                  <div style={{ fontSize: 10, color: LEVEL_COLORS[f.level] || '#9ca3af', fontFamily: "'Nunito', sans-serif" }}>
+                    {f.level}
+                  </div>
+                </div>
+                <div style={{ fontSize: 11, fontFamily: "'Fredoka', sans-serif", color: '#fde047', flexShrink: 0 }}>
+                  {(f.tez_points || 0).toLocaleString()} TP
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {data && data.friends.length === 0 && data.incoming.length === 0 && (
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif", textAlign: 'center', padding: '10px 0' }}>
+            No friends yet — share your code!
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+          <button
+            onClick={onAddFriend}
+            style={{
+              flex: 1, padding: '7px 0', borderRadius: 8, cursor: 'pointer',
+              background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)',
+              color: '#c084fc', fontWeight: 700, fontSize: 12,
+              fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.28)'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.15)'; e.currentTarget.style.color = '#c084fc'; }}
+          >
+            + Add Friend
+          </button>
+          <Link
+            href="/friends"
+            onClick={onCloseSidebar}
+            style={{
+              flex: 1, padding: '7px 0', borderRadius: 8,
+              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+              color: 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: 12,
+              fontFamily: "'Nunito', sans-serif", textDecoration: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}
+          >
+            View All →
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false }) {
   const { musicOn, toggleMusic, volume, setVolume } = useMusic();
-  const { username, playerStats, isEmailLinked, clearUsername } = useUser();
+  const { username, playerId, playerStats, isEmailLinked, clearUsername } = useUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [usernameModalOpen, setUsernameModalOpen] = useState(false);
   const [statsExpanded, setStatsExpanded] = useState(false);
   const [authModalMode, setAuthModalMode] = useState(null);
+  const [friendsExpanded, setFriendsExpanded] = useState(false);
+  const [addFriendOpen, setAddFriendOpen] = useState(false);
+  const [friendsData, setFriendsData] = useState(null);
+  const [friendsActing, setFriendsActing] = useState(null);
+
+  const refreshFriends = useCallback(() => {
+    if (!playerId) return;
+    fetch(`/api/friends/get?playerId=${encodeURIComponent(playerId)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setFriendsData(d); })
+      .catch(() => {});
+  }, [playerId]);
+
+  useEffect(() => { if (friendsExpanded && !friendsData) refreshFriends(); }, [friendsExpanded]);
+  useEffect(() => { if (playerId) refreshFriends(); }, [playerId]);
+
+  const handleFriendRespond = async (friendshipId, action) => {
+    setFriendsActing(friendshipId);
+    await fetch('/api/friends/respond', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId, friendshipId, action }),
+    });
+    refreshFriends();
+    setFriendsActing(null);
+  };
+
+  const pendingCount = friendsData?.incoming?.length || 0;
 
   return (
     <>
@@ -406,6 +563,51 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                     {label}
                   </Link>
                 ))}
+
+                {/* Friends section */}
+                {username && playerId && (
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 6, paddingTop: 6 }}>
+                    <div
+                      onClick={() => setFriendsExpanded(v => !v)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '10px 12px', borderRadius: 10,
+                        color: 'rgba(255,255,255,0.75)',
+                        fontFamily: "'Nunito', sans-serif",
+                        fontWeight: 600, fontSize: 15,
+                        cursor: 'pointer', userSelect: 'none',
+                        transition: 'background 0.2s, color 0.2s',
+                        marginBottom: 4,
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(253,224,71,0.1)'; e.currentTarget.style.color = '#fde047'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
+                    >
+                      <span style={{ fontSize: 18 }}>👥</span>
+                      <span style={{ flex: 1 }}>Friends</span>
+                      {pendingCount > 0 && (
+                        <span style={{
+                          background: '#7C3AED', color: 'white', borderRadius: 20,
+                          fontSize: 11, fontWeight: 800, padding: '1px 7px', minWidth: 20, textAlign: 'center',
+                        }}>
+                          {pendingCount}
+                        </span>
+                      )}
+                      <span style={{
+                        color: 'rgba(255,255,255,0.25)', fontSize: 11,
+                        transform: friendsExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.25s ease',
+                      }}>▼</span>
+                    </div>
+                    <SidebarFriendsPanel
+                      expanded={friendsExpanded}
+                      data={friendsData}
+                      acting={friendsActing}
+                      onRespond={handleFriendRespond}
+                      onAddFriend={() => { setAddFriendOpen(true); setSidebarOpen(false); }}
+                      onCloseSidebar={() => setSidebarOpen(false)}
+                    />
+                  </div>
+                )}
               </nav>
 
               {/* Link Email + Log Out (logged-in users) */}
@@ -574,6 +776,12 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
 
         <UsernameModal open={usernameModalOpen} onClose={() => setUsernameModalOpen(false)} />
         <AuthModal open={!!authModalMode} onClose={() => setAuthModalMode(null)} initialMode={authModalMode || 'signup'} />
+        <AddFriendModal
+          open={addFriendOpen}
+          onClose={() => setAddFriendOpen(false)}
+          playerId={playerId}
+          onAdded={() => refreshFriends()}
+        />
 
         <main className="max-w-6xl mx-auto px-4 py-8" style={{ position: 'relative', zIndex: 1 }}>
           {children}

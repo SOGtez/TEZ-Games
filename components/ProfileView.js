@@ -2,6 +2,24 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { countryFlag } from '../lib/countryFlag';
 
+function CopyButton({ text }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+      style={{
+        padding: '3px 10px', borderRadius: 7, cursor: 'pointer', fontSize: 11, fontWeight: 700,
+        background: copied ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.07)',
+        border: `1px solid ${copied ? 'rgba(74,222,128,0.35)' : 'rgba(255,255,255,0.12)'}`,
+        color: copied ? '#4ade80' : 'rgba(255,255,255,0.5)',
+        fontFamily: "'Nunito', sans-serif", transition: 'all 0.2s',
+      }}
+    >
+      {copied ? '✓ Copied' : 'Copy'}
+    </button>
+  );
+}
+
 function RollingNumber({ value, prefix = '', suffix = '', color }) {
   const [display, setDisplay] = useState(value);
   const [glow, setGlow] = useState(false);
@@ -172,6 +190,16 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
             {memberSince && (
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
                 Member since {memberSince}
+              </div>
+            )}
+            {isOwn && player.friend_code && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: "'Nunito', sans-serif" }}>Friend Code:</span>
+                <span style={{
+                  fontFamily: "'Fredoka', sans-serif", fontSize: 15, fontWeight: 700,
+                  color: '#fde047', letterSpacing: '0.06em',
+                }}>{player.friend_code}</span>
+                <CopyButton text={player.friend_code} />
               </div>
             )}
           </div>

@@ -1,5 +1,15 @@
 # TEZ Games Changelog
 
+## v0.8.1 — Friend system
+- Auto-generated friend codes (TEZ-XXXX) for all players; backfilled on next login for existing players
+- Add friends by username search or friend code
+- Friend request flow: send → pending → accept/decline
+- Sidebar 👥 Friends section with pending badge count, expandable panel showing requests + friend list
+- AddFriendModal accessible from sidebar with username search and friend code input
+- Full /friends page: add friend, pending requests, friends list with stats and Remove option, sent requests
+- Friend code shown on own profile page with copy button
+- New API routes: /api/friends/get, search, add, respond, remove
+
 ## v0.8.0 — Email account system
 - Sign Up with email + password to create a cross-device account
 - Log In from any device using email + password to restore username and stats
