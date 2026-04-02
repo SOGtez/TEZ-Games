@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
   if (playerErr || !player) return res.status(404).json({ error: 'not_found' });
 
-  const { data: gameStats } = await supabase
+  const { data: gameStats, error: gameStatsErr } = await supabase
     .from('game_stats')
     .select('game_type, result, points_earned, created_at')
     .eq('player_id', player.id)
@@ -42,5 +42,6 @@ export default async function handler(req, res) {
     player,
     perGame,
     recent: stats.slice(0, 10),
+    _dbg: gameStatsErr ? { msg: gameStatsErr.message, code: gameStatsErr.code } : null,
   });
 }
