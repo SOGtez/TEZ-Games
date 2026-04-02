@@ -5,10 +5,11 @@ import { useUser } from './_app';
 import { countryFlag } from '../lib/countryFlag';
 
 const TABS = [
-  { key: 'global',    label: 'Global',    emoji: '🌍' },
-  { key: 'blackjack', label: 'Blackjack', emoji: '🃏' },
-  { key: 'connect4',  label: 'Connect 4', emoji: '🔴' },
-  { key: 'war',       label: 'War',       emoji: '⚔️'  },
+  { key: 'global',    label: 'Global',          emoji: '🌍' },
+  { key: 'richest',   label: 'Richest Players', emoji: '💰' },
+  { key: 'blackjack', label: 'Blackjack',        emoji: '🃏' },
+  { key: 'connect4',  label: 'Connect 4',        emoji: '🔴' },
+  { key: 'war',       label: 'War',              emoji: '⚔️'  },
 ];
 
 const LEVEL_COLORS = {
@@ -62,13 +63,13 @@ function PlayerName({ row, isMe }) {
   );
 }
 
-function RowWrapper({ row, rank, isMe, isGlobal }) {
+function RowWrapper({ row, rank, isMe, isGlobal, isRichest }) {
   const rs = RANK_STYLES[rank];
   const [hovered, setHovered] = useState(false);
 
   const baseStyle = {
     display: 'grid',
-    gridTemplateColumns: '40px 1fr auto auto auto',
+    gridTemplateColumns: isRichest ? '40px 1fr auto' : '40px 1fr auto auto auto',
     alignItems: 'center',
     gap: 10,
     padding: '11px 16px',
@@ -101,36 +102,51 @@ function RowWrapper({ row, rank, isMe, isGlobal }) {
 
       <PlayerName row={row} isMe={isMe} />
 
-      {/* Win rate */}
-      <div style={{ textAlign: 'right', minWidth: 42 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>Win %</div>
-        <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: '#4ade80' }}>
-          {isGlobal ? winRate(row.total_wins, row.total_games) : winRate(row.wins, row.played)}
+      {isRichest ? (
+        /* TEZ Bucks column */
+        <div style={{ textAlign: 'right', minWidth: 70 }}>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>TEZ Bucks</div>
+          <div style={{
+            fontSize: 14, fontWeight: 700, fontFamily: "'Fredoka', sans-serif",
+            color: '#fbbf24', textShadow: '0 0 6px rgba(251,191,36,0.4)',
+          }}>
+            💰 {(row.tez_bucks || 0).toLocaleString()}
+          </div>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Win rate */}
+          <div style={{ textAlign: 'right', minWidth: 42 }}>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>Win %</div>
+            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: '#4ade80' }}>
+              {isGlobal ? winRate(row.total_wins, row.total_games) : winRate(row.wins, row.played)}
+            </div>
+          </div>
 
-      {/* Col 4 */}
-      <div style={{ textAlign: 'right', minWidth: 40 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
-          {isGlobal ? 'Wins' : 'Played'}
-        </div>
-        <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: 'rgba(255,255,255,0.7)' }}>
-          {isGlobal ? (row.total_wins || 0) : row.played}
-        </div>
-      </div>
+          {/* Col 4 */}
+          <div style={{ textAlign: 'right', minWidth: 40 }}>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
+              {isGlobal ? 'Wins' : 'Played'}
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: 'rgba(255,255,255,0.7)' }}>
+              {isGlobal ? (row.total_wins || 0) : row.played}
+            </div>
+          </div>
 
-      {/* Col 5 */}
-      <div style={{ textAlign: 'right', minWidth: 52 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
-          {isGlobal ? 'TP' : 'Wins'}
-        </div>
-        <div style={{
-          fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif",
-          color: '#fde047', textShadow: '0 0 6px rgba(253,224,71,0.4)',
-        }}>
-          {isGlobal ? (row.tez_points || 0).toLocaleString() : row.wins}
-        </div>
-      </div>
+          {/* Col 5 */}
+          <div style={{ textAlign: 'right', minWidth: 52 }}>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
+              {isGlobal ? 'TP' : 'Wins'}
+            </div>
+            <div style={{
+              fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif",
+              color: '#fde047', textShadow: '0 0 6px rgba(253,224,71,0.4)',
+            }}>
+              {isGlobal ? (row.tez_points || 0).toLocaleString() : row.wins}
+            </div>
+          </div>
+        </>
+      )}
     </Link>
   );
 }
@@ -163,6 +179,7 @@ export default function LeaderboardPage() {
   const rows = tabData?.rows || [];
   const userRank = tabData?.userRank;
   const isGlobal = activeTab === 'global';
+  const isRichest = activeTab === 'richest';
 
   return (
     <Layout title="Leaderboard — TEZ Games">
@@ -236,11 +253,15 @@ export default function LeaderboardPage() {
         {/* Column headers */}
         {!loading && rows.length > 0 && (
           <div style={{
-            display: 'grid', gridTemplateColumns: '40px 1fr auto auto auto',
+            display: 'grid',
+            gridTemplateColumns: isRichest ? '40px 1fr auto' : '40px 1fr auto auto auto',
             gap: 10, padding: '0 16px 8px',
             borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: 8,
           }}>
-            {['#', 'Player', 'Win %', isGlobal ? 'Wins' : 'Played', isGlobal ? 'TP' : 'Wins'].map((h, i) => (
+            {(isRichest
+              ? ['#', 'Player', 'TEZ Bucks']
+              : ['#', 'Player', 'Win %', isGlobal ? 'Wins' : 'Played', isGlobal ? 'TP' : 'Wins']
+            ).map((h, i) => (
               <div key={i} style={{
                 fontSize: 11, fontFamily: "'Nunito', sans-serif", fontWeight: 700,
                 color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.06em',
@@ -269,7 +290,7 @@ export default function LeaderboardPage() {
         )}
 
         {!loading && rows.map((row, i) => (
-          <RowWrapper key={row.id} row={row} rank={i + 1} isMe={row.id === playerId} isGlobal={isGlobal} />
+          <RowWrapper key={row.id} row={row} rank={i + 1} isMe={row.id === playerId} isGlobal={isGlobal} isRichest={isRichest} />
         ))}
 
         {/* User rank pinned at bottom */}
@@ -282,7 +303,7 @@ export default function LeaderboardPage() {
               </span>
               <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
             </div>
-            <RowWrapper row={userRank} rank={userRank.rank} isMe={true} isGlobal={isGlobal} />
+            <RowWrapper row={userRank} rank={userRank.rank} isMe={true} isGlobal={isGlobal} isRichest={isRichest} />
           </>
         )}
       </div>

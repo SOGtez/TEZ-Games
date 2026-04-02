@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   const { data, error } = await supabase
     .from('players')
-    .select('id, username, tez_points, level, total_games, total_wins, total_losses, current_streak, best_streak, country, blackjack_balance, blackjack_biggest_win, auth_id, friend_code')
+    .select('id, username, tez_points, tez_bucks, level, total_games, total_wins, total_losses, current_streak, best_streak, country, blackjack_balance, blackjack_biggest_win, auth_id, friend_code, last_login_bonus')
     .eq('id', id)
     .single();
 
@@ -34,5 +34,15 @@ export default async function handler(req, res) {
     data.friend_code = friend_code;
   }
 
-  return res.status(200).json(data);
+  // Daily login bonus — award 10 TEZ Bucks once per calendar day on site load
+  const today = new Date().toISOString().slice(0, 10);
+  let dailyLoginBucks = 0;
+  if (data.last_login_bonus !== today) {
+    dailyLoginBucks = 10;
+    data.tez_bucks = (data.tez_bucks || 0) + 10;
+    data.last_login_bonus = today;
+    await supabase.from('players').update({ tez_bucks: data.tez_bucks, last_login_bonus: today }).eq('id', id);
+  }
+
+  return res.status(200).json({ ...data, dailyLoginBucks });
 }

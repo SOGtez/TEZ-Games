@@ -78,7 +78,18 @@ export default function App({ Component, pageProps }) {
     if (!pid) return;
     try {
       const res = await fetch(`/api/get-player-by-id?id=${encodeURIComponent(pid)}`);
-      if (res.ok) setPlayerStats(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setPlayerStats(data);
+        if (data.dailyLoginBucks > 0) {
+          const toastId = Date.now();
+          setToasts(prev => [...prev, { id: toastId, type: 'daily_bucks', bucksEarned: data.dailyLoginBucks, exiting: false }]);
+          setTimeout(() => {
+            setToasts(prev => prev.map(t => t.id === toastId ? { ...t, exiting: true } : t));
+            setTimeout(() => setToasts(prev => prev.filter(t => t.id !== toastId)), 350);
+          }, 3000);
+        }
+      }
     } catch {}
   }, [playerId]);
 
@@ -93,6 +104,7 @@ export default function App({ Component, pageProps }) {
         id,
         pointsEarned: data.pointsEarned,
         dailyBonus: data.dailyBonus,
+        bucksEarned: data.bucksEarned,
         level: data.newLevel,
         exiting: false,
       };
@@ -107,6 +119,7 @@ export default function App({ Component, pageProps }) {
       setPlayerStats(prev => prev ? {
         ...prev,
         tez_points: data.newPoints,
+        tez_bucks: data.newBucks,
         level: data.newLevel,
         current_streak: data.newStreak,
       } : null);

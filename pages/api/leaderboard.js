@@ -7,6 +7,35 @@ export default async function handler(req, res) {
 
   const { tab = 'global', playerId } = req.query;
 
+  if (tab === 'richest') {
+    const { data: top50, error } = await supabase
+      .from('players')
+      .select('id, username, level, tez_bucks, country')
+      .order('tez_bucks', { ascending: false })
+      .limit(50);
+
+    if (error) return res.status(500).json({ error: 'server' });
+
+    let userRank = null;
+    if (playerId && !(top50 || []).find(p => p.id === playerId)) {
+      const { data: userRow } = await supabase
+        .from('players')
+        .select('id, username, level, tez_bucks, country')
+        .eq('id', playerId)
+        .single();
+
+      if (userRow) {
+        const { count } = await supabase
+          .from('players')
+          .select('id', { count: 'exact', head: true })
+          .gt('tez_bucks', userRow.tez_bucks);
+        userRank = { ...userRow, rank: (count || 0) + 1 };
+      }
+    }
+
+    return res.status(200).json({ rows: top50 || [], userRank });
+  }
+
   if (tab === 'global') {
     const { data: top50, error } = await supabase
       .from('players')

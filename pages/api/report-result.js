@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   // Fetch current player stats
   const { data: player, error: fetchErr } = await supabase
     .from('players')
-    .select('tez_points, level, daily_bonus_date, total_games, total_wins, total_losses, current_streak, best_streak, blackjack_biggest_win')
+    .select('tez_points, tez_bucks, level, daily_bonus_date, last_login_bonus, total_games, total_wins, total_losses, current_streak, best_streak, blackjack_biggest_win')
     .eq('id', playerId)
     .single();
 
@@ -42,18 +42,30 @@ export default async function handler(req, res) {
   else if (result === 'lose') newStreak = 0;
   const newBestStreak = Math.max(player.best_streak, newStreak);
 
+  const today = new Date().toISOString().slice(0, 10);
+
   // Calculate TP
   let tp = result === 'win' ? 10 : result === 'lose' ? 2 : 3;
   if (result === 'win' && details?.isBlackjack) tp = 15;
   if (result === 'win' && newStreak >= 2) tp += 5;
 
-  // Daily bonus
-  const today = new Date().toISOString().slice(0, 10);
+  // TP daily bonus
   const dailyBonus = player.daily_bonus_date !== today;
   if (dailyBonus) tp += 5;
 
   const newPoints = player.tez_points + tp;
   const newLevel = getLevel(newPoints);
+
+  // Calculate TEZ Bucks
+  let bucks = result === 'win' ? 5 : result === 'lose' ? 1 : 2;
+  if (result === 'win' && details?.isBlackjack) bucks += 10;
+  if (result === 'win' && newStreak >= 2) bucks += 3;
+
+  // Bucks daily login bonus
+  const dailyBucksBonus = player.last_login_bonus !== today;
+  if (dailyBucksBonus) bucks += 10;
+
+  const newBucks = (player.tez_bucks || 0) + bucks;
 
   // Insert into game_stats
   const { error: statsErr } = await supabase.from('game_stats').insert({
@@ -68,6 +80,7 @@ export default async function handler(req, res) {
   // Update player row
   const updatePayload = {
     tez_points: newPoints,
+    tez_bucks: newBucks,
     level: newLevel,
     total_games: player.total_games + 1,
     total_wins: player.total_wins + (result === 'win' ? 1 : 0),
@@ -76,6 +89,7 @@ export default async function handler(req, res) {
     best_streak: newBestStreak,
   };
   if (dailyBonus) updatePayload.daily_bonus_date = today;
+  if (dailyBucksBonus) updatePayload.last_login_bonus = today;
   if (gameType === 'blackjack') {
     if (details?.balance !== undefined) updatePayload.blackjack_balance = details.balance;
     if (details?.biggestWin !== undefined) {
@@ -98,5 +112,8 @@ export default async function handler(req, res) {
     newLevel,
     previousLevel: player.level,
     newStreak,
+    bucksEarned: bucks,
+    dailyBucksBonus,
+    newBucks,
   });
 }

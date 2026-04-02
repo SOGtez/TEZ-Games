@@ -19,6 +19,7 @@ const LEVEL_COLORS = {
 function SidebarStatsCard({ stats, expanded, onClose, onChangeUsername }) {
   const level = stats.level || 'Rookie';
   const points = stats.tez_points || 0;
+  const bucks = stats.tez_bucks || 0;
   const color = LEVEL_COLORS[level] || '#9ca3af';
   const idx = LEVEL_ORDER.indexOf(level);
   const isGoat = level === 'GOAT';
@@ -61,14 +62,23 @@ function SidebarStatsCard({ stats, expanded, onClose, onChangeUsername }) {
               {isGoat ? '👑 ' : ''}{level}
             </span>
           </div>
-          <span style={{
-            fontFamily: "'Fredoka', sans-serif",
-            fontSize: 15, fontWeight: 700,
-            color: '#fde047',
-            textShadow: '0 0 8px rgba(253,224,71,0.5)',
-          }}>
-            {points.toLocaleString()} TP
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+            <span style={{
+              fontFamily: "'Fredoka', sans-serif",
+              fontSize: 15, fontWeight: 700,
+              color: '#fde047',
+              textShadow: '0 0 8px rgba(253,224,71,0.5)',
+            }}>
+              {points.toLocaleString()} TP
+            </span>
+            <span style={{
+              fontFamily: "'Fredoka', sans-serif",
+              fontSize: 12, fontWeight: 700,
+              color: '#fbbf24',
+            }}>
+              💰 {bucks.toLocaleString()}
+            </span>
+          </div>
         </div>
 
         {/* Progress bar */}

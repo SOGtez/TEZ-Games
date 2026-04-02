@@ -186,6 +186,9 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
               <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 700 }}>
                 <RollingNumber value={points} suffix=" TP" color="#fde047" />
               </span>
+              <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 16, fontWeight: 700, color: '#fbbf24' }}>
+                💰 <RollingNumber value={player.tez_bucks || 0} color="#fbbf24" />
+              </span>
             </div>
             {memberSince && (
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>

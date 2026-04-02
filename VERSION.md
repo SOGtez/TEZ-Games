@@ -1,5 +1,13 @@
 # TEZ Games Changelog
 
+## v0.9.0 — TEZ Bucks system
+- New currency: TEZ Bucks earned from gameplay (win +5, lose +1, push +2, natural blackjack +10, win streak +3)
+- Daily login bonus: +10 TEZ Bucks once per calendar day (on site load or first game)
+- Bucks balance shown in sidebar profile card (💰) and on profile page
+- Game result toast now shows both TP and Bucks earned: "+10 TP | +5 💰"
+- Separate "Daily Bonus! +10 💰" toast when daily login bonus triggers
+- New "Richest Players" leaderboard tab ranked by total TEZ Bucks
+
 ## v0.8.4 — Hide "Add Friend" when already friends
 - Sidebar hides "+ Add Friend" button when viewing a profile of someone already in your friends list
 
