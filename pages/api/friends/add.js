@@ -14,17 +14,20 @@ export default async function handler(req, res) {
     ? query.ilike('friend_code', target.trim())
     : query.ilike('username', target.trim());
 
-  const { data: targetPlayer } = await query.maybeSingle();
+  const { data: targetPlayer, error: lookupErr } = await query.maybeSingle();
+  if (lookupErr) return res.status(500).json({ error: 'lookup_failed', detail: lookupErr.message });
   if (!targetPlayer) return res.status(404).json({ error: 'not_found' });
   if (targetPlayer.id === playerId) return res.status(400).json({ error: 'self' });
 
   // Check both directions for existing friendship/request
-  const [{ data: f1 }, { data: f2 }] = await Promise.all([
+  const [{ data: f1, error: e1 }, { data: f2, error: e2 }] = await Promise.all([
     supabase.from('friendships').select('id, status')
       .eq('requester_id', playerId).eq('addressee_id', targetPlayer.id).maybeSingle(),
     supabase.from('friendships').select('id, status')
       .eq('requester_id', targetPlayer.id).eq('addressee_id', playerId).maybeSingle(),
   ]);
+
+  if (e1 || e2) return res.status(500).json({ error: 'check_failed', detail: (e1 || e2).message });
 
   const existing = f1 || f2;
   if (existing) {
@@ -32,11 +35,11 @@ export default async function handler(req, res) {
     return res.status(409).json({ error: 'request_exists' });
   }
 
-  const { error } = await supabase
+  const { error: insertErr } = await supabase
     .from('friendships')
     .insert({ requester_id: playerId, addressee_id: targetPlayer.id });
 
-  if (error) return res.status(500).json({ error: 'server' });
+  if (insertErr) return res.status(500).json({ error: 'insert_failed', detail: insertErr.message });
 
   return res.status(200).json({ ok: true, username: targetPlayer.username });
 }

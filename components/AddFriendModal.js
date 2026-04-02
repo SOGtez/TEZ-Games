@@ -62,7 +62,7 @@ export default function AddFriendModal({ open, onClose, playerId, onAdded }) {
         request_exists: 'Request already sent',
         server: 'Something went wrong',
       };
-      setError(errMap[d.error] || 'Something went wrong');
+      setError(d.detail ? `${d.error}: ${d.detail}` : (errMap[d.error] || 'Something went wrong'));
     }
   };
 

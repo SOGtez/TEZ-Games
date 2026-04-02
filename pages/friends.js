@@ -104,7 +104,7 @@ export default function FriendsPage() {
         request_exists: 'Request already sent',
         server: 'Something went wrong',
       };
-      setAddError(errMap[d.error] || 'Something went wrong');
+      setAddError(d.detail ? `${d.error}: ${d.detail}` : (errMap[d.error] || 'Something went wrong'));
     }
   };
 
