@@ -1,5 +1,15 @@
 # TEZ Games Changelog
 
+## v0.9.6 — Connect 4 multiplayer-ready refactor
+- Renamed component to `Connect4Game`, added `"use client"` directive
+- Accepts `gameMode` ('local'|'ai'|'online'), `playerColor` ('red'|'blue'), `onMove`, `incomingMove`, `onGameEnd` props
+- When `gameMode` is passed, skips menu and starts the game directly
+- Online mode: turn indicator shows "Your Turn" / "Waiting for opponent...", all board interaction disabled when it's not the local player's turn
+- `onMove` fires for every local action: `{ type: 'drop', col }`, `{ type: 'bomb', col }`, `{ type: 'snatch', row, col }`, `{ type: 'ghost', row, col }`, `{ type: 'useItem' }`
+- `incomingMove` prop processes the opponent's move (all types) as if they clicked
+- `onGameEnd({ winner, mode })` fires when the game ends; stats tracked for online mode the same as AI mode
+- Menu, local 2P, and AI modes all work exactly as before
+
 ## v0.9.5 — Fix daily login bonus repeating on refresh
 - Normalize stored `last_login_bonus` to `YYYY-MM-DD` before comparing (full timestamp strings caused the check to always be `true`)
 - Replace `.or()` Supabase filter with two separate `.is(null)` / `.lt()` conditional UPDATEs — avoids filter quirks in Supabase JS

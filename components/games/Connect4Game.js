@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { reportGameResult } from "../../lib/reportGameResult";
 
@@ -181,14 +182,15 @@ function MenuOrbs() {
   return <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }} />;
 }
 
-export default function Connect4Game() {
-  const [screen, setScreen] = useState("menu");
+export default function Connect4Game({ gameMode, playerColor, onMove, incomingMove, onGameEnd } = {}) {
+  const [screen, setScreen] = useState(gameMode ? "game" : "menu");
   const [mode, setMode] = useState("normal");
-  const [vsAI, setVsAI] = useState(false);
+  const [vsAI, setVsAI] = useState(gameMode === 'ai');
   const [board, setBoard] = useState(emptyBoard());
   const [turn, setTurn] = useState(1);
   const [result, setResult] = useState(null);
   const reportedRef = useRef(false);
+  const processedMoveRef = useRef(null);
   const [winCells, setWinCells] = useState([]);
   const [turnCount, setTurnCount] = useState(0);
   const [animPieces, setAnimPieces] = useState([]);
@@ -230,6 +232,8 @@ export default function Connect4Game() {
   const [flipAngle, setFlipAngle] = useState(0);
   const [menuReady, setMenuReady] = useState(false);
   const fromTop = gravityTurns > 0;
+  const localPlayer = gameMode === 'online' ? (playerColor === 'red' ? 1 : 2) : null;
+  const isMyTurn = gameMode !== 'online' || turn === localPlayer;
 
   useEffect(() => {
     if (screen === "menu") {
@@ -434,12 +438,16 @@ export default function Connect4Game() {
     bombTimers.current.push(finish);
   }, [spawnBurst, finishTurn, fromTop]);
 
-  const handleColClick = useCallback((col) => {
+  const handleColClick = useCallback((col, isRemote = false) => {
     if (result || spinning || dropping || bombPhase || flipping) return;
     const pa = pendingAction;
-    if (pa?.type === "bomb") { fireBomb(col, pa); setPendingAction(null); return; }
+    if (pa?.type === "bomb") {
+      if (!isRemote && gameMode === 'online') onMove?.({ type: 'bomb', col });
+      fireBomb(col, pa); setPendingAction(null); return;
+    }
     if (pa?.type === "snatch" || pa?.type === "ghost") return;
     if (vsAI && turn === 2) return;
+    if (gameMode === 'online' && !isRemote && turn !== (playerColor === 'red' ? 1 : 2)) return;
     const srcBoard = pa?.type === "double" ? pa.board : board;
     const landRow = getLandRow(srcBoard, col, fromTop);
     if (landRow < 0) return;
@@ -450,6 +458,7 @@ export default function Connect4Game() {
     let newPoison = poisonCell;
     const boxTriggeredRef = { current: false };
 
+    if (!isRemote && gameMode === 'online') onMove?.({ type: 'drop', col });
     animateDrop(col, player, landRow, (droppedId) => {
       const nb = srcBoard.map(r => [...r]);
       const isPoison = poisonArmed && player === turn && !pa;
@@ -510,12 +519,13 @@ export default function Connect4Game() {
       boxTriggeredRef.current = true;
       setBoxes(prev => { const n = { ...prev }; delete n[key]; return n; });
     });
-  }, [result, spinning, dropping, bombPhase, flipping, pendingAction, vsAI, turn, board, fromTop, turnCount, gravityTurns, fog, poisonCell, poisonArmed, mode, animateDrop, fireBomb, doubleFirst, finishTurn, animateFog, boardToPieces, shields, inventory, beginSpin, boxes]);
+  }, [result, spinning, dropping, bombPhase, flipping, pendingAction, vsAI, turn, board, fromTop, turnCount, gravityTurns, fog, poisonCell, poisonArmed, mode, animateDrop, fireBomb, doubleFirst, finishTurn, animateFog, boardToPieces, shields, inventory, beginSpin, boxes, gameMode, playerColor, onMove]);
 
-  const handleCellClick = useCallback((r, c) => {
+  const handleCellClick = useCallback((r, c, isRemote = false) => {
     const pa = pendingAction; if (!pa) return;
     if (pa.type === "snatch") {
       const opp = pa.player === 1 ? 2 : 1; if (pa.board[r][c] !== opp) return;
+      if (!isRemote && gameMode === 'online') onMove?.({ type: 'snatch', row: r, col: c });
       setFlipping({ r, c, player: pa.player, pa });
       let s = null; const dur = 580;
       const run = ts => {
@@ -526,22 +536,25 @@ export default function Connect4Game() {
       rafRef.current = requestAnimationFrame(run);
     } else if (pa.type === "ghost") {
       if (pa.board[r][c] !== null) return;
+      if (!isRemote && gameMode === 'online') onMove?.({ type: 'ghost', row: r, col: c });
       const nb = pa.board.map(row => [...row]); nb[r][c] = pa.player;
       setAnimPieces(boardToPieces(nb)); finishTurn(nb, pa.player === 1 ? 2 : 1, pa.tc, pa.fog, pa.grav, pa.sh, pa.inv, pa.poison);
     }
-  }, [pendingAction, finishTurn, boardToPieces]);
+  }, [pendingAction, finishTurn, boardToPieces, gameMode, onMove]);
 
   const useInventory = useCallback((player) => {
     if (spinning || result || turn !== player || dropping || pendingAction) return;
+    if (gameMode === 'online' && turn !== (playerColor === 'red' ? 1 : 2)) return;
     const pu = inventory[player]; if (!pu) return;
     setConfirmPU({ player, pu });
-  }, [spinning, result, turn, dropping, pendingAction, inventory]);
+  }, [spinning, result, turn, dropping, pendingAction, inventory, gameMode, playerColor]);
 
-  const confirmUse = useCallback(() => {
+  const confirmUse = useCallback((isRemote = false) => {
     if (!confirmPU) return;
     const { player, pu } = confirmPU; setConfirmPU(null);
+    if (!isRemote && gameMode === 'online') onMove?.({ type: 'useItem' });
     activatePU(pu, player, board, turnCount, fog, gravityTurns, shields, { ...inventory, [player]: null }, poisonCell, lastPlaced);
-  }, [confirmPU, board, turnCount, fog, gravityTurns, shields, inventory, poisonCell, activatePU, lastPlaced]);
+  }, [confirmPU, board, turnCount, fog, gravityTurns, shields, inventory, poisonCell, activatePU, lastPlaced, gameMode, onMove]);
 
   useEffect(() => {
     if (!vsAI || turn !== 2 || result || spinning || dropping || pendingAction || screen !== "game" || bombPhase || flipping) return;
@@ -586,21 +599,48 @@ export default function Connect4Game() {
 
   useEffect(() => () => { cancelAnimationFrame(rafRef.current); bombTimers.current.forEach(clearTimeout); }, []);
 
-  // Report game result to TEZ Points — only for vs AI, not local 2P
+  // Report game result to TEZ Points — AI and online modes only (not local 2P)
   useEffect(() => {
     if (!result) { reportedRef.current = false; return; }
     if (reportedRef.current) return;
     reportedRef.current = true;
-    if (!vsAI) return; // no stats for local 2-player — not competitive
+    const isOnline = gameMode === 'online';
+    if (isOnline && onGameEnd) {
+      const winner = result.winner === 0 ? 'draw' : result.winner === 1 ? 'red' : 'blue';
+      onGameEnd({ winner, mode });
+    }
+    if (!vsAI && !isOnline) return; // no stats for local 2-player
     if (result.winner === 0) return; // draw — skip
-    const apiResult = result.winner === 1 ? 'win' : 'lose';
-    reportGameResult('connect4', apiResult, { mode, opponent: 'ai' });
-  }, [result, mode, vsAI]);
+    const localWinner = isOnline ? localPlayer : 1; // online: local player's number; AI: player 1 is human
+    const apiResult = result.winner === localWinner ? 'win' : 'lose';
+    reportGameResult('connect4', apiResult, { mode, opponent: isOnline ? 'online' : 'ai' });
+  }, [result, mode, vsAI, gameMode, localPlayer, onGameEnd]);
+
+  // Process incoming opponent moves in online mode
+  useEffect(() => {
+    if (!incomingMove || gameMode !== 'online') return;
+    if (incomingMove === processedMoveRef.current) return;
+    processedMoveRef.current = incomingMove;
+    const { type } = incomingMove;
+    if (type === 'drop' || type === 'bomb') {
+      handleColClick(incomingMove.col, true);
+    } else if (type === 'snatch' || type === 'ghost') {
+      handleCellClick(incomingMove.row, incomingMove.col, true);
+    } else if (type === 'useItem') {
+      const opponentPlayer = localPlayer === 1 ? 2 : 1;
+      const pu = inventory[opponentPlayer];
+      if (pu) {
+        activatePU(pu, opponentPlayer, board, turnCount, fog, gravityTurns, shields,
+          { ...inventory, [opponentPlayer]: null }, poisonCell, lastPlaced);
+      }
+    }
+  }, [incomingMove, gameMode, localPlayer, handleColClick, handleCellClick, activatePU, inventory, board, turnCount, fog, gravityTurns, shields, poisonCell, lastPlaced]);
 
   const poisonGlow = poisonCell ? Math.sin(pulseT * Math.PI * 1.4) * 0.5 + 0.5 : 0;
   const poisonShadow = `0 0 ${10 + poisonGlow * 28}px rgba(140,50,255,${0.6 + poisonGlow * 0.4}),0 0 ${6 + poisonGlow * 16}px rgba(40,200,80,${0.35 + poisonGlow * 0.45}),0 0 ${3 + poisonGlow * 8}px rgba(180,80,255,0.9),inset 0 -3px 8px rgba(0,0,0,0.6)`;
   const boardW = COLS * STRIDE + PAD * 2, boardH = ROWS * STRIDE + PAD * 2;
-  const p1Label = vsAI ? "You" : "P1", p2Label = vsAI ? "AI" : "P2";
+  const p1Label = gameMode === 'online' ? (localPlayer === 1 ? 'You' : 'Opponent') : vsAI ? 'You' : 'P1';
+  const p2Label = gameMode === 'online' ? (localPlayer === 2 ? 'You' : 'Opponent') : vsAI ? 'AI' : 'P2';
   const gameOver = !!result;
 
   /* ═══════════════ MENU SCREEN ═══════════════ */
@@ -707,12 +747,12 @@ export default function Connect4Game() {
       `}</style>
       <div style={{ maxWidth: 520, margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-          <button onClick={() => setScreen("menu")} className="game-btn">← Menu</button>
+          {gameMode !== 'online' ? <button onClick={() => setScreen("menu")} className="game-btn">← Menu</button> : <div style={{ width: 60 }} />}
           <div style={{ textAlign: "center" }}>
             <div style={{ fontWeight: 600, fontSize: 14, color: "white" }}>{mode === "rumble" ? "⚡ Rumble" : "🎯 Normal"}</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{vsAI ? "vs AI" : "Local 2P"}</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{gameMode === 'online' ? 'Online' : vsAI ? "vs AI" : "Local 2P"}</div>
           </div>
-          <button onClick={() => startGame(mode, vsAI)} className="game-btn">Restart</button>
+          {gameMode !== 'online' ? <button onClick={() => startGame(mode, vsAI)} className="game-btn">Restart</button> : <div style={{ width: 60 }} />}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
@@ -740,16 +780,27 @@ export default function Connect4Game() {
           })}
         </div>
 
+        {gameMode === 'online' && !result && (
+          <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 700, marginBottom: 10, padding: '7px 14px', borderRadius: 8, color: isMyTurn ? '#4ade80' : 'rgba(255,255,255,0.4)', background: isMyTurn ? 'rgba(74,222,128,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isMyTurn ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.08)'}`, fontFamily: "'Nunito Sans', sans-serif" }}>
+            {isMyTurn ? 'Your Turn' : 'Waiting for opponent...'}
+          </div>
+        )}
+
         {result && (
           <div style={{ textAlign: "center", padding: "18px 24px", marginBottom: 14, background: result.winner === 1 ? "linear-gradient(135deg,#FF6B6B22,#E24B4A11)" : result.winner === 2 ? "linear-gradient(135deg,#5EB8FF22,#378ADD11)" : "rgba(255,255,255,0.05)", border: `1px solid ${result.winner === 1 ? P1G[0] + "44" : result.winner === 2 ? P2G[0] + "44" : "rgba(255,255,255,0.1)"}`, borderRadius: 14, animation: "celebrateIn 0.4s cubic-bezier(.34,1.56,.64,1) both" }}>
             <div style={{ fontSize: 22, fontWeight: 800, color: result.winner === 1 ? P1G[0] : result.winner === 2 ? P2G[0] : "rgba(255,255,255,0.7)", letterSpacing: 0.5 }}>
-              {result.winner === 0 ? "Draw!" : result.winner === 1 ? (vsAI ? "You Win! 🎉" : "P1 Wins! 🔴") : (vsAI ? "AI Wins! 😤" : "P2 Wins! 🔵")}
+              {result.winner === 0 ? "Draw!" :
+                result.winner === 1
+                  ? (gameMode === 'online' ? (localPlayer === 1 ? "You Win! 🎉" : "Opponent Wins! 🔴") : vsAI ? "You Win! 🎉" : "P1 Wins! 🔴")
+                  : (gameMode === 'online' ? (localPlayer === 2 ? "You Win! 🎉" : "Opponent Wins! 🔵") : vsAI ? "AI Wins! 😤" : "P2 Wins! 🔵")}
             </div>
-            <button onClick={() => startGame(mode, vsAI)} style={{ marginTop: 12, padding: "9px 28px", borderRadius: 11, background: "linear-gradient(135deg,#7F77DD,#534AB7)", border: "none", color: "white", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'Nunito Sans', sans-serif", boxShadow: "0 4px 16px rgba(127,119,221,0.3)", transition: "transform 0.15s" }}
-              onMouseEnter={e => e.currentTarget.style.transform = "scale(1.05)"}
-              onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>
-              Play Again
-            </button>
+            {gameMode !== 'online' && (
+              <button onClick={() => startGame(mode, vsAI)} style={{ marginTop: 12, padding: "9px 28px", borderRadius: 11, background: "linear-gradient(135deg,#7F77DD,#534AB7)", border: "none", color: "white", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'Nunito Sans', sans-serif", boxShadow: "0 4px 16px rgba(127,119,221,0.3)", transition: "transform 0.15s" }}
+                onMouseEnter={e => e.currentTarget.style.transform = "scale(1.05)"}
+                onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>
+                Play Again
+              </button>
+            )}
           </div>
         )}
 
@@ -763,7 +814,7 @@ export default function Connect4Game() {
               {Array.from({ length: COLS }, (_, c) => {
                 const srcBoard = pendingAction?.type === "double" ? pendingAction.board : board;
                 const colFull = getLandRow(srcBoard, c, fromTop) < 0;
-                const canDrop = !result && !spinning && !dropping && !bombPhase && !flipping && !(vsAI && turn === 2) && pendingAction?.type !== "snatch" && pendingAction?.type !== "ghost" && !colFull;
+                const canDrop = !result && !spinning && !dropping && !bombPhase && !flipping && !(vsAI && turn === 2) && isMyTurn && pendingAction?.type !== "snatch" && pendingAction?.type !== "ghost" && !colFull;
                 const isBombMode = pendingAction?.type === "bomb";
                 const isHov = hoverCol === c && (canDrop || isBombMode);
                 const grad = turn === 1 ? P1G : P2G;
@@ -920,7 +971,7 @@ export default function Connect4Game() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               {[1, 2].map(p => {
                 const pu = inventory[p];
-                const canUse = turn === p && !result && !spinning && !dropping && !pendingAction && pu;
+                const canUse = turn === p && !result && !spinning && !dropping && !pendingAction && pu && isMyTurn;
                 return (
                   <div key={p}>
                     <div style={{ fontSize: 10, color: `rgba(${p === 1 ? "226,75,74" : "55,138,221"},0.6)`, marginBottom: 5, fontWeight: 600 }}>{p === 1 ? p1Label : p2Label}</div>
