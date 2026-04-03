@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   const { data: room } = await supabase
     .from('game_rooms')
     .select('id, host_id, game_mode, status, created_at')
-    .eq('code', upperCode)
+    .eq('room_code', upperCode)
     .single();
 
   if (!room) return res.status(404).json({ error: 'not_found' });

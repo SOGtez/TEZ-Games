@@ -28,7 +28,7 @@ export default async function handler(req, res) {
   for (let attempt = 0; attempt < 10; attempt++) {
     code = generateCode();
     const { error } = await supabase.from('game_rooms').insert({
-      code,
+      room_code: code,
       host_id: playerId,
       game_mode: gameMode,
       status: 'waiting',
@@ -49,8 +49,8 @@ export default async function handler(req, res) {
 
   const { data: room, error: selectErr } = await supabase
     .from('game_rooms')
-    .select('id, code')
-    .eq('code', code)
+    .select('id, room_code')
+    .eq('room_code', code)
     .single();
 
   if (!room) {
@@ -58,5 +58,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'create_failed', detail: selectErr?.message });
   }
 
-  return res.status(200).json({ code: room.code, roomId: room.id });
+  return res.status(200).json({ code: room.room_code, roomId: room.id });
 }
