@@ -1,5 +1,18 @@
 # TEZ Games Changelog
 
+## v0.9.8 — Connect 4 online multiplayer room system
+- Room-based matchmaking: host creates a room with a random 4-char code (e.g. `TEZ7`), shares it with a friend
+- Waiting screen shows the room code large + copy button, plus expandable "Try another way?" section with a shareable URL and QR code (client-side, dark theme)
+- Guest joins by entering the code in the new "Join a Room" section on the Connect 4 menu, or by visiting `tez-games.com/game/connect4?code=TEZ7` directly (auto-joins)
+- Host is always Red (goes first), guest is always Blue; usernames shown in each player card
+- Moves relayed in real-time via Supabase Realtime broadcast channels — piece drop animations fire automatically on the opponent's board
+- Chess clock, power-ups, and Rumble mode all work in online play
+- Disconnect detection: 30 s of missed heartbeats → warning banner; 60 s → win awarded and stats reported
+- Post-game: "Rematch" (creates new room, opponent auto-joins) and "← Menu" buttons
+- Stats reported independently for both players via `reportGameResult`
+- `game_rooms` table stores room state; rooms expire after 10 minutes if no one joins
+- Added `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` env vars required in Vercel
+
 ## v0.9.7 — Connect 4 chess clock timer
 - 4-minute chess clock for online and AI modes (`timerDuration` prop, default 240s)
 - Per-player countdown displayed in player cards; timer only ticks on the active player's side

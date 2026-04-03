@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import { games, getGameBySlug } from '../../lib/games';
 import BlackjackGame from '../../components/games/BlackjackGame';
-import Connect4Game from '../../components/games/Connect4Game';
+import Connect4Online from '../../components/games/Connect4Online';
 import WarGame from '../../components/games/WarGame';
 
 const gameComponents = {
   'tez-blackjack': BlackjackGame,
-  connect4: Connect4Game,
+  connect4: Connect4Online,
   war: WarGame,
 };
 
@@ -25,11 +26,13 @@ export async function getStaticProps({ params }) {
 }
 
 export default function GamePage({ game }) {
+  const router = useRouter();
   const [selectedMode, setSelectedMode] = useState(
     game.modes ? game.modes.find((m) => !m.locked)?.id : null
   );
 
   const GameComponent = gameComponents[game.slug];
+  const initialCode = game.slug === 'connect4' ? (router.query.code || null) : null;
 
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -105,7 +108,7 @@ export default function GamePage({ game }) {
         }}
       >
         {GameComponent ? (
-          <GameComponent mode={selectedMode} />
+          <GameComponent mode={selectedMode} initialCode={initialCode} />
         ) : (
           <div className="text-center py-20 text-gray-400 font-nunito text-lg">
             Game coming soon!

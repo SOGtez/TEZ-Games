@@ -183,9 +183,11 @@ function MenuOrbs() {
   return <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }} />;
 }
 
-export default function Connect4Game({ gameMode, playerColor, onMove, incomingMove, onGameEnd, timerDuration = 240 } = {}) {
+export default function Connect4Game({ gameMode, playerColor, onMove, incomingMove, onGameEnd, timerDuration = 240, gameType = 'normal', p1Name, p2Name, onPlayOnline, onJoinOnline, initialError } = {}) {
   const [screen, setScreen] = useState(gameMode ? "game" : "menu");
-  const [mode, setMode] = useState("normal");
+  const [mode, setMode] = useState(gameMode ? (gameType || 'normal') : 'normal');
+  const [joinCode, setJoinCode] = useState('');
+  const [joinErr, setJoinErr] = useState(initialError || '');
   const [vsAI, setVsAI] = useState(gameMode === 'ai');
   const [board, setBoard] = useState(emptyBoard());
   const [turn, setTurn] = useState(1);
@@ -679,8 +681,8 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
   const poisonGlow = poisonCell ? Math.sin(pulseT * Math.PI * 1.4) * 0.5 + 0.5 : 0;
   const poisonShadow = `0 0 ${10 + poisonGlow * 28}px rgba(140,50,255,${0.6 + poisonGlow * 0.4}),0 0 ${6 + poisonGlow * 16}px rgba(40,200,80,${0.35 + poisonGlow * 0.45}),0 0 ${3 + poisonGlow * 8}px rgba(180,80,255,0.9),inset 0 -3px 8px rgba(0,0,0,0.6)`;
   const boardW = COLS * STRIDE + PAD * 2, boardH = ROWS * STRIDE + PAD * 2;
-  const p1Label = gameMode === 'online' ? (localPlayer === 1 ? 'You' : 'Opponent') : vsAI ? 'You' : 'P1';
-  const p2Label = gameMode === 'online' ? (localPlayer === 2 ? 'You' : 'Opponent') : vsAI ? 'AI' : 'P2';
+  const p1Label = p1Name || (gameMode === 'online' ? (localPlayer === 1 ? 'You' : 'Opponent') : vsAI ? 'You' : 'P1');
+  const p2Label = p2Name || (gameMode === 'online' ? (localPlayer === 2 ? 'You' : 'Opponent') : vsAI ? 'AI' : 'P2');
   const gameOver = !!result;
 
   /* ═══════════════ MENU SCREEN ═══════════════ */
@@ -709,6 +711,9 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
         .menu-btn-ghost { flex: 1; padding: 11px 0; border-radius: 11px; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.75); font-weight: 600; font-size: 13px; cursor: pointer; transition: transform 0.15s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s, background 0.2s; font-family: 'Nunito Sans', sans-serif; }
         .menu-btn-ghost:hover { transform: scale(1.06); background: rgba(255,255,255,0.1); }
         .menu-btn-ghost:active { transform: scale(0.96); }
+        .menu-btn-online { width: 100%; margin-top: 8px; padding: 9px 0; border-radius: 11px; border: 1px solid rgba(74,222,128,0.25); background: rgba(74,222,128,0.07); color: #4ade80; font-weight: 700; font-size: 13px; cursor: pointer; transition: transform 0.15s, background 0.2s, border-color 0.2s; font-family: 'Nunito Sans', sans-serif; }
+        .menu-btn-online:hover { transform: scale(1.03); background: rgba(74,222,128,0.14); border-color: rgba(74,222,128,0.45); }
+        .menu-btn-online:active { transform: scale(0.97); }
       `}</style>
 
       <div style={{
@@ -744,6 +749,9 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
             <button onClick={() => startGame("normal", false)} className="menu-btn-primary" style={{ background: "linear-gradient(135deg,#378ADD,#185FA5)", boxShadow: "0 4px 16px rgba(55,138,221,0.25)" }}>2 Players</button>
             <button onClick={() => startGame("normal", true)} className="menu-btn-ghost" style={{ background: "rgba(55,138,221,0.08)" }}>vs AI</button>
           </div>
+          {onPlayOnline && (
+            <button onClick={() => onPlayOnline("normal")} className="menu-btn-online">🌐 Play Online</button>
+          )}
         </div>
 
         <div className="mc-rumble" style={{
@@ -762,7 +770,38 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
             <button onClick={() => startGame("rumble", false)} className="menu-btn-primary" style={{ background: "linear-gradient(135deg,#7F77DD,#534AB7)", boxShadow: "0 4px 16px rgba(127,119,221,0.25)" }}>2 Players</button>
             <button onClick={() => startGame("rumble", true)} className="menu-btn-ghost" style={{ background: "rgba(127,119,221,0.08)" }}>vs AI</button>
           </div>
+          {onPlayOnline && (
+            <button onClick={() => onPlayOnline("rumble")} className="menu-btn-online">🌐 Play Online</button>
+          )}
         </div>
+
+        {/* ── Join a Room ── */}
+        {onJoinOnline && (
+          <div style={{
+            opacity: menuReady ? 1 : 0, transform: menuReady ? "translateY(0)" : "translateY(24px)",
+            transition: "opacity 0.5s cubic-bezier(.22,1,.36,1) 0.45s, transform 0.5s cubic-bezier(.22,1,.36,1) 0.45s",
+            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "18px 20px",
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.6)", marginBottom: 10 }}>Join a Room</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                value={joinCode}
+                onChange={e => { setJoinCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4)); setJoinErr(''); }}
+                onKeyDown={e => e.key === 'Enter' && joinCode.length === 4 && onJoinOnline(joinCode)}
+                placeholder="Room code (e.g. TEZ7)"
+                maxLength={4}
+                style={{ flex: 1, padding: "10px 14px", borderRadius: 11, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.06)", color: "white", fontSize: 14, fontFamily: "'Nunito Sans', sans-serif", fontWeight: 700, letterSpacing: 4, outline: "none" }}
+              />
+              <button
+                onClick={() => { if (joinCode.length === 4) onJoinOnline(joinCode); else setJoinErr('Enter a 4-character code.'); }}
+                style={{ padding: "10px 18px", borderRadius: 11, border: "none", background: joinCode.length === 4 ? "linear-gradient(135deg,#7C3AED,#5B21B6)" : "rgba(255,255,255,0.07)", color: joinCode.length === 4 ? "white" : "rgba(255,255,255,0.3)", fontWeight: 700, fontSize: 13, cursor: joinCode.length === 4 ? "pointer" : "default", fontFamily: "'Nunito Sans', sans-serif", transition: "background 0.2s, color 0.2s" }}
+              >
+                Join →
+              </button>
+            </div>
+            {joinErr && <div style={{ color: "#ef4444", fontSize: 12, marginTop: 6 }}>{joinErr}</div>}
+          </div>
+        )}
       </div>
 
       <div style={{
