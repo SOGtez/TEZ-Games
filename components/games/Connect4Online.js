@@ -516,13 +516,6 @@ export default function Connect4Online({ initialCode }) {
 
     return (
       <div style={{ position: 'relative' }}>
-        {/* Disconnect warning banner */}
-        {disconnected && !disconnectWin && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, background: 'rgba(239,68,68,0.9)', textAlign: 'center', padding: '10px 16px', color: 'white', fontSize: 13, fontWeight: 700, fontFamily: "'Nunito Sans', sans-serif", backdropFilter: 'blur(4px)' }}>
-            ⚠️ Opponent may have disconnected…
-          </div>
-        )}
-
         <Connect4Game
           gameMode="online"
           gameType={gameMode}
@@ -532,6 +525,7 @@ export default function Connect4Online({ initialCode }) {
           onGameEnd={handleGameEnd}
           p1Name={p1Name}
           p2Name={p2Name}
+          notice={disconnected && !disconnectWin ? '⚠️ Opponent may have disconnected…' : null}
         />
 
         {/* Post-game buttons overlay */}

@@ -183,7 +183,7 @@ function MenuOrbs() {
   return <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }} />;
 }
 
-export default function Connect4Game({ gameMode, playerColor, onMove, incomingMove, onGameEnd, timerDuration = 240, gameType = 'normal', p1Name, p2Name, onPlayOnline, onJoinOnline, initialError } = {}) {
+export default function Connect4Game({ gameMode, playerColor, onMove, incomingMove, onGameEnd, timerDuration = 240, gameType = 'normal', p1Name, p2Name, onPlayOnline, onJoinOnline, initialError, notice } = {}) {
   const [screen, setScreen] = useState(gameMode ? "game" : "menu");
   const [mode, setMode] = useState(gameMode ? (gameType || 'normal') : 'normal');
   const [joinCode, setJoinCode] = useState('');
@@ -878,6 +878,12 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
             );
           })}
         </div>
+
+        {notice && (
+          <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 700, marginBottom: 10, padding: '7px 14px', borderRadius: 8, color: '#f97316', background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.22)', fontFamily: "'Nunito Sans', sans-serif", animation: 'pulseBar 2s ease-in-out infinite' }}>
+            {notice}
+          </div>
+        )}
 
         {gameMode === 'online' && !result && (
           <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 700, marginBottom: 10, padding: '7px 14px', borderRadius: 8, color: isMyTurn ? '#4ade80' : 'rgba(255,255,255,0.4)', background: isMyTurn ? 'rgba(74,222,128,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isMyTurn ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.08)'}`, fontFamily: "'Nunito Sans', sans-serif" }}>
