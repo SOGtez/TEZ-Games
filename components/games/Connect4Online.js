@@ -131,7 +131,10 @@ export default function Connect4Online({ initialCode }) {
         body: JSON.stringify({ playerId, gameMode: mode }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) {
+        const msg = data.detail ? `${data.error}: ${data.detail}` : (data.error || 'unknown');
+        throw new Error(msg);
+      }
 
       const newRoom = { code: data.code, roomId: data.roomId };
       setIsHost(true);
@@ -142,8 +145,8 @@ export default function Connect4Online({ initialCode }) {
 
       setupChannel(data.roomId, true);
       startHostPolling(data.roomId);
-    } catch {
-      setError('Could not create room. Please try again.');
+    } catch (e) {
+      setError(`Could not create room: ${e.message}`);
       setPhase(null);
     }
   };
@@ -368,11 +371,18 @@ export default function Connect4Online({ initialCode }) {
   // ── Not in online mode — show normal Connect4Game menu ──
   if (phase === null) {
     return (
-      <Connect4Game
-        onPlayOnline={handlePlayOnline}
-        onJoinOnline={joinRoom}
-        initialError={error}
-      />
+      <div style={{ position: 'relative' }}>
+        {error && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, background: 'rgba(239,68,68,0.92)', textAlign: 'center', padding: '10px 16px', color: 'white', fontSize: 13, fontWeight: 700, fontFamily: "'Nunito Sans', sans-serif", backdropFilter: 'blur(4px)' }}>
+            {error}
+            <button onClick={() => setError('')} style={{ marginLeft: 12, background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: 13, opacity: 0.8 }}>✕</button>
+          </div>
+        )}
+        <Connect4Game
+          onPlayOnline={handlePlayOnline}
+          onJoinOnline={joinRoom}
+        />
+      </div>
     );
   }
 

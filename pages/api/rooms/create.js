@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   if (!player) return res.status(404).json({ error: 'player_not_found' });
 
   // Generate a unique 4-char code (retry on collision)
-  let code, inserted = false;
+  let code, inserted = false, lastInsertError = null;
   for (let attempt = 0; attempt < 10; attempt++) {
     code = generateCode();
     const { error } = await supabase.from('game_rooms').insert({
@@ -34,16 +34,29 @@ export default async function handler(req, res) {
       status: 'waiting',
     });
     if (!error) { inserted = true; break; }
-    if (!error.message?.includes('unique')) break; // non-collision error
+    lastInsertError = error;
+    if (!error.message?.includes('unique')) break; // non-collision error, stop retrying
   }
 
-  if (!inserted) return res.status(500).json({ error: 'create_failed' });
+  if (!inserted) {
+    console.error('[rooms/create] insert failed:', lastInsertError);
+    return res.status(500).json({
+      error: 'create_failed',
+      detail: lastInsertError?.message,
+      code: lastInsertError?.code,
+    });
+  }
 
-  const { data: room } = await supabase
+  const { data: room, error: selectErr } = await supabase
     .from('game_rooms')
     .select('id, code')
     .eq('code', code)
     .single();
+
+  if (!room) {
+    console.error('[rooms/create] select after insert failed:', selectErr);
+    return res.status(500).json({ error: 'create_failed', detail: selectErr?.message });
+  }
 
   return res.status(200).json({ code: room.code, roomId: room.id });
 }
