@@ -1,5 +1,14 @@
 # TEZ Games Changelog
 
+## v0.9.7 — Connect 4 chess clock timer
+- 4-minute chess clock for online and AI modes (`timerDuration` prop, default 240s)
+- Per-player countdown displayed in player cards; timer only ticks on the active player's side
+- Timer pauses during power-up spin animations and bomb phases
+- Color changes at <30s (orange, pulse) and <10s (red, urgent flash + glow)
+- Timeout triggers game over: result banner shows "You ran out of time! ⏰" / "Opponent ran out of time! ⏰" (online), or "P1/P2 ran out of time! ⏰" (local), or "AI ran out of time! ⏰"
+- Online mode: `timerSync` move type sent periodically so both clients stay in sync
+- AI player 2 has no timer (AI responds instantly)
+
 ## v0.9.6 — Connect 4 multiplayer-ready refactor
 - Renamed component to `Connect4Game`, added `"use client"` directive
 - Accepts `gameMode` ('local'|'ai'|'online'), `playerColor` ('red'|'blue'), `onMove`, `incomingMove`, `onGameEnd` props

@@ -39,6 +39,7 @@ function getLandRow(board, col, fromTop = false) {
   else { for (let r = ROWS - 1; r >= 0; r--) if (!board[r][col]) return r; }
   return -1;
 }
+function formatTime(s) { const m = Math.floor(s / 60); return `${m}:${String(s % 60).padStart(2, '0')}`; }
 function easeOutExpo(t) { return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t); }
 function easeOutBounce(t) { const n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) return n * (t -= 1.5 / d) * t + 0.75; if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + 0.9375; return n * (t -= 2.625 / d) * t + 0.984375; }
 function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
@@ -182,7 +183,7 @@ function MenuOrbs() {
   return <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }} />;
 }
 
-export default function Connect4Game({ gameMode, playerColor, onMove, incomingMove, onGameEnd } = {}) {
+export default function Connect4Game({ gameMode, playerColor, onMove, incomingMove, onGameEnd, timerDuration = 240 } = {}) {
   const [screen, setScreen] = useState(gameMode ? "game" : "menu");
   const [mode, setMode] = useState("normal");
   const [vsAI, setVsAI] = useState(gameMode === 'ai');
@@ -231,9 +232,13 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
   const [flipping, setFlipping] = useState(null);
   const [flipAngle, setFlipAngle] = useState(0);
   const [menuReady, setMenuReady] = useState(false);
+  const [timers, setTimers] = useState({ 1: timerDuration, 2: timerDuration });
+  const timerIntervalRef = useRef(null);
   const fromTop = gravityTurns > 0;
   const localPlayer = gameMode === 'online' ? (playerColor === 'red' ? 1 : 2) : null;
   const isMyTurn = gameMode !== 'online' || turn === localPlayer;
+  const hasTimer = (vsAI || gameMode === 'online') && screen === 'game';
+  const timerPaused = !!result || spinning || bombPhase;
 
   useEffect(() => {
     if (screen === "menu") {
@@ -250,6 +255,37 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
     poisonRafRef.current = requestAnimationFrame(run);
     return () => cancelAnimationFrame(poisonRafRef.current);
   }, [poisonCell]);
+
+  // Chess-clock timer countdown — ticks for the active player when not paused
+  useEffect(() => {
+    const timerFor = (hasTimer && !timerPaused) ? turn : null;
+    if (timerFor === null || (vsAI && timerFor === 2)) {
+      clearInterval(timerIntervalRef.current);
+      return;
+    }
+    const p = timerFor;
+    timerIntervalRef.current = setInterval(() => {
+      setTimers(prev => ({ ...prev, [p]: Math.max(0, prev[p] - 1) }));
+    }, 1000);
+    return () => clearInterval(timerIntervalRef.current);
+  }, [hasTimer, timerPaused, turn, vsAI]);
+
+  // Detect timeout — triggers game end when a player's time hits 0
+  useEffect(() => {
+    if (!hasTimer || result || screen !== 'game') return;
+    if (timers[1] <= 0 && (gameMode === 'online' || vsAI)) {
+      setResult({ winner: 2, timeout: true });
+    } else if (timers[2] <= 0 && gameMode === 'online') {
+      setResult({ winner: 1, timeout: true });
+    }
+  }, [timers, hasTimer, result, screen, gameMode, vsAI]);
+
+  // Emit timerSync for online mode so both sides stay in sync
+  const myTimerVal = localPlayer ? timers[localPlayer] : null;
+  useEffect(() => {
+    if (gameMode !== 'online' || myTimerVal === null || screen !== 'game' || myTimerVal >= timerDuration) return;
+    onMove?.({ type: 'timerSync', timeRemaining: myTimerVal });
+  }, [myTimerVal, gameMode, screen, timerDuration, onMove]);
 
   const boardToPieces = useCallback((b) => {
     const list = [];
@@ -594,10 +630,11 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
     setSpinning(false); setHiddenCells(new Set()); setBombPhase(false); setFlipping(null); setConfirmPU(null);
     setDissolveCell(null); setDissolveT(1); setLastPlaced(null);
     bombTimers.current.forEach(clearTimeout); bombTimers.current = [];
+    setTimers({ 1: timerDuration, 2: timerDuration });
     setScreen("game");
-  }, []);
+  }, [timerDuration]);
 
-  useEffect(() => () => { cancelAnimationFrame(rafRef.current); bombTimers.current.forEach(clearTimeout); }, []);
+  useEffect(() => () => { cancelAnimationFrame(rafRef.current); bombTimers.current.forEach(clearTimeout); clearInterval(timerIntervalRef.current); }, []);
 
   // Report game result to TEZ Points — AI and online modes only (not local 2P)
   useEffect(() => {
@@ -607,7 +644,7 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
     const isOnline = gameMode === 'online';
     if (isOnline && onGameEnd) {
       const winner = result.winner === 0 ? 'draw' : result.winner === 1 ? 'red' : 'blue';
-      onGameEnd({ winner, mode });
+      onGameEnd({ winner, mode, reason: result.timeout ? 'timeout' : 'normal' });
     }
     if (!vsAI && !isOnline) return; // no stats for local 2-player
     if (result.winner === 0) return; // draw — skip
@@ -633,6 +670,9 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
         activatePU(pu, opponentPlayer, board, turnCount, fog, gravityTurns, shields,
           { ...inventory, [opponentPlayer]: null }, poisonCell, lastPlaced);
       }
+    } else if (type === 'timerSync') {
+      const opponentPlayer = localPlayer === 1 ? 2 : 1;
+      setTimers(prev => ({ ...prev, [opponentPlayer]: incomingMove.timeRemaining }));
     }
   }, [incomingMove, gameMode, localPlayer, handleColClick, handleCellClick, activatePU, inventory, board, turnCount, fog, gravityTurns, shields, poisonCell, lastPlaced]);
 
@@ -742,6 +782,8 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
         @keyframes winPulse { from { box-shadow: 0 0 0 0 rgba(239,159,39,0.5) } to { box-shadow: 0 0 0 10px rgba(239,159,39,0) } }
         @keyframes starPop { from { transform: scale(0) rotate(-20deg); opacity: 0 } to { transform: scale(1) rotate(0deg); opacity: 1 } }
         @keyframes celebrateIn { from { opacity: 0; transform: scale(0.8) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes timerPulse { 0%,100% { opacity: 1 } 50% { opacity: 0.55 } }
+        @keyframes timerUrgent { 0%,100% { opacity: 1; transform: scale(1) } 50% { opacity: 0.65; transform: scale(1.08) } }
         .game-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 12px; padding: 7px 14px; cursor: pointer; font-family: 'Nunito Sans', sans-serif; transition: background 0.2s, border-color 0.2s; }
         .game-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
       `}</style>
@@ -768,6 +810,24 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
                   {shields[p] && <span style={{ fontSize: 12 }}>🛡️</span>}
                   {fogT[p] > 0.05 && <span style={{ fontSize: 11, color: "#7F77DD" }}>🌫️</span>}
                   {poisonArmed && turn === p && <span style={{ fontSize: 11 }}>⚗️</span>}
+                  {hasTimer && !(vsAI && p === 2) && (() => {
+                    const t = timers[p];
+                    const urgent = t < 10;
+                    const warn = t < 30;
+                    return (
+                      <span style={{
+                        marginLeft: 'auto', fontFamily: "'Nunito Sans', sans-serif",
+                        fontSize: active ? 14 : 12, fontWeight: 700,
+                        color: urgent ? '#ef4444' : warn ? '#f97316' : active ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)',
+                        animation: urgent ? 'timerUrgent 0.4s ease-in-out infinite' : warn ? 'timerPulse 1s ease-in-out infinite' : 'none',
+                        transition: 'font-size 0.2s, color 0.3s',
+                        textShadow: urgent ? '0 0 8px rgba(239,68,68,0.6)' : warn ? '0 0 6px rgba(249,115,22,0.5)' : 'none',
+                        minWidth: 34, textAlign: 'right',
+                      }}>
+                        {formatTime(t)}
+                      </span>
+                    );
+                  })()}
                 </div>
                 {mode === "rumble" && inventory[p] && (
                   <button disabled={!active || !!pendingAction || dropping} onClick={() => useInventory(p)}
@@ -790,9 +850,15 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
           <div style={{ textAlign: "center", padding: "18px 24px", marginBottom: 14, background: result.winner === 1 ? "linear-gradient(135deg,#FF6B6B22,#E24B4A11)" : result.winner === 2 ? "linear-gradient(135deg,#5EB8FF22,#378ADD11)" : "rgba(255,255,255,0.05)", border: `1px solid ${result.winner === 1 ? P1G[0] + "44" : result.winner === 2 ? P2G[0] + "44" : "rgba(255,255,255,0.1)"}`, borderRadius: 14, animation: "celebrateIn 0.4s cubic-bezier(.34,1.56,.64,1) both" }}>
             <div style={{ fontSize: 22, fontWeight: 800, color: result.winner === 1 ? P1G[0] : result.winner === 2 ? P2G[0] : "rgba(255,255,255,0.7)", letterSpacing: 0.5 }}>
               {result.winner === 0 ? "Draw!" :
-                result.winner === 1
-                  ? (gameMode === 'online' ? (localPlayer === 1 ? "You Win! 🎉" : "Opponent Wins! 🔴") : vsAI ? "You Win! 🎉" : "P1 Wins! 🔴")
-                  : (gameMode === 'online' ? (localPlayer === 2 ? "You Win! 🎉" : "Opponent Wins! 🔵") : vsAI ? "AI Wins! 😤" : "P2 Wins! 🔵")}
+                result.timeout
+                  ? (gameMode === 'online'
+                      ? (result.winner === localPlayer ? "Opponent ran out of time! ⏰" : "You ran out of time! ⏰")
+                      : vsAI
+                        ? (result.winner === 2 ? "You ran out of time! ⏰" : "AI ran out of time! ⏰")
+                        : `P${result.winner === 1 ? 2 : 1} ran out of time! ⏰`)
+                  : result.winner === 1
+                    ? (gameMode === 'online' ? (localPlayer === 1 ? "You Win! 🎉" : "Opponent Wins! 🔴") : vsAI ? "You Win! 🎉" : "P1 Wins! 🔴")
+                    : (gameMode === 'online' ? (localPlayer === 2 ? "You Win! 🎉" : "Opponent Wins! 🔵") : vsAI ? "AI Wins! 😤" : "P2 Wins! 🔵")}
             </div>
             {gameMode !== 'online' && (
               <button onClick={() => startGame(mode, vsAI)} style={{ marginTop: 12, padding: "9px 28px", borderRadius: 11, background: "linear-gradient(135deg,#7F77DD,#534AB7)", border: "none", color: "white", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'Nunito Sans', sans-serif", boxShadow: "0 4px 16px rgba(127,119,221,0.3)", transition: "transform 0.15s" }}
