@@ -57,7 +57,8 @@ export default function Connect4Online({ initialCode }) {
   const { username, playerId, playerStats } = useUser();
 
   // phase: null | 'creating' | 'waiting' | 'joining' | 'playing' | 'ended'
-  const [phase, setPhase] = useState(initialCode ? 'auto-joining' : null);
+  // Note: initialCode starts null on static-page hydration; we watch it via effect
+  const [phase, setPhase] = useState(null);
   const [gameMode, setGameMode] = useState('normal');
   const [isHost, setIsHost] = useState(false);
   const [room, setRoom] = useState(null);       // { code, roomId }
@@ -95,9 +96,16 @@ export default function Connect4Online({ initialCode }) {
   }, [phase, room, showExpand]);
 
   // ── Auto-join from URL ──
+  // initialCode arrives after hydration (router.query is empty on first render
+  // for static pages), so watch it reactively instead of using it in useState.
+  useEffect(() => {
+    if (!initialCode || autoJoinedRef.current || phase !== null) return;
+    setPhase('auto-joining');
+  }, [initialCode, phase]);
+
   useEffect(() => {
     if (phase !== 'auto-joining' || autoJoinedRef.current) return;
-    if (!username || !playerId) return; // wait for user to load
+    if (!username || !playerId) return; // wait for localStorage to load
     autoJoinedRef.current = true;
     joinRoom(initialCode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
