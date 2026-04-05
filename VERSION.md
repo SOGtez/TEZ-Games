@@ -1,5 +1,10 @@
 # TEZ Games Changelog
 
+## v0.9.11 — Connect 4 waiting screen redesign
+- Removed "Try another way?" toggle from the online waiting screen
+- Room code, shareable link (with copy button), QR code, and "Share this with a friend to play!" text are all shown immediately when a room is created
+- No hidden sections or expandable panels — everything visible at once in a clean vertical stack
+
 ## v0.9.10 — Profanity / slur filter
 - Added server-side word filter (`lib/wordFilter.js`) covering racial slurs, ethnic slurs, homophobic slurs, sexist slurs, hate-group terms, and common profanity
 - Filter catches exact matches, leetspeak substitutions (4→a, 3→e, 1→i, 0→o, 5→s, etc.), embedded slurs inside longer strings, and separator tricks (n-i-g, n.i.g, n_i_g)

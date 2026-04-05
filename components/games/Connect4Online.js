@@ -66,7 +66,6 @@ export default function Connect4Online({ initialCode }) {
   const [guestInfo, setGuestInfo] = useState(null);
   const [incomingMove, setIncomingMove] = useState(null);
   const [error, setError] = useState('');
-  const [showExpand, setShowExpand] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [disconnected, setDisconnected] = useState(false);
@@ -83,7 +82,7 @@ export default function Connect4Online({ initialCode }) {
 
   // ── QR code generation ──
   useEffect(() => {
-    if (phase !== 'waiting' || !room || !showExpand) return;
+    if (phase !== 'waiting' || !room) return;
     const canvas = qrCanvasRef.current;
     if (!canvas) return;
     import('qrcode').then(({ default: QRCode }) => {
@@ -93,7 +92,7 @@ export default function Connect4Online({ initialCode }) {
         color: { dark: '#ffffff', light: '#1a1040' },
       });
     });
-  }, [phase, room, showExpand]);
+  }, [phase, room]);
 
   // ── Auto-join from URL ──
   // initialCode arrives after hydration (router.query is empty on first render
@@ -423,11 +422,7 @@ export default function Connect4Online({ initialCode }) {
   if (phase === 'waiting') {
     return (
       <div style={fullPage}>
-        <style>{`
-          @keyframes spin { to { transform: rotate(360deg); } }
-          @keyframes dot { 0%,80%,100% { opacity: 0 } 40% { opacity: 1 } }
-          @keyframes expandIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-        `}</style>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
         <div style={{ width: '100%', maxWidth: 360, padding: '0 24px', textAlign: 'center' }}>
           {/* Mode badge */}
@@ -435,7 +430,7 @@ export default function Connect4Online({ initialCode }) {
             {gameMode === 'rumble' ? '⚡ Rumble Mode' : '🎯 Normal Mode'}
           </div>
 
-          {/* Code block */}
+          {/* Room code */}
           <div style={{ marginBottom: 6, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>
             ROOM CODE
           </div>
@@ -446,48 +441,35 @@ export default function Connect4Online({ initialCode }) {
           {/* Copy code button */}
           <button
             onClick={() => { copyText(room.code); setCodeCopied(true); setTimeout(() => setCodeCopied(false), 2000); }}
-            style={{ ...pillBtn, background: codeCopied ? 'rgba(74,222,128,0.15)' : 'rgba(124,58,237,0.2)', borderColor: codeCopied ? 'rgba(74,222,128,0.4)' : 'rgba(124,58,237,0.4)', color: codeCopied ? '#4ade80' : 'white', marginBottom: 12 }}
+            style={{ ...pillBtn, background: codeCopied ? 'rgba(74,222,128,0.15)' : 'rgba(124,58,237,0.2)', borderColor: codeCopied ? 'rgba(74,222,128,0.4)' : 'rgba(124,58,237,0.4)', color: codeCopied ? '#4ade80' : 'white', marginBottom: 24 }}
           >
             {codeCopied ? '✓ Copied!' : '📋 Copy Code'}
           </button>
 
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>
-            Share this code with a friend
+          {/* Shareable link */}
+          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+              tez-games.com/game/connect4?code={room.code}
+            </span>
+            <button
+              onClick={() => { copyText(shareUrl); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); }}
+              style={{ ...pillBtn, fontSize: 11, padding: '4px 10px', whiteSpace: 'nowrap', color: linkCopied ? '#4ade80' : 'rgba(255,255,255,0.7)', borderColor: linkCopied ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.15)', background: 'transparent' }}
+            >
+              {linkCopied ? '✓' : 'Copy'}
+            </button>
           </div>
 
-          {/* Try another way */}
-          <button
-            onClick={() => setShowExpand(v => !v)}
-            style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.45)', fontSize: 13, cursor: 'pointer', fontFamily: "'Nunito Sans', sans-serif", textDecoration: 'underline', textUnderlineOffset: 3, marginBottom: 4 }}
-          >
-            {showExpand ? '▲ Show less' : 'Try another way? ▼'}
-          </button>
+          {/* QR code */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+            <canvas ref={qrCanvasRef} style={{ borderRadius: 12, background: '#1a1040' }} />
+          </div>
 
-          {/* Expandable section */}
-          <div style={{ overflow: 'hidden', maxHeight: showExpand ? 360 : 0, transition: 'max-height 0.45s cubic-bezier(.22,1,.36,1)' }}>
-            <div style={{ paddingTop: 16, animation: showExpand ? 'expandIn 0.35s ease both' : 'none' }}>
-              {/* Shareable link */}
-              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-                  tez-games.com/game/connect4?code={room.code}
-                </span>
-                <button
-                  onClick={() => { copyText(shareUrl); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); }}
-                  style={{ ...pillBtn, fontSize: 11, padding: '4px 10px', whiteSpace: 'nowrap', color: linkCopied ? '#4ade80' : 'rgba(255,255,255,0.7)', borderColor: linkCopied ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.15)', background: 'transparent' }}
-                >
-                  {linkCopied ? '✓' : 'Copy'}
-                </button>
-              </div>
-
-              {/* QR code */}
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <canvas ref={qrCanvasRef} style={{ borderRadius: 12, background: '#1a1040' }} />
-              </div>
-            </div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>
+            Share this with a friend to play!
           </div>
 
           {/* Waiting indicator */}
-          <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
             <Spinner size={18} color="rgba(124,58,237,0.7)" />
             <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Waiting for opponent…</span>
           </div>
