@@ -823,6 +823,7 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
         @keyframes pulseBar { 0%,100% { opacity: 0.5 } 50% { opacity: 1 } }
         @keyframes winPulse { from { box-shadow: 0 0 0 0 rgba(239,159,39,0.5) } to { box-shadow: 0 0 0 10px rgba(239,159,39,0) } }
         @keyframes starPop { from { transform: scale(0) rotate(-20deg); opacity: 0 } to { transform: scale(1) rotate(0deg); opacity: 1 } }
+        @keyframes dotPop { 0% { transform: translate(-50%,-50%) scale(0) } 60% { transform: translate(-50%,-50%) scale(1.25) } 80% { transform: translate(-50%,-50%) scale(0.9) } 100% { transform: translate(-50%,-50%) scale(1) } }
         @keyframes celebrateIn { from { opacity: 0; transform: scale(0.8) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes timerPulse { 0%,100% { opacity: 1 } 50% { opacity: 0.55 } }
         @keyframes timerUrgent { 0%,100% { opacity: 1; transform: scale(1) } 50% { opacity: 0.65; transform: scale(1.08) } }
@@ -999,6 +1000,9 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
                         </>}
                         {isBox && <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, color: "white", pointerEvents: "none" }}>?</div>}
                         {isDissolving && <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: pGrad(dissolveCell.player), boxShadow: pShadow(dissolveCell.player), opacity: dissolveT, transform: `scale(${dissolveT})`, transformOrigin: "center", transition: "none", pointerEvents: "none" }} />}
+                        {!isWinPiece && cell !== null && lastPlaced?.r === r && lastPlaced?.c === c && (
+                          <div style={{ position: "absolute", top: "50%", left: "50%", width: "28%", height: "28%", borderRadius: "50%", background: "rgba(255,255,255,0.85)", pointerEvents: "none", zIndex: 8, animation: "dotPop 0.35s cubic-bezier(.34,1.56,.64,1) both" }} />
+                        )}
                         {isWinPiece && (
                           <div style={{ position: "absolute", inset: -4, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, zIndex: 15, pointerEvents: "none", animation: "starPop 0.4s cubic-bezier(.34,1.56,.64,1) both", filter: "drop-shadow(0 0 6px rgba(239,159,39,0.8))" }}>⭐</div>
                         )}

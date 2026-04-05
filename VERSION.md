@@ -1,5 +1,12 @@
 # TEZ Games Changelog
 
+## v0.9.12 — Connect 4 last-placed piece dot indicator
+- Small white dot appears in the center of the most recently dropped piece in all game modes (local, vs AI, online)
+- Dot animates in with a spring pop (scale 0→1 with slight overshoot)
+- Disappears automatically when the next piece is placed
+- Does not appear on ghost piece or piece snatch placements — only normal column drops
+- Hidden when win stars are shown at game end
+
 ## v0.9.11 — Connect 4 waiting screen redesign
 - Removed "Try another way?" toggle from the online waiting screen
 - Room code, shareable link (with copy button), QR code, and "Share this with a friend to play!" text are all shown immediately when a room is created
