@@ -1,5 +1,16 @@
 # TEZ Games Changelog
 
+## v0.9.9 — Full mobile optimization
+- Added viewport meta tag for correct mobile scaling
+- Layout: overflow-x hidden to prevent horizontal scroll; header hides redundant "All Games" nav link on mobile; main content padding tightened on mobile; friend request toasts fit within screen width
+- Landing page: hero section reduced spacing on mobile; body text uses fluid font size
+- Leaderboard: Win% and secondary stat columns hidden on small screens, leaving rank + player + main stat
+- Connect 4: board wraps in scrollable container for small screens; power-up grid collapses to 2 columns; menu cards full-width
+- Blackjack: action buttons stack vertically on mobile; top bar wraps
+- War: menu/game buttons expand to full width on mobile
+- Friends page: add-friend grid goes single-column; friend code header wraps
+- Profile: stats grid already 2-column on mobile (no change needed)
+
 ## v0.9.8 — Connect 4 online multiplayer room system
 - Room-based matchmaking: host creates a room with a random 4-char code (e.g. `TEZ7`), shares it with a friend
 - Waiting screen shows the room code large + copy button, plus expandable "Try another way?" section with a shareable URL and QR code (client-side, dark theme)

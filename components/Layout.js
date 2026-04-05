@@ -219,7 +219,7 @@ function FriendRequestNotif({ notif, onAccept, onDismiss }) {
       boxShadow: '0 8px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04)',
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
-      minWidth: 300, maxWidth: 420,
+      minWidth: 0, maxWidth: 'calc(100vw - 32px)',
       fontFamily: "'Nunito', sans-serif",
     }}>
       {notif.accepted ? (
@@ -493,6 +493,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
     <>
       <Head>
         <title>{title}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="TEZ Games — fun browser-based arcade games for everyone!" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -507,6 +508,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
         style={{
           background: 'radial-gradient(ellipse at 50% 0%, #1a0a2e 0%, #0d0618 55%, #07030f 100%)',
           color: 'white',
+          overflowX: 'hidden',
         }}
       >
         {/* Ambient glow orbs */}
@@ -872,7 +874,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
             <nav style={{ display: 'flex', alignItems: 'center', gap: 16, marginLeft: 'auto' }}>
               <Link
                 href="/"
-                className="font-semibold font-nunito transition-all duration-200"
+                className="hidden sm:inline font-semibold font-nunito transition-all duration-200"
                 style={{ color: 'rgba(253,224,71,0.75)', fontSize: 15 }}
                 onMouseEnter={e => e.currentTarget.style.color = '#fde047'}
                 onMouseLeave={e => e.currentTarget.style.color = 'rgba(253,224,71,0.75)'}
@@ -971,7 +973,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
           </div>
         )}
 
-        <main className="max-w-6xl mx-auto px-4 py-8" style={{ position: 'relative', zIndex: 1 }}>
+        <main className="max-w-6xl mx-auto px-3 py-6 sm:px-4 sm:py-8" style={{ position: 'relative', zIndex: 1 }}>
           {children}
         </main>
 

@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <Layout title="TEZ Games — Play Now!">
       {/* Hero */}
-      <section className="text-center mb-16 pt-10 hero-fade">
+      <section className="text-center mb-8 sm:mb-16 pt-6 sm:pt-10 hero-fade">
         {/* Eyebrow */}
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -28,7 +28,7 @@ export default function Home() {
         </h1>
 
         <p style={{
-          fontSize: 18, color: 'rgba(255,255,255,0.5)',
+          fontSize: 'clamp(14px, 3.5vw, 18px)', color: 'rgba(255,255,255,0.5)',
           maxWidth: 480, margin: '0 auto 32px',
           fontFamily: 'Nunito, sans-serif', lineHeight: 1.6,
         }}>

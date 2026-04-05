@@ -497,6 +497,14 @@ export default function BlackjackGame() {
         @keyframes ins-in{from{opacity:0;transform:scale(0.9) translateY(-10px)}to{opacity:1;transform:scale(1) translateY(0)}}
         @keyframes hint-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
         @keyframes pulse-glow{0%,100%{box-shadow:0 0 8px rgba(253,224,71,0.4)}50%{box-shadow:0 0 22px rgba(253,224,71,0.9),0 0 40px rgba(253,224,71,0.3)}}
+        @media (max-width: 480px) {
+          .bj-topbar { padding: 10px 12px !important; flex-wrap: wrap; gap: 8px; }
+          .bj-topbar-title { font-size: 16px !important; }
+          .bj-topbar-right { gap: 10px !important; }
+          .abtn { padding: 10px 14px !important; font-size: 14px !important; width: 100%; }
+          .bj-action-btns { flex-direction: column !important; }
+          .bj-action-btns .abtn { width: 100% !important; }
+        }
       `}</style>
 
       <Particles active={burst!==null} win={burst==="win"} />
@@ -517,7 +525,7 @@ export default function BlackjackGame() {
       </button>
 
       {/* Top bar */}
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 24px",background:"rgba(0,0,0,0.4)",borderBottom:"1px solid rgba(255,255,255,0.06)",backdropFilter:"blur(8px)"}}>
+      <div className="bj-topbar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 24px",background:"rgba(0,0,0,0.4)",borderBottom:"1px solid rgba(255,255,255,0.06)",backdropFilter:"blur(8px)"}}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <span style={{fontSize:22,fontWeight:800,letterSpacing:3,background:"linear-gradient(135deg,#fde047,#f59e0b)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>TEZ</span>
           <span style={{fontSize:22,fontWeight:300,letterSpacing:3,color:"rgba(255,255,255,0.9)"}}>BLACKJACK</span>
@@ -665,7 +673,7 @@ export default function BlackjackGame() {
 
         {/* Play phase */}
         {phase==="play"&&(
-          <div style={{display:"flex",justifyContent:"center",gap:10,flexWrap:"wrap"}}>
+          <div className="bj-action-btns" style={{display:"flex",justifyContent:"center",gap:10,flexWrap:"wrap"}}>
             <button className="abtn" onClick={hit}   style={btn("#15803d")}>Hit</button>
             <button className="abtn" onClick={stand} style={btn("#b91c1c")}>Stand</button>
             {canDouble()&&<button className="abtn" onClick={dbl}   style={btn("#1d4ed8")}>Double</button>}

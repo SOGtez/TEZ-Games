@@ -87,6 +87,7 @@ function RowWrapper({ row, rank, isMe, isGlobal, isRichest }) {
     <Link
       href={`/profile/${encodeURIComponent(row.username)}`}
       style={baseStyle}
+      className="lb-row"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -116,7 +117,7 @@ function RowWrapper({ row, rank, isMe, isGlobal, isRichest }) {
       ) : (
         <>
           {/* Win rate */}
-          <div style={{ textAlign: 'right', minWidth: 42 }}>
+          <div className="lb-col-hide" style={{ textAlign: 'right', minWidth: 42 }}>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>Win %</div>
             <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: '#4ade80' }}>
               {isGlobal ? winRate(row.total_wins, row.total_games) : winRate(row.wins, row.played)}
@@ -124,7 +125,7 @@ function RowWrapper({ row, rank, isMe, isGlobal, isRichest }) {
           </div>
 
           {/* Col 4 */}
-          <div style={{ textAlign: 'right', minWidth: 40 }}>
+          <div className="lb-col-hide" style={{ textAlign: 'right', minWidth: 40 }}>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
               {isGlobal ? 'Wins' : 'Played'}
             </div>
@@ -183,6 +184,12 @@ export default function LeaderboardPage() {
 
   return (
     <Layout title="Leaderboard — TEZ Games">
+      <style>{`
+        @media (max-width: 480px) {
+          .lb-col-hide { display: none !important; }
+          .lb-row { grid-template-columns: 40px 1fr auto !important; }
+        }
+      `}</style>
       {/* Back button */}
       <div style={{ marginBottom: 24 }}>
         <Link href="/" style={{
@@ -252,7 +259,7 @@ export default function LeaderboardPage() {
       }}>
         {/* Column headers */}
         {!loading && rows.length > 0 && (
-          <div style={{
+          <div className="lb-row" style={{
             display: 'grid',
             gridTemplateColumns: isRichest ? '40px 1fr auto' : '40px 1fr auto auto auto',
             gap: 10, padding: '0 16px 8px',
@@ -262,7 +269,7 @@ export default function LeaderboardPage() {
               ? ['#', 'Player', 'TEZ Bucks']
               : ['#', 'Player', 'Win %', isGlobal ? 'Wins' : 'Played', isGlobal ? 'TP' : 'Wins']
             ).map((h, i) => (
-              <div key={i} style={{
+              <div key={i} className={(!isRichest && (i === 2 || i === 3)) ? 'lb-col-hide' : ''} style={{
                 fontSize: 11, fontFamily: "'Nunito', sans-serif", fontWeight: 700,
                 color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.06em',
                 textAlign: i > 1 ? 'right' : 'left',

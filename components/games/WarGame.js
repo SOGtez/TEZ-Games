@@ -805,6 +805,9 @@ function TEZWar() {
           @keyframes btnPulse { 0%,100% { box-shadow: 0 4px 24px rgba(245,158,11,0.25); } 50% { box-shadow: 0 4px 40px rgba(245,158,11,0.45); } }
           @keyframes ambientOrb1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-20px) scale(1.2); } }
           @keyframes ambientOrb2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-20px,30px) scale(0.8); } }
+          @media (max-width: 480px) {
+            .war-menu-btn { width: 100% !important; max-width: 100% !important; }
+          }
         `}</style>
         <div style={{ position: "absolute", width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, #f59e0b11, transparent 70%)", top: "15%", left: "10%", animation: "ambientOrb1 8s ease-in-out infinite" }} />
         <div style={{ position: "absolute", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, #3b82f611, transparent 70%)", bottom: "10%", right: "5%", animation: "ambientOrb2 10s ease-in-out infinite" }} />
@@ -823,7 +826,7 @@ function TEZWar() {
           <div style={{ transform: "translateY(4px)" }}><GameCard card={{ rank: "A", suit: "♦" }} showFace size="md" /></div>
         </div>
 
-        <button onClick={startGame} style={{
+        <button onClick={startGame} className="war-menu-btn" style={{
           padding: "15px 52px", borderRadius: 14, width: 260,
           background: "linear-gradient(135deg, #fde047, #f59e0b)",
           border: "none", fontSize: 15, fontWeight: 700, color: "#1a1a2e",
@@ -835,7 +838,7 @@ function TEZWar() {
           onMouseOut={function(e) { e.currentTarget.style.transform = "scale(1)"; }}
         >PLAY NORMAL MODE</button>
 
-        <button disabled style={{
+        <button disabled className="war-menu-btn" style={{
           marginTop: 12, padding: "12px 42px", borderRadius: 14, width: 260,
           background: "rgba(255,255,255,0.03)", border: "1px solid #1e1e3a",
           fontSize: 13, fontWeight: 600, color: "#3a3a5a", cursor: "not-allowed",
@@ -846,7 +849,7 @@ function TEZWar() {
           <span style={{ position: "absolute", top: -8, right: -14, background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "#fff", fontSize: 8, padding: "2px 7px", borderRadius: 6, fontWeight: 800 }}>SOON</span>
         </button>
 
-        <button onClick={startTutorial} style={{
+        <button onClick={startTutorial} className="war-menu-btn" style={{
           marginTop: 12, padding: "12px 42px", borderRadius: 14, width: 260,
           background: "rgba(59,130,246,0.08)", border: "1px solid #3b82f633",
           fontSize: 13, fontWeight: 600, color: "#60a5fa",
@@ -901,6 +904,9 @@ function TEZWar() {
         .flip-btn { transition: transform 0.15s, box-shadow 0.15s; }
         .flip-btn:hover:not(:disabled) { transform: scale(1.04) !important; box-shadow: 0 6px 36px rgba(245,158,11,0.4) !important; }
         .flip-btn:active:not(:disabled) { transform: scale(0.96) !important; }
+        @media (max-width: 480px) {
+          .war-menu-btn { width: 100% !important; max-width: 100% !important; }
+        }
       `}</style>
 
       {roundResult === "war" && (

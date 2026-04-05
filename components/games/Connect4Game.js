@@ -714,6 +714,9 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
         .menu-btn-online { width: 100%; margin-top: 8px; padding: 9px 0; border-radius: 11px; border: 1px solid rgba(74,222,128,0.25); background: rgba(74,222,128,0.07); color: #4ade80; font-weight: 700; font-size: 13px; cursor: pointer; transition: transform 0.15s, background 0.2s, border-color 0.2s; font-family: 'Nunito Sans', sans-serif; }
         .menu-btn-online:hover { transform: scale(1.03); background: rgba(74,222,128,0.14); border-color: rgba(74,222,128,0.45); }
         .menu-btn-online:active { transform: scale(0.97); }
+        @media (max-width: 480px) {
+          .mc-normal, .mc-rumble { padding: 16px 14px 14px; }
+        }
       `}</style>
 
       <div style={{
@@ -825,6 +828,10 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
         @keyframes timerUrgent { 0%,100% { opacity: 1; transform: scale(1) } 50% { opacity: 0.65; transform: scale(1.08) } }
         .game-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 12px; padding: 7px 14px; cursor: pointer; font-family: 'Nunito Sans', sans-serif; transition: background 0.2s, border-color 0.2s; }
         .game-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
+        @media (max-width: 480px) {
+          .c4-board-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .c4-powerup-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
       `}</style>
       <div style={{ maxWidth: 520, margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
@@ -919,7 +926,7 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
           <div style={{ textAlign: "center", fontSize: 12, color: "#EF9F27", marginBottom: 10, padding: "7px 14px", background: "rgba(239,159,39,0.08)", border: "1px solid rgba(239,159,39,0.2)", borderRadius: 8 }}>{msg}</div>
         )}
 
-        <div style={{ position: "relative" }}>
+        <div className="c4-board-wrap" style={{ position: "relative" }}>
           <div style={{ background: "#1a1535", borderRadius: 20, padding: PAD, border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 20px 60px rgba(0,0,0,0.6)", position: "relative", overflow: "visible" }}>
             <div style={{ display: "flex", gap: GAP, marginBottom: GAP }}>
               {Array.from({ length: COLS }, (_, c) => {
@@ -1026,7 +1033,7 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
             <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "92%", maxWidth: 380, background: "#16132e", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, padding: "22px 18px", textAlign: "center", zIndex: 50, boxShadow: "0 30px 80px rgba(0,0,0,0.85)" }}>
               <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 5 }}>Mystery Box</div>
               <div style={{ fontSize: 15, fontWeight: 700, color: "white", marginBottom: 16 }}>{spinAnimate ? "Spinning..." : "You got..."}</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 7, marginBottom: spinResult ? 16 : 0 }}>
+              <div className="c4-powerup-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 7, marginBottom: spinResult ? 16 : 0 }}>
                 {POWERUPS.map((p, i) => {
                   const active = spinAnimate && spinIdx === i;
                   const landed = !spinAnimate && spinResult?.id === p.id;

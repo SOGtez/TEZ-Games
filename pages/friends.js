@@ -135,6 +135,12 @@ export default function FriendsPage() {
 
   return (
     <Layout title="Friends — TEZ Games">
+      <style>{`
+        @media (max-width: 480px) {
+          .friends-add-grid { grid-template-columns: 1fr !important; }
+          .friends-code-wrap { flex-wrap: wrap; gap: 8px !important; }
+        }
+      `}</style>
       {!playerId ? (
         <div style={{ textAlign: 'center', padding: '80px 0' }}>
           <div style={{ fontSize: 52, marginBottom: 16 }}>👥</div>
@@ -154,7 +160,7 @@ export default function FriendsPage() {
               👥 Friends
             </div>
             {friendCode && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(253,224,71,0.06)', border: '1px solid rgba(253,224,71,0.18)', borderRadius: 12, padding: '8px 16px' }}>
+              <div className="friends-code-wrap" style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(253,224,71,0.06)', border: '1px solid rgba(253,224,71,0.18)', borderRadius: 12, padding: '8px 16px' }}>
                 <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Your code:</span>
                 <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 700, color: '#fde047', letterSpacing: '0.06em' }}>
                   {friendCode}
@@ -248,7 +254,7 @@ export default function FriendsPage() {
             <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 16 }}>
               Add Friend
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <div className="friends-add-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
               {/* Search */}
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', fontFamily: "'Nunito', sans-serif", marginBottom: 8 }}>
