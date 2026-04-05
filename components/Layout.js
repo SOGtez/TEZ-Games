@@ -420,6 +420,17 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
   const [friendNotifs, setFriendNotifs] = useState([]);
   const seenRequestIds = useRef(new Set());
   const isFirstLoad = useRef(true);
+  const [emailPromptDismissed, setEmailPromptDismissed] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setEmailPromptDismissed(!!localStorage.getItem('tez_email_prompt_dismissed'));
+    }
+  }, []);
+  const dismissEmailPrompt = () => {
+    localStorage.setItem('tez_email_prompt_dismissed', '1');
+    setEmailPromptDismissed(true);
+  };
+  const showEmailPrompt = username && !isEmailLinked && !emailPromptDismissed && (playerStats?.total_games || 0) >= 5;
 
   const refreshFriends = useCallback(() => {
     if (!playerId) return;
@@ -621,6 +632,9 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                         {isEmailLinked && (
                           <span title="Email linked" style={{ fontSize: 12, color: '#4ade80', background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.25)', borderRadius: 6, padding: '1px 5px', lineHeight: 1.4 }}>✉</span>
                         )}
+                        {!isEmailLinked && (
+                          <span title="Your account is not secured — link an email to protect your progress" style={{ fontSize: 12, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 6, padding: '1px 5px', lineHeight: 1.4, cursor: 'default' }}>⚠</span>
+                        )}
                       </div>
                     </div>
                     {/* Chevron */}
@@ -764,6 +778,44 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
               {/* Link Email + Log Out (logged-in users) */}
               {username && (
                 <div style={{ padding: '6px 12px 16px', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {/* Email link prompt — shown once after 5 games */}
+                  {showEmailPrompt && (
+                    <div style={{
+                      background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)',
+                      borderRadius: 10, padding: '10px 12px', marginBottom: 2,
+                    }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#f59e0b', fontFamily: "'Nunito', sans-serif", marginBottom: 5 }}>
+                        🔒 Secure your progress
+                      </div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontFamily: "'Nunito', sans-serif", marginBottom: 8, lineHeight: 1.5 }}>
+                        Want to keep your progress safe? Link an email to secure your account.
+                      </div>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          onClick={() => { setAuthModalMode('link'); setSidebarOpen(false); }}
+                          style={{
+                            flex: 1, padding: '6px 0', borderRadius: 7, cursor: 'pointer',
+                            background: 'rgba(245,158,11,0.2)', border: '1px solid rgba(245,158,11,0.4)',
+                            color: '#f59e0b', fontWeight: 700, fontSize: 11,
+                            fontFamily: "'Nunito', sans-serif",
+                          }}
+                        >
+                          Link Email
+                        </button>
+                        <button
+                          onClick={dismissEmailPrompt}
+                          style={{
+                            padding: '6px 10px', borderRadius: 7, cursor: 'pointer',
+                            background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
+                            color: 'rgba(255,255,255,0.3)', fontWeight: 600, fontSize: 11,
+                            fontFamily: "'Nunito', sans-serif",
+                          }}
+                        >
+                          Maybe Later
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   {!isEmailLinked && (
                     <button
                       onClick={() => { setAuthModalMode('link'); setSidebarOpen(false); }}

@@ -1,5 +1,12 @@
 # TEZ Games Changelog
 
+## v0.9.14 — Guest account persistence
+- Dual-layer session storage: saves to both localStorage and a 1-year cookie so accounts survive storage clears on either side
+- Friend code recovery: "Recover it →" link in UsernameModal lets users restore their account by entering their TEZ-XXXX friend code on a new device
+- Session validation on load: if the stored player ID returns a 404 (account deleted), the stale session is automatically cleared
+- Email link prompt: after 5 games, guests see an amber sidebar card prompting them to link an email to protect their progress (dismissible)
+- Warning badge (⚠) next to username in sidebar for unlinked accounts, with tooltip explaining the risk
+
 ## v0.9.13 — Fix online Connect 4 freeze + dot size
 - Fixed critical bug where online games froze at turn 4: a remote drop arriving while a local animation was running would be silently discarded and marked as processed, leaving both players stuck forever
 - Root cause: `dropping = true` guard in `handleColClick` would reject the remote move, but `processedMoveRef` was already stamped — so the move was lost permanently when the animation finished

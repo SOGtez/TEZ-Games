@@ -4,6 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { useRouter } from 'next/router';
 import TezToast from '../components/TezToast';
+import { saveSession, loadSession, clearSession } from '../lib/session';
 
 export const MusicContext = createContext({ musicOn: false, toggleMusic: () => {}, volume: 0.3, setVolume: () => {} });
 export const useMusic = () => useContext(MusicContext);
@@ -35,23 +36,10 @@ export default function App({ Component, pageProps }) {
   const [toasts, setToasts] = useState([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('tez_username');
-    const savedId = localStorage.getItem('tez_player_id');
-    if (saved) setUsernameState(saved);
-    if (savedId) {
-      setPlayerIdState(savedId);
-    } else if (saved) {
-      // Existing player without a stored ID — look it up and backfill
-      fetch(`/api/get-player?username=${encodeURIComponent(saved)}`)
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-          if (data?.id) {
-            localStorage.setItem('tez_player_id', data.id);
-            setPlayerIdState(data.id);
-          }
-        })
-        .catch(() => {});
-    }
+    const session = loadSession();
+    if (!session) return;
+    setUsernameState(session.username);
+    setPlayerIdState(session.id);
   }, []);
 
   // Fetch stats whenever playerId is resolved
@@ -60,17 +48,19 @@ export default function App({ Component, pageProps }) {
   }, [playerId]);
 
   const setUsername = (name, id) => {
-    localStorage.setItem('tez_username', name);
-    if (id) localStorage.setItem('tez_player_id', id);
+    if (id) saveSession(name, id);
+    else {
+      try { localStorage.setItem('tez_username', name); } catch {}
+    }
     setUsernameState(name);
     if (id) setPlayerIdState(id);
   };
 
   const clearUsername = () => {
-    localStorage.removeItem('tez_username');
-    localStorage.removeItem('tez_player_id');
+    clearSession();
     setUsernameState(null);
     setPlayerIdState(null);
+    setPlayerStats(null);
   };
 
   const refreshStats = useCallback(async (id) => {
@@ -78,11 +68,18 @@ export default function App({ Component, pageProps }) {
     if (!pid) return;
     try {
       const res = await fetch(`/api/get-player-by-id?id=${encodeURIComponent(pid)}`);
+      if (res.status === 404) {
+        // Player was deleted — clear stale session
+        clearSession();
+        setUsernameState(null);
+        setPlayerIdState(null);
+        setPlayerStats(null);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setPlayerStats(data);
         if (data.dailyLoginBucks > 0) {
-          // Deduplicate: only show the toast once per calendar day per device
           const todayStr = new Date().toISOString().slice(0, 10);
           const bonusKey = `tez_daily_bonus_${pid}`;
           if (localStorage.getItem(bonusKey) === todayStr) return;
