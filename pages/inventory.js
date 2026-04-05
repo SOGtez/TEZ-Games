@@ -27,7 +27,6 @@ export default function InventoryPage() {
   const [acting, setActing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [debugMsg, setDebugMsg] = useState(null);
-  const [previewId, setPreviewId] = useState(null); // cosmetic_id being hovered for preview
   // Wait for session to hydrate from localStorage before deciding logged-out state
   const [sessionChecked, setSessionChecked] = useState(false);
   useEffect(() => { setSessionChecked(true); }, []);
@@ -71,10 +70,8 @@ export default function InventoryPage() {
   const equippedId = equipped[EQUIPPED_KEYS[activeTab]];
   const tezBucks = playerStats?.tez_bucks || 0;
 
-  // For name paint preview: resolve the css_value of whichever paint is being previewed/equipped
-  const previewItem = previewId
-    ? tabItems.find(i => i.cosmetic_id === previewId)
-    : tabItems.find(i => i.cosmetic_id === equippedId);
+  // For name paint preview: show the currently equipped paint
+  const previewItem = tabItems.find(i => i.cosmetic_id === equippedId);
   const previewCss = previewItem?.css_value || null;
   const previewStyle = parsePaintStyle(previewCss);
 
@@ -145,7 +142,7 @@ export default function InventoryPage() {
           {TABS.map(tab => (
             <button
               key={tab.key}
-              onClick={() => { setActiveTab(tab.key); setPreviewId(null); }}
+              onClick={() => setActiveTab(tab.key)}
               style={{
                 padding: '8px 16px', borderRadius: 10, cursor: 'pointer',
                 border: activeTab === tab.key
@@ -192,7 +189,7 @@ export default function InventoryPage() {
                 color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em',
                 marginBottom: 8,
               }}>
-                {previewId ? 'Preview' : equippedId ? 'Currently Equipped' : 'Preview'}
+                {equippedId ? 'Currently Equipped' : 'No Paint Equipped'}
               </div>
               <span
                 style={{
@@ -221,7 +218,7 @@ export default function InventoryPage() {
                 fontFamily: "'Nunito', sans-serif", fontSize: 12,
                 color: 'rgba(255,255,255,0.25)',
               }}>
-                Hover a paint to preview
+                Equip a paint to see it here
               </div>
             )}
           </div>
@@ -268,8 +265,6 @@ export default function InventoryPage() {
               return (
                 <div
                   key={item.cosmetic_id}
-                  onMouseEnter={() => activeTab === 'name_paint' && setPreviewId(item.cosmetic_id)}
-                  onMouseLeave={() => activeTab === 'name_paint' && setPreviewId(null)}
                   style={{
                     background: isEquipped
                       ? 'rgba(74,222,128,0.06)'

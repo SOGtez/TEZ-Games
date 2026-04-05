@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.9.23 — Remove hover preview from name paint inventory
+- Preview panel now only reflects the currently equipped paint, not hover state
+
 ## v0.9.22 — Fix name paint preview rendering
 - Added display: inline-block to username spans in name paint preview panel and cards — required for background-clip: text to clip the gradient to the text shape instead of flooding the element
 
