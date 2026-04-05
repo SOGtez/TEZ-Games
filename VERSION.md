@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.9.25 — Debug name paint preview rendering
+- Inject paint CSS as a real style tag for the preview panel instead of React inline styles
+- Show raw css_value in the preview panel temporarily for debugging
+
 ## v0.9.24 — Fix name paint preview block rendering
 - Wrapped preview username span in a flex div so it's treated as a block-level flex item, making background-clip: text clip reliably to the text shape
 

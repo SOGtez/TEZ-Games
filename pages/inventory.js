@@ -176,6 +176,11 @@ export default function InventoryPage() {
 
         {/* Name Paint Preview Panel */}
         {activeTab === 'name_paint' && !loading && tabItems.length > 0 && (
+          <>
+            {/* Inject raw paint CSS as a real style tag — bypasses React inline style serialization */}
+            {previewCss && (
+              <style dangerouslySetInnerHTML={{ __html: `.np-preview-panel { ${previewCss} }` }} />
+            )}
           <div style={{
             marginBottom: 24, padding: '18px 24px',
             background: 'rgba(124,58,237,0.07)',
@@ -191,18 +196,22 @@ export default function InventoryPage() {
               }}>
                 {equippedId ? 'Currently Equipped' : 'No Paint Equipped'}
               </div>
-              {/* Flex wrapper forces span to act as a block, making background-clip: text reliable */}
-              <div style={{ display: 'flex' }}>
-                <span
-                  style={{
-                    fontFamily: "'Fredoka', sans-serif",
-                    fontSize: 26, fontWeight: 700,
-                    ...(previewStyle || { color: 'rgba(255,255,255,0.5)' }),
-                  }}
-                >
-                  {username || 'YourName'}
-                </span>
-              </div>
+              <span
+                className={previewCss ? 'np-preview-panel' : undefined}
+                style={{
+                  fontFamily: "'Fredoka', sans-serif",
+                  fontSize: 26, fontWeight: 700,
+                  ...(previewCss ? {} : { color: 'rgba(255,255,255,0.5)' }),
+                }}
+              >
+                {username || 'YourName'}
+              </span>
+              {/* Temporary: show raw css_value for debugging */}
+              {previewCss && (
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', marginTop: 6, fontFamily: 'monospace', maxWidth: 300, wordBreak: 'break-all' }}>
+                  {previewCss}
+                </div>
+              )}
             </div>
             {previewItem && (
               <div style={{
@@ -224,6 +233,7 @@ export default function InventoryPage() {
               </div>
             )}
           </div>
+          </>
         )}
 
         {/* Content */}
