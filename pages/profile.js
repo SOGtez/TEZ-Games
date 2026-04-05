@@ -60,6 +60,7 @@ export default function ProfilePage() {
           backHref="/"
           backLabel="Back to Games"
           recoveryCode={playerStats?.recovery_code}
+          paintCss={playerStats?.paint_css}
         />
       )}
     </Layout>

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { reportGameResult } from "../../lib/reportGameResult";
+import { parsePaintStyle } from "../../lib/namePaint";
 
 const ROWS = 6, COLS = 7, PAD = 12, GAP = 5, CELL = 44, STRIDE = CELL + GAP;
 const P1G = ["#FF6B6B", "#E24B4A"], P2G = ["#5EB8FF", "#378ADD"];
@@ -183,7 +184,7 @@ function MenuOrbs() {
   return <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }} />;
 }
 
-export default function Connect4Game({ gameMode, playerColor, onMove, incomingMove, onGameEnd, timerDuration = 240, gameType = 'normal', p1Name, p2Name, onPlayOnline, onJoinOnline, initialError, notice } = {}) {
+export default function Connect4Game({ gameMode, playerColor, onMove, incomingMove, onGameEnd, timerDuration = 240, gameType = 'normal', p1Name, p2Name, p1PaintCss, p2PaintCss, onPlayOnline, onJoinOnline, initialError, notice } = {}) {
   const [screen, setScreen] = useState(gameMode ? "game" : "menu");
   const [mode, setMode] = useState(gameMode ? (gameType || 'normal') : 'normal');
   const [joinCode, setJoinCode] = useState('');
@@ -866,7 +867,10 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
                 {active && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg,transparent,${grad[0]},transparent)`, animation: "pulseBar 2s ease-in-out infinite" }} />}
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ width: 10, height: 10, borderRadius: "50%", background: `linear-gradient(135deg,${grad[0]},${grad[1]})`, boxShadow: active ? `0 0 10px ${grad[0]}` : "none", transition: "box-shadow 0.3s" }} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: active ? "white" : "rgba(255,255,255,0.35)", transition: "color 0.3s" }}>{p === 1 ? p1Label : p2Label}</span>
+                  <span style={{
+                    fontSize: 13, fontWeight: 600, color: active ? "white" : "rgba(255,255,255,0.35)", transition: "color 0.3s",
+                    ...(p === 1 ? (p1PaintCss ? parsePaintStyle(p1PaintCss) : {}) : (p2PaintCss ? parsePaintStyle(p2PaintCss) : {}))
+                  }}>{p === 1 ? p1Label : p2Label}</span>
                   {shields[p] && <span style={{ fontSize: 12 }}>🛡️</span>}
                   {fogT[p] > 0.05 && <span style={{ fontSize: 11, color: "#7F77DD" }}>🌫️</span>}
                   {poisonArmed && turn === p && <span style={{ fontSize: 11 }}>⚗️</span>}
@@ -1109,7 +1113,10 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
                 const canUse = turn === p && !result && !spinning && !dropping && !pendingAction && pu && isMyTurn;
                 return (
                   <div key={p}>
-                    <div style={{ fontSize: 10, color: `rgba(${p === 1 ? "226,75,74" : "55,138,221"},0.6)`, marginBottom: 5, fontWeight: 600 }}>{p === 1 ? p1Label : p2Label}</div>
+                    <div style={{
+                      fontSize: 10, color: `rgba(${p === 1 ? "226,75,74" : "55,138,221"},0.6)`, marginBottom: 5, fontWeight: 600,
+                      ...(p === 1 ? (p1PaintCss ? parsePaintStyle(p1PaintCss) : {}) : (p2PaintCss ? parsePaintStyle(p2PaintCss) : {}))
+                    }}>{p === 1 ? p1Label : p2Label}</div>
                     {pu ? (
                       <button onClick={() => canUse && useInventory(p)}
                         style={{ width: "100%", background: `linear-gradient(135deg,${pu.grad[0]}22,${pu.grad[1]}11)`, border: `1px solid ${pu.grad[0]}${canUse ? "88" : "33"}`, borderRadius: 14, padding: "10px 12px", cursor: canUse ? "pointer" : "not-allowed", display: "flex", alignItems: "center", gap: 10, opacity: canUse ? 1 : 0.5, transition: "all 0.2s", fontFamily: "'Nunito Sans', sans-serif" }}>

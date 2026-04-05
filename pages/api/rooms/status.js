@@ -17,15 +17,21 @@ export default async function handler(req, res) {
   if (!room) return res.status(404).json({ error: 'not_found' });
 
   let guestUsername = null, guestLevel = null, guestCountry = null;
+  let guestPaintCss = null;
   if (room.guest_id) {
     const { data: guest } = await supabase
       .from('players')
-      .select('username, level, country')
+      .select('username, level, country, equipped_name_paint')
       .eq('id', room.guest_id)
       .single();
     guestUsername = guest?.username || 'Player';
     guestLevel = guest?.level || 'Rookie';
     guestCountry = guest?.country || null;
+    if (guest?.equipped_name_paint) {
+      const { data: paintCosmetic } = await supabase
+        .from('cosmetics').select('css_value').eq('id', guest.equipped_name_paint).single();
+      guestPaintCss = paintCosmetic?.css_value || null;
+    }
   }
 
   return res.status(200).json({
@@ -35,5 +41,6 @@ export default async function handler(req, res) {
     guestUsername,
     guestLevel,
     guestCountry,
+    guestPaintCss: room.guest_id ? guestPaintCss : null,
   });
 }

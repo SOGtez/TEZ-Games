@@ -5,11 +5,12 @@ import { useState, useEffect, useCallback, createContext, useContext } from 'rea
 import { useRouter } from 'next/router';
 import TezToast from '../components/TezToast';
 import { saveSession, loadSession, clearSession } from '../lib/session';
+import { parsePaintStyle } from '../lib/namePaint';
 
 export const MusicContext = createContext({ musicOn: false, toggleMusic: () => {}, volume: 0.3, setVolume: () => {} });
 export const useMusic = () => useContext(MusicContext);
 
-export const UserContext = createContext({ username: null, playerId: null, playerStats: null, isEmailLinked: false, setUsername: () => {}, clearUsername: () => {}, refreshStats: () => {} });
+export const UserContext = createContext({ username: null, playerId: null, playerStats: null, isEmailLinked: false, namePaintStyle: null, setUsername: () => {}, clearUsername: () => {}, refreshStats: () => {} });
 export const useUser = () => useContext(UserContext);
 
 // Module-level — created once, never destroyed by React lifecycle
@@ -180,7 +181,7 @@ export default function App({ Component, pageProps }) {
   };
 
   return (
-    <UserContext.Provider value={{ username, playerId, playerStats, isEmailLinked: !!(playerStats?.auth_id), setUsername, clearUsername, refreshStats }}>
+    <UserContext.Provider value={{ username, playerId, playerStats, isEmailLinked: !!(playerStats?.auth_id), namePaintStyle: parsePaintStyle(playerStats?.paint_css), setUsername, clearUsername, refreshStats }}>
       <MusicContext.Provider value={{ musicOn, toggleMusic, volume, setVolume }}>
         <Component {...pageProps} />
         <Analytics />

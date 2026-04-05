@@ -146,7 +146,7 @@ export default function Connect4Online({ initialCode }) {
       const newRoom = { code: data.code, roomId: data.roomId };
       setIsHost(true);
       setRoom(newRoom);
-      setHostInfo({ username, playerId, level: playerStats?.level || 'Rookie' });
+      setHostInfo({ username, playerId, level: playerStats?.level || 'Rookie', paintCss: playerStats?.paint_css || null });
       setGuestInfo(null);
       setPhase('waiting');
 
@@ -193,8 +193,8 @@ export default function Connect4Online({ initialCode }) {
       setIsHost(false);
       setRoom({ code: trimmed, roomId: data.roomId });
       setGameMode(data.gameMode);
-      setHostInfo({ username: data.hostUsername, level: data.hostLevel, country: data.hostCountry });
-      setGuestInfo({ username, playerId, level: playerStats?.level || 'Rookie' });
+      setHostInfo({ username: data.hostUsername, level: data.hostLevel, country: data.hostCountry, paintCss: data.hostPaintCss || null });
+      setGuestInfo({ username, playerId, level: playerStats?.level || 'Rookie', paintCss: playerStats?.paint_css || null });
 
       setupChannel(data.roomId, false);
     } catch {
@@ -256,7 +256,7 @@ export default function Connect4Online({ initialCode }) {
         const data = await res.json();
         if (data.status === 'playing' && data.guestId) {
           clearInterval(pollRef.current);
-          setGuestInfo({ username: data.guestUsername, level: data.guestLevel, country: data.guestCountry, playerId: data.guestId });
+          setGuestInfo({ username: data.guestUsername, level: data.guestLevel, country: data.guestCountry, playerId: data.guestId, paintCss: data.guestPaintCss || null });
           setPhase('playing');
           startHeartbeat(channelRef.current);
           armDisconnectTimer();
@@ -503,6 +503,8 @@ export default function Connect4Online({ initialCode }) {
   if (phase === 'playing') {
     const p1Name = hostInfo?.username || 'Red';
     const p2Name = guestInfo?.username || 'Blue';
+    const p1PaintCss = hostInfo?.paintCss || null;
+    const p2PaintCss = guestInfo?.paintCss || null;
 
     return (
       <div style={{ position: 'relative' }}>
@@ -515,6 +517,8 @@ export default function Connect4Online({ initialCode }) {
           onGameEnd={handleGameEnd}
           p1Name={p1Name}
           p2Name={p2Name}
+          p1PaintCss={p1PaintCss}
+          p2PaintCss={p2PaintCss}
           notice={disconnected && !disconnectWin ? '⚠️ Opponent may have disconnected…' : null}
         />
 

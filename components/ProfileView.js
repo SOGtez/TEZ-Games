@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { countryFlag } from '../lib/countryFlag';
+import { parsePaintStyle } from '../lib/namePaint';
 
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
@@ -88,7 +89,7 @@ function StatRow({ label, value, color }) {
   );
 }
 
-export default function ProfileView({ player, perGame, recent, isOwn, backHref = '/', backLabel = 'Back to Games', recoveryCode }) {
+export default function ProfileView({ player, perGame, recent, isOwn, backHref = '/', backLabel = 'Back to Games', recoveryCode, paintCss }) {
   const level = player.level || 'Rookie';
   const points = player.tez_points || 0;
   const color = LEVEL_COLORS[level] || '#9ca3af';
@@ -165,7 +166,7 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
               lineHeight: 1.1, marginBottom: 6,
               display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
             }}>
-              {player.username}
+              <span style={paintCss ? parsePaintStyle(paintCss) || undefined : undefined}>{player.username}</span>
               {flag && <span style={{ fontSize: 24 }}>{flag}</span>}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>

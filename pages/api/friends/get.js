@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
+import { attachNamePaints } from '../../../lib/attachPaints';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
-const PLAYER_FIELDS = 'id, username, country, level, tez_points, total_wins, total_games';
+const PLAYER_FIELDS = 'id, username, country, level, tez_points, total_wins, total_games, equipped_name_paint';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
@@ -47,5 +48,10 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(200).json({ friends, incoming, outgoing });
+  const [paintedFriends, paintedIncoming] = await Promise.all([
+    attachNamePaints(supabase, friends),
+    attachNamePaints(supabase, incoming.map(i => i.requester)),
+  ]);
+  const paintedIncomingFull = incoming.map((item, idx) => ({ ...item, requester: paintedIncoming[idx] }));
+  return res.status(200).json({ friends: paintedFriends, incoming: paintedIncomingFull, outgoing });
 }

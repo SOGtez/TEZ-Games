@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { attachNamePaints } from '../../lib/attachPaints';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
@@ -10,7 +11,7 @@ export default async function handler(req, res) {
   if (tab === 'richest') {
     const { data: top50, error } = await supabase
       .from('players')
-      .select('id, username, level, tez_bucks, country')
+      .select('id, username, level, tez_bucks, country, equipped_name_paint')
       .order('tez_bucks', { ascending: false })
       .limit(50);
 
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
     if (playerId && !(top50 || []).find(p => p.id === playerId)) {
       const { data: userRow } = await supabase
         .from('players')
-        .select('id, username, level, tez_bucks, country')
+        .select('id, username, level, tez_bucks, country, equipped_name_paint')
         .eq('id', playerId)
         .single();
 
@@ -33,13 +34,15 @@ export default async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ rows: top50 || [], userRank });
+    const paintedRows = await attachNamePaints(supabase, top50 || []);
+    const paintedUserRank = userRank ? (await attachNamePaints(supabase, [userRank]))[0] : null;
+    return res.status(200).json({ rows: paintedRows, userRank: paintedUserRank });
   }
 
   if (tab === 'global') {
     const { data: top50, error } = await supabase
       .from('players')
-      .select('id, username, level, tez_points, total_wins, total_games, country')
+      .select('id, username, level, tez_points, total_wins, total_games, country, equipped_name_paint')
       .order('tez_points', { ascending: false })
       .limit(50);
 
@@ -49,7 +52,7 @@ export default async function handler(req, res) {
     if (playerId && !(top50 || []).find(p => p.id === playerId)) {
       const { data: userRow } = await supabase
         .from('players')
-        .select('id, username, level, tez_points, total_wins, total_games, country')
+        .select('id, username, level, tez_points, total_wins, total_games, country, equipped_name_paint')
         .eq('id', playerId)
         .single();
 
@@ -62,7 +65,9 @@ export default async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ rows: top50 || [], userRank });
+    const paintedRows = await attachNamePaints(supabase, top50 || []);
+    const paintedUserRank = userRank ? (await attachNamePaints(supabase, [userRank]))[0] : null;
+    return res.status(200).json({ rows: paintedRows, userRank: paintedUserRank });
   }
 
   const gameType = tab;
@@ -91,7 +96,7 @@ export default async function handler(req, res) {
   const playerIds = sorted.map(([id]) => id);
   const { data: players } = await supabase
     .from('players')
-    .select('id, username, level, country')
+    .select('id, username, level, country, equipped_name_paint')
     .in('id', playerIds);
 
   const playerMap = Object.fromEntries((players || []).map(p => [p.id, p]));
@@ -105,11 +110,13 @@ export default async function handler(req, res) {
     const rank = Object.values(agg).filter(a => a.wins > userStats.wins).length + 1;
     const { data: userPlayer } = await supabase
       .from('players')
-      .select('id, username, level, country')
+      .select('id, username, level, country, equipped_name_paint')
       .eq('id', playerId)
       .single();
     if (userPlayer) userRank = { ...userPlayer, ...userStats, rank };
   }
 
-  return res.status(200).json({ rows, userRank });
+  const paintedRows = await attachNamePaints(supabase, rows);
+  const paintedUserRank = userRank ? (await attachNamePaints(supabase, [userRank]))[0] : null;
+  return res.status(200).json({ rows: paintedRows, userRank: paintedUserRank });
 }

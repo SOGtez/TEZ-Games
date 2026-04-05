@@ -8,6 +8,7 @@ import UsernameModal from './UsernameModal';
 import AuthModal from './AuthModal';
 import AddFriendModal from './AddFriendModal';
 import { countryFlag } from '../lib/countryFlag';
+import { parsePaintStyle } from '../lib/namePaint';
 
 const LEVEL_ORDER = ['Rookie', 'Player', 'Competitor', 'Champion', 'Master', 'Legend', 'GOAT'];
 const LEVEL_THRESHOLDS = { Rookie: 0, Player: 100, Competitor: 500, Champion: 2000, Master: 5000, Legend: 10000, GOAT: 25000 };
@@ -240,7 +241,7 @@ function FriendRequestNotif({ notif, onAccept, onDismiss }) {
           />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: 'white', lineHeight: 1.3 }}>
-              {notif.requester.username}{notif.requester.country ? ` ${countryFlag(notif.requester.country)}` : ''}{' '}
+              <span style={notif.requester.paint_css ? parsePaintStyle(notif.requester.paint_css) || undefined : undefined}>{notif.requester.username}</span>{notif.requester.country ? ` ${countryFlag(notif.requester.country)}` : ''}{' '}
               <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.6)' }}>wants to be your friend!</span>
             </div>
             <div style={{ fontSize: 11, marginTop: 2, color: LEVEL_COLORS[notif.requester.level] || '#9ca3af' }}>
@@ -349,7 +350,7 @@ function SidebarFriendsPanel({ expanded, data, acting, onRespond, onAddFriend, o
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: 'white', fontFamily: "'Nunito', sans-serif", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {f.username}{f.country ? ` ${countryFlag(f.country)}` : ''}
+                    <span style={f.paint_css ? parsePaintStyle(f.paint_css) || undefined : undefined}>{f.username}</span>{f.country ? ` ${countryFlag(f.country)}` : ''}
                   </div>
                   <div style={{ fontSize: 10, color: LEVEL_COLORS[f.level] || '#9ca3af', fontFamily: "'Nunito', sans-serif" }}>
                     {f.level}
@@ -409,7 +410,7 @@ function SidebarFriendsPanel({ expanded, data, acting, onRespond, onAddFriend, o
 
 export default function Layout({ children, title = 'TEZ Games', hideChrome = false, viewedPlayerId = null }) {
   const { musicOn, toggleMusic, volume, setVolume } = useMusic();
-  const { username, playerId, playerStats, isEmailLinked, clearUsername } = useUser();
+  const { username, playerId, playerStats, isEmailLinked, clearUsername, namePaintStyle } = useUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [usernameModalOpen, setUsernameModalOpen] = useState(false);
@@ -629,7 +630,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                         Signed in as
                       </div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: 'white', fontFamily: "'Nunito', sans-serif", display: 'flex', alignItems: 'center', gap: 6 }}>
-                        {username}
+                        <span style={namePaintStyle || undefined}>{username}</span>
                         {playerStats?.country && <span style={{ fontSize: 16 }}>{countryFlag(playerStats.country)}</span>}
                         {isEmailLinked && (
                           <span title="Email linked" style={{ fontSize: 12, color: '#4ade80', background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.25)', borderRadius: 6, padding: '1px 5px', lineHeight: 1.4 }}>✉</span>

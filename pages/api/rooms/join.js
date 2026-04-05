@@ -36,9 +36,16 @@ export default async function handler(req, res) {
   // Fetch host info
   const { data: host } = await supabase
     .from('players')
-    .select('username, level, country')
+    .select('username, level, country, equipped_name_paint')
     .eq('id', room.host_id)
     .single();
+
+  let hostPaintCss = null;
+  if (host?.equipped_name_paint) {
+    const { data: paintCosmetic } = await supabase
+      .from('cosmetics').select('css_value').eq('id', host.equipped_name_paint).single();
+    hostPaintCss = paintCosmetic?.css_value || null;
+  }
 
   return res.status(200).json({
     roomId: room.id,
@@ -47,5 +54,6 @@ export default async function handler(req, res) {
     hostUsername: host?.username || 'Player',
     hostLevel: host?.level || 'Rookie',
     hostCountry: host?.country || null,
+    hostPaintCss,
   });
 }

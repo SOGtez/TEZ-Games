@@ -50,6 +50,7 @@ export default function PublicProfilePage() {
           isOwn={isOwn}
           backHref="/leaderboard"
           backLabel="Back to Leaderboard"
+          paintCss={profile.player.paint_css}
         />
       )}
     </Layout>

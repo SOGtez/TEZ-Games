@@ -37,3 +37,13 @@
 .hero-fade {
   animation: hero-fade 0.7s ease both;
 }
+
+@keyframes np-gentle-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes np-smooth-flow {
+  0% { background-position: 0% center; }
+  100% { background-position: 300% center; }
+}

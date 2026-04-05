@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Layout from '../components/Layout';
 import { useUser } from './_app';
 import { countryFlag } from '../lib/countryFlag';
+import { parsePaintStyle } from '../lib/namePaint';
 
 const TABS = [
   { key: 'global',    label: 'Global',          emoji: '🌍' },
@@ -54,7 +55,7 @@ function PlayerName({ row, isMe }) {
         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         display: 'flex', alignItems: 'center', gap: 5,
       }}>
-        <span>{row.username}</span>
+        <span style={row.paint_css ? parsePaintStyle(row.paint_css) || undefined : undefined}>{row.username}</span>
         {row.country && <span style={{ fontSize: 14 }}>{countryFlag(row.country)}</span>}
         {isMe && <span style={{ fontSize: 11, color: '#a78bfa', flexShrink: 0 }}>(you)</span>}
       </div>

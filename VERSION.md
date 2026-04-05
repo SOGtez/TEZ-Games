@@ -1,5 +1,12 @@
 # TEZ Games Changelog
 
+## v0.9.17 — Name paints site-wide
+- Name paint cosmetics now render everywhere a username appears: sidebar, leaderboard, profile pages, friend list, friend request notifications, Connect 4 online player panels
+- css_value from the cosmetics table is parsed into React inline styles supporting gradients, animations, and any CSS paint effect
+- Global keyframes added: np-gentle-shift and np-smooth-flow for animated paints
+- All player-fetching APIs now batch-load paint_css in one query via attachNamePaints helper
+- Equipping a paint in /inventory immediately applies it everywhere on the site for all viewers
+
 ## v0.9.16 — Shop & Inventory infrastructure
 - Added Shop (🛍️) and Inventory (🎒) links to the sidebar nav
 - Shop page (/shop): premium "coming soon" teaser with shimmer title, floating icon, pulse animation, and blurred placeholder item grid

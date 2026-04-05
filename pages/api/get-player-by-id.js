@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   const { data, error } = await supabase
     .from('players')
-    .select('id, username, tez_points, tez_bucks, level, total_games, total_wins, total_losses, current_streak, best_streak, country, blackjack_balance, blackjack_biggest_win, auth_id, friend_code, last_login_bonus, recovery_code')
+    .select('id, username, tez_points, tez_bucks, level, total_games, total_wins, total_losses, current_streak, best_streak, country, blackjack_balance, blackjack_biggest_win, auth_id, friend_code, last_login_bonus, recovery_code, equipped_name_paint')
     .eq('id', id)
     .single();
 
@@ -72,6 +72,18 @@ export default async function handler(req, res) {
       data.tez_bucks = newBucks;
       data.last_login_bonus = today;
     }
+  }
+
+  // Attach name paint CSS
+  if (data.equipped_name_paint) {
+    const { data: cosmetic } = await supabase
+      .from('cosmetics')
+      .select('css_value')
+      .eq('id', data.equipped_name_paint)
+      .single();
+    data.paint_css = cosmetic?.css_value || null;
+  } else {
+    data.paint_css = null;
   }
 
   return res.status(200).json({ ...data, dailyLoginBucks });
