@@ -196,6 +196,7 @@ export default function InventoryPage() {
               </div>
               <span
                 style={{
+                  display: 'inline-block',
                   fontFamily: "'Fredoka', sans-serif",
                   fontSize: 26, fontWeight: 700,
                   ...(previewStyle || { color: 'rgba(255,255,255,0.5)' }),
@@ -303,6 +304,7 @@ export default function InventoryPage() {
                       padding: '0 4px',
                     }}>
                       <span style={{
+                        display: 'inline-block',
                         fontFamily: "'Fredoka', sans-serif",
                         fontSize: 18, fontWeight: 700,
                         ...(paintStyle || { color: 'rgba(255,255,255,0.6)' }),
