@@ -1,67 +1,86 @@
 /**
- * Local multiplayer prop test — simulates two online players in split-screen.
- * Red (left) goes first. Moves are passed through local state, no network.
- * Visit /connect4-test to use it. Delete this file when done testing.
+ * Local split-screen test — simulates two online players with no network.
+ * Moves pass through local state exactly as they would via Supabase.
+ * Visit /connect4-test to use it.
  */
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 
 const Connect4Game = dynamic(() => import('../components/games/Connect4Game'), { ssr: false });
 
 export default function Connect4Test() {
+  const [key, setKey] = useState(0); // bump to force remount / reset
   const [redMove, setRedMove] = useState(null);
   const [blueMove, setBlueMove] = useState(null);
   const [log, setLog] = useState([]);
 
   const addLog = (who, move) =>
-    setLog(prev => [`${who}: ${JSON.stringify(move)}`, ...prev].slice(0, 20));
+    setLog(prev => [`${who}: ${JSON.stringify(move)}`, ...prev].slice(0, 30));
 
-  const handleRedMove = (move) => {
-    addLog('🔴 red → blue', move);
+  const handleRedMove = useCallback((move) => {
+    addLog('🔴→🔵', move);
     setBlueMove({ ...move, _t: Date.now() });
-  };
+  }, []);
 
-  const handleBlueMove = (move) => {
-    addLog('🔵 blue → red', move);
+  const handleBlueMove = useCallback((move) => {
+    addLog('🔵→🔴', move);
     setRedMove({ ...move, _t: Date.now() });
-  };
+  }, []);
 
-  const handleRedEnd = (result) => addLog('🔴 END', result);
-  const handleBlueEnd = (result) => addLog('🔵 END', result);
+  const reset = () => {
+    setRedMove(null);
+    setBlueMove(null);
+    setLog([]);
+    setKey(k => k + 1);
+  };
 
   return (
-    <div style={{ background: '#0d0b1e', minHeight: '100vh', fontFamily: "'Nunito Sans', sans-serif" }}>
-      <div style={{ textAlign: 'center', padding: '16px 0 8px', color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>
-        Connect 4 — Online Props Test &nbsp;|&nbsp; Red goes first &nbsp;|&nbsp;
-        <span style={{ color: '#ef4444' }}>Left = Red (you)</span> &nbsp;
-        <span style={{ color: '#3b82f6' }}>Right = Blue (opponent)</span>
+    <div style={{ background: '#0d0b1e', minHeight: '100vh', fontFamily: "'Nunito Sans', sans-serif", display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+          Connect 4 — Online Props Test &nbsp;·&nbsp;
+          <span style={{ color: '#ef4444' }}>Left = Red (goes first)</span>
+          &nbsp;&nbsp;
+          <span style={{ color: '#60a5fa' }}>Right = Blue</span>
+        </div>
+        <button
+          onClick={reset}
+          style={{ padding: '5px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.7)', fontSize: 12, cursor: 'pointer', fontFamily: "'Nunito Sans', sans-serif" }}
+        >
+          ↺ Reset
+        </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
-        <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+      {/* Split-screen boards */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+        <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)', overflow: 'auto' }}>
           <Connect4Game
+            key={`red-${key}`}
             gameMode="online"
             playerColor="red"
             onMove={handleRedMove}
             incomingMove={redMove}
-            onGameEnd={handleRedEnd}
+            onGameEnd={(r) => addLog('🔴 END', r)}
           />
         </div>
-        <div>
+        <div style={{ overflow: 'auto' }}>
           <Connect4Game
+            key={`blue-${key}`}
             gameMode="online"
             playerColor="blue"
             onMove={handleBlueMove}
             incomingMove={blueMove}
-            onGameEnd={handleBlueEnd}
+            onGameEnd={(r) => addLog('🔵 END', r)}
           />
         </div>
       </div>
 
+      {/* Move log */}
       {log.length > 0 && (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.85)', borderTop: '1px solid rgba(255,255,255,0.1)', padding: '8px 16px', maxHeight: 140, overflowY: 'auto' }}>
+        <div style={{ flexShrink: 0, background: 'rgba(0,0,0,0.7)', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '6px 16px', maxHeight: 100, overflowY: 'auto' }}>
           {log.map((line, i) => (
-            <div key={i} style={{ fontSize: 11, color: i === 0 ? '#fde047' : 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>{line}</div>
+            <div key={i} style={{ fontSize: 11, color: i === 0 ? '#fde047' : 'rgba(255,255,255,0.3)', fontFamily: 'monospace', lineHeight: 1.6 }}>{line}</div>
           ))}
         </div>
       )}
