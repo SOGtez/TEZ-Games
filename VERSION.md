@@ -1,5 +1,14 @@
 # TEZ Games Changelog
 
+## v0.9.16 — Shop & Inventory infrastructure
+- Added Shop (🛍️) and Inventory (🎒) links to the sidebar nav
+- Shop page (/shop): premium "coming soon" teaser with shimmer title, floating icon, pulse animation, and blurred placeholder item grid
+- Inventory page (/inventory): functional with 5 tabs (Name Paints, Banners, Game Skins, Badges, Profile Frames), TEZ Bucks balance, equip/unequip per slot, and empty states ready for when items are added
+- New API: GET /api/inventory — owned cosmetics + equipped slots
+- New API: POST /api/inventory/equip — equip/unequip with ownership verification
+- New API: GET /api/shop/items — all cosmetics from DB, optional type filter
+- New API: POST /api/shop/buy — validates balance, deducts TB, adds to player_cosmetics (with refund on failure)
+
 ## v0.9.15 — Private recovery code
 - Each account now gets a unique private recovery code (format `XXXX-XXXX-XXXX-XXXX`, ~10²⁴ combinations)
 - Only visible to the account owner on their own profile page — never shown publicly

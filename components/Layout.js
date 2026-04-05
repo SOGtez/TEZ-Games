@@ -184,6 +184,8 @@ function SidebarStatsCard({ stats, expanded, onClose, onChangeUsername }) {
 const NAV_ITEMS = [
   { href: '/', label: 'All Games', emoji: '🎮' },
   { href: '/leaderboard', label: 'Leaderboard', emoji: '🏆' },
+  { href: '/shop', label: 'Shop', emoji: '🛍️' },
+  { href: '/inventory', label: 'Inventory', emoji: '🎒' },
 ];
 
 function FriendRequestNotif({ notif, onAccept, onDismiss }) {
