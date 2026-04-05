@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.9.20 — Fix cosmetics.icon column not found
+- Removed icon from SELECT in inventory and shop APIs — column doesn't exist in DB yet; items now load with ✨ fallback icon
+
 ## v0.9.19 — Inventory resilience + debug diagnostics
 - API no longer returns 404 if equipped_* columns are missing on players table — falls back to empty equipped object
 - If player_cosmetics or cosmetics table errors occur, returns items: [] with a debug field instead of 500

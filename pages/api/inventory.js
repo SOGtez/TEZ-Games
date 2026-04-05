@@ -57,7 +57,7 @@ export default async function handler(req, res) {
     const cosmeticIds = owned.map(o => o.cosmetic_id);
     const { data: cosmetics, error: cosErr } = await supabase
       .from('cosmetics')
-      .select('id, type, name, description, rarity, icon')
+      .select('id, type, name, description, rarity')
       .in('id', cosmeticIds);
 
     if (cosErr) {

@@ -9,7 +9,7 @@ export default async function handler(req, res) {
 
   let query = supabase
     .from('cosmetics')
-    .select('id, type, name, description, price_tb, icon, rarity')
+    .select('id, type, name, description, price_tb, rarity')
     .order('price_tb', { ascending: true });
 
   if (type) query = query.eq('type', type);
