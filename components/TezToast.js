@@ -57,7 +57,7 @@ function Toast({ toast }) {
         minWidth: 160,
         maxWidth: 260,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: "'Fredoka', sans-serif" }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: "'Nunito', sans-serif" }}>
           <span style={{ fontSize: 16 }}>💰</span>
           <div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', fontFamily: "'Nunito', sans-serif", fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
@@ -100,7 +100,7 @@ function Toast({ toast }) {
           <div style={{
             fontSize: 16, fontWeight: 800,
             color,
-            fontFamily: "'Fredoka', sans-serif",
+            fontFamily: "'Nunito', sans-serif",
             textShadow: `0 0 12px ${color}88`,
           }}>
             {toast.level === 'GOAT' ? '👑 ' : ''}{toast.level}
@@ -121,7 +121,7 @@ function Toast({ toast }) {
       ) : (
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8,
-          fontFamily: "'Fredoka', sans-serif",
+          fontFamily: "'Nunito', sans-serif",
         }}>
           <span style={{ fontSize: 16, color: '#fde047', fontWeight: 700,
             textShadow: '0 0 10px rgba(253,224,71,0.6)' }}>

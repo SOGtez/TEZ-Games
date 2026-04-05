@@ -34,7 +34,7 @@ export default function PublicProfilePage() {
       {!loading && notFound && (
         <div style={{ textAlign: 'center', padding: '80px 0' }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
-          <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 22, color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>
+          <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 22, color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>
             Player not found
           </div>
           <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>

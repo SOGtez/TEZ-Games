@@ -94,7 +94,7 @@ function RowWrapper({ row, rank, isMe, isGlobal, isRichest }) {
     >
       {/* Rank */}
       <div style={{
-        fontFamily: "'Fredoka', sans-serif",
+        fontFamily: "'Nunito', sans-serif",
         fontSize: rs ? 18 : 15, fontWeight: 700,
         color: rs ? (rank === 1 ? '#fde047' : rank === 2 ? '#9ca3af' : '#cd7c3f') : 'rgba(255,255,255,0.35)',
         textAlign: 'center', lineHeight: 1,
@@ -109,7 +109,7 @@ function RowWrapper({ row, rank, isMe, isGlobal, isRichest }) {
         <div style={{ textAlign: 'right', minWidth: 70 }}>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>TEZ Bucks</div>
           <div style={{
-            fontSize: 14, fontWeight: 700, fontFamily: "'Fredoka', sans-serif",
+            fontSize: 14, fontWeight: 700, fontFamily: "'Nunito', sans-serif",
             color: '#fbbf24', textShadow: '0 0 6px rgba(251,191,36,0.4)',
           }}>
             💰 {(row.tez_bucks || 0).toLocaleString()}
@@ -120,7 +120,7 @@ function RowWrapper({ row, rank, isMe, isGlobal, isRichest }) {
           {/* Win rate */}
           <div className="lb-col-hide" style={{ textAlign: 'right', minWidth: 42 }}>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>Win %</div>
-            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: '#4ade80' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Nunito', sans-serif", color: '#4ade80' }}>
               {isGlobal ? winRate(row.total_wins, row.total_games) : winRate(row.wins, row.played)}
             </div>
           </div>
@@ -130,7 +130,7 @@ function RowWrapper({ row, rank, isMe, isGlobal, isRichest }) {
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
               {isGlobal ? 'Wins' : 'Played'}
             </div>
-            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif", color: 'rgba(255,255,255,0.7)' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Nunito', sans-serif", color: 'rgba(255,255,255,0.7)' }}>
               {isGlobal ? (row.total_wins || 0) : row.played}
             </div>
           </div>
@@ -141,7 +141,7 @@ function RowWrapper({ row, rank, isMe, isGlobal, isRichest }) {
               {isGlobal ? 'TP' : 'Wins'}
             </div>
             <div style={{
-              fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif",
+              fontSize: 13, fontWeight: 700, fontFamily: "'Nunito', sans-serif",
               color: '#fde047', textShadow: '0 0 6px rgba(253,224,71,0.4)',
             }}>
               {isGlobal ? (row.tez_points || 0).toLocaleString() : row.wins}
@@ -209,7 +209,7 @@ export default function LeaderboardPage() {
       {/* Page title */}
       <div style={{ marginBottom: 24 }}>
         <h1 style={{
-          fontFamily: "'Fredoka', sans-serif", fontSize: 32, fontWeight: 700,
+          fontFamily: "'Nunito', sans-serif", fontSize: 32, fontWeight: 700,
           background: 'linear-gradient(135deg, #fde047, #f59e0b)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           margin: 0, marginBottom: 4,
@@ -288,7 +288,7 @@ export default function LeaderboardPage() {
         {!loading && rows.length === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
             <div style={{ fontSize: 44, marginBottom: 14 }}>🏆</div>
-            <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 20, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>
+            <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 20, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>
               No players yet
             </div>
             <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>

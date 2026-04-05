@@ -90,7 +90,7 @@ export default function InventoryPage() {
       <Layout title="Inventory — TEZ Games">
         <div style={{ textAlign: 'center', padding: '80px 20px' }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🎒</div>
-          <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 22, color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>
+          <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 22, color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>
             No inventory yet
           </div>
           <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>
@@ -108,7 +108,7 @@ export default function InventoryPage() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
           <h1 style={{
-            fontFamily: "'Fredoka', sans-serif",
+            fontFamily: "'Nunito', sans-serif",
             fontSize: 32, fontWeight: 700,
             background: 'linear-gradient(135deg, #fde047, #f59e0b)',
             WebkitBackgroundClip: 'text',
@@ -125,7 +125,7 @@ export default function InventoryPage() {
           }}>
             <span style={{ fontSize: 15 }}>💰</span>
             <span style={{
-              fontFamily: "'Fredoka', sans-serif", fontSize: 16, fontWeight: 700,
+              fontFamily: "'Nunito', sans-serif", fontSize: 16, fontWeight: 700,
               color: '#fbbf24',
             }}>
               {tezBucks.toLocaleString()} TB
@@ -199,7 +199,7 @@ export default function InventoryPage() {
               <span
                 className={previewCss ? 'np-preview-panel' : undefined}
                 style={{
-                  fontFamily: "'Fredoka', sans-serif",
+                  fontFamily: "'Nunito', sans-serif",
                   fontSize: 26, fontWeight: 700,
                   ...(previewCss ? {} : { color: 'rgba(255,255,255,0.5)' }),
                 }}
@@ -246,7 +246,7 @@ export default function InventoryPage() {
               {TABS.find(t => t.key === activeTab)?.emoji}
             </div>
             <div style={{
-              fontFamily: "'Fredoka', sans-serif", fontSize: 18,
+              fontFamily: "'Nunito', sans-serif", fontSize: 18,
               color: 'rgba(255,255,255,0.4)', marginBottom: 8,
             }}>
               No items yet

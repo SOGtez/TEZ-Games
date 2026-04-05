@@ -56,7 +56,7 @@ function SidebarStatsCard({ stats, expanded, onClose, onChangeUsername }) {
               display: 'inline-block',
             }} />
             <span style={{
-              fontFamily: "'Fredoka', sans-serif",
+              fontFamily: "'Nunito', sans-serif",
               fontWeight: 600, fontSize: 14,
               color,
             }}>
@@ -65,7 +65,7 @@ function SidebarStatsCard({ stats, expanded, onClose, onChangeUsername }) {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
             <span style={{
-              fontFamily: "'Fredoka', sans-serif",
+              fontFamily: "'Nunito', sans-serif",
               fontSize: 15, fontWeight: 700,
               color: '#fde047',
               textShadow: '0 0 8px rgba(253,224,71,0.5)',
@@ -73,7 +73,7 @@ function SidebarStatsCard({ stats, expanded, onClose, onChangeUsername }) {
               {points.toLocaleString()} TP
             </span>
             <span style={{
-              fontFamily: "'Fredoka', sans-serif",
+              fontFamily: "'Nunito', sans-serif",
               fontSize: 12, fontWeight: 700,
               color: '#fbbf24',
             }}>
@@ -356,7 +356,7 @@ function SidebarFriendsPanel({ expanded, data, acting, onRespond, onAddFriend, o
                     {f.level}
                   </div>
                 </div>
-                <div style={{ fontSize: 11, fontFamily: "'Fredoka', sans-serif", color: '#fde047', flexShrink: 0 }}>
+                <div style={{ fontSize: 11, fontFamily: "'Nunito', sans-serif", color: '#fde047', flexShrink: 0 }}>
                   {(f.tez_points || 0).toLocaleString()} TP
                 </div>
               </Link>
@@ -578,7 +578,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                 padding: '16px 16px 12px',
               }}>
                 <span style={{
-                  fontFamily: "'Fredoka', sans-serif",
+                  fontFamily: "'Nunito', sans-serif",
                   fontSize: 18, fontWeight: 600,
                   background: 'linear-gradient(135deg, #fde047, #f59e0b)',
                   WebkitBackgroundClip: 'text',
@@ -893,7 +893,7 @@ export default function Layout({ children, title = 'TEZ Games', hideChrome = fal
                 }}>
                   <span style={{ fontSize: 13 }}>💰</span>
                   <span style={{
-                    fontFamily: "'Fredoka', sans-serif", fontSize: 14, fontWeight: 700,
+                    fontFamily: "'Nunito', sans-serif", fontSize: 14, fontWeight: 700,
                     color: '#fbbf24',
                   }}>
                     {(playerStats.tez_bucks || 0).toLocaleString()}

@@ -144,7 +144,7 @@ export default function FriendsPage() {
       {!playerId ? (
         <div style={{ textAlign: 'center', padding: '80px 0' }}>
           <div style={{ fontSize: 52, marginBottom: 16 }}>👥</div>
-          <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 22, color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>
+          <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 22, color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>
             Log in to see your friends
           </div>
           <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>
@@ -156,13 +156,13 @@ export default function FriendsPage() {
 
           {/* Page header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-            <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 28, fontWeight: 700, color: 'white' }}>
+            <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 28, fontWeight: 700, color: 'white' }}>
               👥 Friends
             </div>
             {friendCode && (
               <div className="friends-code-wrap" style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(253,224,71,0.06)', border: '1px solid rgba(253,224,71,0.18)', borderRadius: 12, padding: '8px 16px' }}>
                 <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Your code:</span>
-                <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 700, color: '#fde047', letterSpacing: '0.06em' }}>
+                <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 18, fontWeight: 700, color: '#fde047', letterSpacing: '0.06em' }}>
                   {friendCode}
                 </span>
                 <CopyButton text={friendCode} />
@@ -173,7 +173,7 @@ export default function FriendsPage() {
           {/* Friend Requests — always shown */}
           <div style={cardStyle}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 600, color: 'white' }}>
+              <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 18, fontWeight: 600, color: 'white' }}>
                 Friend Requests
               </div>
               {data?.incoming?.length > 0 && (
@@ -251,7 +251,7 @@ export default function FriendsPage() {
 
           {/* Add Friend */}
           <div style={cardStyle}>
-            <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 16 }}>
+            <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 16 }}>
               Add Friend
             </div>
             <div className="friends-add-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
@@ -365,7 +365,7 @@ export default function FriendsPage() {
 
           {/* Friends list */}
           <div style={cardStyle}>
-            <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 16 }}>
+            <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 16 }}>
               Your Friends
               {data && (
                 <span style={{ marginLeft: 10, fontSize: 14, color: 'rgba(255,255,255,0.3)', fontWeight: 400, fontFamily: "'Nunito', sans-serif" }}>
@@ -383,7 +383,7 @@ export default function FriendsPage() {
             {data && data.friends.length === 0 && (
               <div style={{ textAlign: 'center', padding: '32px 0' }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>👥</div>
-                <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>
+                <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 18, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>
                   No friends yet
                 </div>
                 <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
@@ -426,7 +426,7 @@ export default function FriendsPage() {
                         </div>
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 15, fontWeight: 700, color: '#fde047' }}>
+                        <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 15, fontWeight: 700, color: '#fde047' }}>
                           {(f.tez_points || 0).toLocaleString()} TP
                         </div>
                         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
@@ -457,7 +457,7 @@ export default function FriendsPage() {
           {/* Sent requests */}
           {data?.outgoing?.length > 0 && (
             <div style={cardStyle}>
-              <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 12 }}>
+              <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 12 }}>
                 Sent Requests ({data.outgoing.length})
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

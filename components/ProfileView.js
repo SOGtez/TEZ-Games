@@ -161,7 +161,7 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
           />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{
-              fontFamily: "'Fredoka', sans-serif",
+              fontFamily: "'Nunito', sans-serif",
               fontSize: 30, fontWeight: 700, color: 'white',
               lineHeight: 1.1, marginBottom: 6,
               display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
@@ -180,14 +180,14 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
                   background: color, boxShadow: `0 0 6px ${color}`,
                   display: 'inline-block', flexShrink: 0,
                 }} />
-                <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 14, fontWeight: 600, color }}>
+                <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 14, fontWeight: 600, color }}>
                   {isGoat ? '👑 ' : ''}{level}
                 </span>
               </div>
-              <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 700 }}>
+              <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 18, fontWeight: 700 }}>
                 <RollingNumber value={points} suffix=" TP" color="#fde047" />
               </span>
-              <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 16, fontWeight: 700, color: '#fbbf24' }}>
+              <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 16, fontWeight: 700, color: '#fbbf24' }}>
                 💰 <RollingNumber value={player.tez_bucks || 0} color="#fbbf24" />
               </span>
             </div>
@@ -200,7 +200,7 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: "'Nunito', sans-serif" }}>Friend Code:</span>
                 <span style={{
-                  fontFamily: "'Fredoka', sans-serif", fontSize: 15, fontWeight: 700,
+                  fontFamily: "'Nunito', sans-serif", fontSize: 15, fontWeight: 700,
                   color: '#fde047', letterSpacing: '0.06em',
                 }}>{player.friend_code}</span>
                 <CopyButton text={player.friend_code} />
@@ -244,7 +244,7 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
             }}>
               <div style={{ fontSize: 26, marginBottom: 6 }}>{icon}</div>
               <div style={{
-                fontFamily: "'Fredoka', sans-serif",
+                fontFamily: "'Nunito', sans-serif",
                 fontSize: 26, fontWeight: 700, color: 'white', lineHeight: 1, marginBottom: 4,
               }}>
                 {value}
@@ -267,7 +267,7 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: 20, padding: '24px 24px 20px',
         }}>
-          <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 18 }}>
+          <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 18 }}>
             TEZ Points Progress
           </div>
           {!isGoat && (
@@ -336,7 +336,7 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
 
         {/* ── Per-game breakdown ── */}
         <div>
-          <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 14 }}>
+          <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 14 }}>
             Game Breakdown
           </div>
           <div className="game-grid">
@@ -350,7 +350,7 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                     <span style={{ fontSize: 22 }}>{meta.emoji}</span>
-                    <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 15, fontWeight: 600, color: 'white' }}>
+                    <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 15, fontWeight: 600, color: 'white' }}>
                       {meta.name}
                     </span>
                   </div>
@@ -380,7 +380,7 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
 
         {/* ── Recent activity ── */}
         <div style={{ marginBottom: 8 }}>
-          <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 14 }}>
+          <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 14 }}>
             Recent Activity
           </div>
           {(recent || []).length === 0 ? (
@@ -420,7 +420,7 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
                       {resultLabel}
                     </span>
                     <span style={{
-                      fontSize: 13, fontWeight: 700, fontFamily: "'Fredoka', sans-serif",
+                      fontSize: 13, fontWeight: 700, fontFamily: "'Nunito', sans-serif",
                       color: '#fde047', flexShrink: 0, minWidth: 48, textAlign: 'right',
                     }}>
                       +{r.points_earned} TP

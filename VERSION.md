@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.9.27 — Font hierarchy: Nunito for major text, Fredoka for small decorative only
+- All titles, headings, stats, section headers, item names, and prominent labels across inventory, leaderboard, friends, profile, shop, ProfileView, Layout, TezToast, and GameCard switched to Nunito
+- Fredoka retained only for small decorative elements: level badge labels (12px), name paint card demo text
+
 ## v0.9.26 — Fix name paint preview panel (remove debug text)
 - Root cause found: -webkit-background-clip: text via React inline styles doesn't clip on non-inline-block spans; CSS class via style tag does
 - Removed debug raw css_value display now that fix is confirmed

@@ -60,7 +60,7 @@ export default function GameCard({ game, index = 0 }) {
         {/* Content */}
         <div style={{ padding: '16px 18px 18px' }}>
           <h3 style={{
-            fontFamily: 'Fredoka, sans-serif', fontWeight: 600,
+            fontFamily: 'Nunito, sans-serif', fontWeight: 600,
             fontSize: 20, color: 'white', marginBottom: 4, letterSpacing: '0.01em',
           }}>
             {game.name}

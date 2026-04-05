@@ -48,7 +48,7 @@ export default function ShopPage() {
 
         {/* TEZ SHOP title */}
         <div style={{
-          fontFamily: "'Fredoka', sans-serif",
+          fontFamily: "'Nunito', sans-serif",
           fontSize: 52,
           fontWeight: 700,
           background: 'linear-gradient(135deg, #fde047 0%, #f59e0b 40%, #fde047 60%, #fbbf24 100%)',
@@ -66,7 +66,7 @@ export default function ShopPage() {
         <div style={{ marginBottom: 20 }}>
           <span style={{
             display: 'inline-block',
-            fontFamily: "'Fredoka', sans-serif",
+            fontFamily: "'Nunito', sans-serif",
             fontSize: 18,
             fontWeight: 600,
             letterSpacing: '0.22em',
