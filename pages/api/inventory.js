@@ -17,20 +17,30 @@ export default async function handler(req, res) {
 
   if (playerErr || !player) return res.status(404).json({ error: 'not_found' });
 
-  // Get owned cosmetics joined with cosmetic details
+  // Get owned cosmetic IDs
   const { data: owned, error: ownedErr } = await supabase
     .from('player_cosmetics')
-    .select('cosmetic_id, acquired_at, cosmetics(id, type, name, description, rarity, icon)')
+    .select('cosmetic_id, acquired_at')
     .eq('player_id', playerId)
     .order('acquired_at', { ascending: false });
 
   if (ownedErr) return res.status(500).json({ error: 'server' });
 
-  const items = (owned || []).map(row => ({
-    cosmetic_id: row.cosmetic_id,
-    acquired_at: row.acquired_at,
-    ...(row.cosmetics || {}),
-  }));
+  let items = [];
+  if (owned && owned.length > 0) {
+    const cosmeticIds = owned.map(o => o.cosmetic_id);
+    const { data: cosmetics } = await supabase
+      .from('cosmetics')
+      .select('id, type, name, description, rarity, icon')
+      .in('id', cosmeticIds);
+
+    const cosmeticMap = Object.fromEntries((cosmetics || []).map(c => [c.id, c]));
+    items = owned.map(row => ({
+      cosmetic_id: row.cosmetic_id,
+      acquired_at: row.acquired_at,
+      ...(cosmeticMap[row.cosmetic_id] || {}),
+    }));
+  }
 
   return res.status(200).json({
     items,

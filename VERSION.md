@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.9.18 — Fix inventory page not showing items
+- Replaced Supabase embedded join syntax (cosmetics(id,...)) with two explicit queries — the embedded syntax silently returns null when FK relationships aren't registered in Supabase's schema cache
+- Fixed session hydration race: inventory page now waits for localStorage session to load before rendering the "not logged in" state, preventing a flash of empty inventory
+
 ## v0.9.17 — Name paints site-wide
 - Name paint cosmetics now render everywhere a username appears: sidebar, leaderboard, profile pages, friend list, friend request notifications, Connect 4 online player panels
 - css_value from the cosmetics table is parsed into React inline styles supporting gradients, animations, and any CSS paint effect

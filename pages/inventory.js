@@ -25,8 +25,12 @@ export default function InventoryPage() {
   const [equipped, setEquipped] = useState({});
   const [acting, setActing] = useState(null); // cosmeticId being acted on
   const [loading, setLoading] = useState(true);
+  // Wait for session to hydrate from localStorage before deciding logged-out state
+  const [sessionChecked, setSessionChecked] = useState(false);
+  useEffect(() => { setSessionChecked(true); }, []);
 
   useEffect(() => {
+    if (!sessionChecked) return;
     if (!playerId) { setLoading(false); return; }
     fetch(`/api/inventory?playerId=${encodeURIComponent(playerId)}`)
       .then(r => r.ok ? r.json() : null)
@@ -38,7 +42,7 @@ export default function InventoryPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [playerId]);
+  }, [playerId, sessionChecked]);
 
   const handleEquip = async (cosmeticId, type, currentlyEquipped) => {
     setActing(cosmeticId);
@@ -62,6 +66,16 @@ export default function InventoryPage() {
   const tabItems = items?.filter(i => i.type === activeTab) || [];
   const equippedId = equipped[EQUIPPED_KEYS[activeTab]];
   const tezBucks = playerStats?.tez_bucks || 0;
+
+  if (!sessionChecked || (!playerId && loading)) {
+    return (
+      <Layout title="Inventory — TEZ Games">
+        <div style={{ textAlign: 'center', padding: '80px 20px', color: 'rgba(255,255,255,0.3)', fontFamily: "'Nunito', sans-serif" }}>
+          Loading...
+        </div>
+      </Layout>
+    );
+  }
 
   if (!playerId) {
     return (
