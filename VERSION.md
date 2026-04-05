@@ -1,6 +1,6 @@
 # TEZ Games Changelog
 
-## v1.0.0 — Profanity / slur filter
+## v0.9.10 — Profanity / slur filter
 - Added server-side word filter (`lib/wordFilter.js`) covering racial slurs, ethnic slurs, homophobic slurs, sexist slurs, hate-group terms, and common profanity
 - Filter catches exact matches, leetspeak substitutions (4→a, 3→e, 1→i, 0→o, 5→s, etc.), embedded slurs inside longer strings, and separator tricks (n-i-g, n.i.g, n_i_g)
 - Applied to username creation (`/api/claim-username`) and email sign-up (`/api/auth/signup`) — runs server-side so it cannot be bypassed
