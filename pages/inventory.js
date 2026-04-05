@@ -206,12 +206,6 @@ export default function InventoryPage() {
               >
                 {username || 'YourName'}
               </span>
-              {/* Temporary: show raw css_value for debugging */}
-              {previewCss && (
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', marginTop: 6, fontFamily: 'monospace', maxWidth: 300, wordBreak: 'break-all' }}>
-                  {previewCss}
-                </div>
-              )}
             </div>
             {previewItem && (
               <div style={{

@@ -1,5 +1,9 @@
 # TEZ Games Changelog
 
+## v0.9.26 — Fix name paint preview panel (remove debug text)
+- Root cause found: -webkit-background-clip: text via React inline styles doesn't clip on non-inline-block spans; CSS class via style tag does
+- Removed debug raw css_value display now that fix is confirmed
+
 ## v0.9.25 — Debug name paint preview rendering
 - Inject paint CSS as a real style tag for the preview panel instead of React inline styles
 - Show raw css_value in the preview panel temporarily for debugging
