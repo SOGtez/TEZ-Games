@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.9.24 — Fix name paint preview block rendering
+- Wrapped preview username span in a flex div so it's treated as a block-level flex item, making background-clip: text clip reliably to the text shape
+
 ## v0.9.23 — Remove hover preview from name paint inventory
 - Preview panel now only reflects the currently equipped paint, not hover state
 

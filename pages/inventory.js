@@ -191,16 +191,18 @@ export default function InventoryPage() {
               }}>
                 {equippedId ? 'Currently Equipped' : 'No Paint Equipped'}
               </div>
-              <span
-                style={{
-                  display: 'inline-block',
-                  fontFamily: "'Fredoka', sans-serif",
-                  fontSize: 26, fontWeight: 700,
-                  ...(previewStyle || { color: 'rgba(255,255,255,0.5)' }),
-                }}
-              >
-                {username || 'YourName'}
-              </span>
+              {/* Flex wrapper forces span to act as a block, making background-clip: text reliable */}
+              <div style={{ display: 'flex' }}>
+                <span
+                  style={{
+                    fontFamily: "'Fredoka', sans-serif",
+                    fontSize: 26, fontWeight: 700,
+                    ...(previewStyle || { color: 'rgba(255,255,255,0.5)' }),
+                  }}
+                >
+                  {username || 'YourName'}
+                </span>
+              </div>
             </div>
             {previewItem && (
               <div style={{
