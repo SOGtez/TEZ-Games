@@ -30,6 +30,8 @@ export default function UsernameModal({ open, onClose }) {
         onClose();
       } else if (data.error === 'taken') {
         setError(`"${clean}" is already taken — try another`);
+      } else if (data.error === 'profanity') {
+        setError('That username is not allowed. Please choose a different one.');
       } else if (data.error === 'invalid') {
         setError('3–16 characters, letters, numbers and _ only');
       } else {

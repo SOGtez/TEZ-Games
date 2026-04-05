@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateFriendCode } from '../../lib/friendCode';
+import { containsProfanity } from '../../lib/wordFilter';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -16,6 +17,7 @@ export default async function handler(req, res) {
   if (clean.length < 3 || clean.length > 16 || /\s/.test(clean) || !/^[a-zA-Z0-9_]+$/.test(clean)) {
     return res.status(400).json({ error: 'invalid' });
   }
+  if (containsProfanity(clean)) return res.status(400).json({ error: 'profanity' });
 
   // Check if name is taken by someone else
   const { data: existing } = await supabase

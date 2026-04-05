@@ -89,6 +89,7 @@ export default function AuthModal({ open, onClose, initialMode = 'signup' }) {
       } else {
         const errMap = {
           invalid_username: '3–16 characters, letters, numbers and _ only',
+          profanity: 'That username is not allowed. Please choose a different one.',
           taken: `"${usernameInput.trim()}" is already taken — try another`,
           email_taken: 'An account with this email already exists',
           invalid_credentials: 'Incorrect email or password',

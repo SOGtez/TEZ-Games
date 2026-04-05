@@ -1,5 +1,12 @@
 # TEZ Games Changelog
 
+## v1.0.0 — Profanity / slur filter
+- Added server-side word filter (`lib/wordFilter.js`) covering racial slurs, ethnic slurs, homophobic slurs, sexist slurs, hate-group terms, and common profanity
+- Filter catches exact matches, leetspeak substitutions (4→a, 3→e, 1→i, 0→o, 5→s, etc.), embedded slurs inside longer strings, and separator tricks (n-i-g, n.i.g, n_i_g)
+- Applied to username creation (`/api/claim-username`) and email sign-up (`/api/auth/signup`) — runs server-side so it cannot be bypassed
+- Client modals show friendly error: "That username is not allowed. Please choose a different one." without revealing which word was matched
+- Added `/api/admin/scan-usernames` endpoint (requires `ADMIN_SECRET` env var) to scan all existing usernames and return flagged ones for manual cleanup
+
 ## v0.9.9 — Full mobile optimization
 - Added viewport meta tag for correct mobile scaling
 - Layout: overflow-x hidden to prevent horizontal scroll; header hides redundant "All Games" nav link on mobile; main content padding tightened on mobile; friend request toasts fit within screen width
