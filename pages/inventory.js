@@ -25,6 +25,7 @@ export default function InventoryPage() {
   const [equipped, setEquipped] = useState({});
   const [acting, setActing] = useState(null); // cosmeticId being acted on
   const [loading, setLoading] = useState(true);
+  const [debugMsg, setDebugMsg] = useState(null);
   // Wait for session to hydrate from localStorage before deciding logged-out state
   const [sessionChecked, setSessionChecked] = useState(false);
   useEffect(() => { setSessionChecked(true); }, []);
@@ -38,6 +39,7 @@ export default function InventoryPage() {
         if (d) {
           setItems(d.items);
           setEquipped(d.equipped);
+          if (d.debug) setDebugMsg(d.debug);
         }
         setLoading(false);
       })
@@ -154,6 +156,17 @@ export default function InventoryPage() {
             </button>
           ))}
         </div>
+
+        {/* Debug banner — visible only when API returns an error message */}
+        {debugMsg && (
+          <div style={{
+            marginBottom: 16, padding: '10px 16px', borderRadius: 10,
+            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+            fontFamily: "'Nunito', sans-serif", fontSize: 12, color: '#f87171',
+          }}>
+            ⚠ DB error: {debugMsg}
+          </div>
+        )}
 
         {/* Content */}
         {loading ? (

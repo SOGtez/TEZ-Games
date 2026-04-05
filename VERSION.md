@@ -1,5 +1,10 @@
 # TEZ Games Changelog
 
+## v0.9.19 — Inventory resilience + debug diagnostics
+- API no longer returns 404 if equipped_* columns are missing on players table — falls back to empty equipped object
+- If player_cosmetics or cosmetics table errors occur, returns items: [] with a debug field instead of 500
+- Inventory page shows a red debug banner when the API reports a DB error, making it easy to diagnose missing migrations
+
 ## v0.9.18 — Fix inventory page not showing items
 - Replaced Supabase embedded join syntax (cosmetics(id,...)) with two explicit queries — the embedded syntax silently returns null when FK relationships aren't registered in Supabase's schema cache
 - Fixed session hydration race: inventory page now waits for localStorage session to load before rendering the "not logged in" state, preventing a flash of empty inventory
