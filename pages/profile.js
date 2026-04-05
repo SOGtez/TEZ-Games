@@ -4,7 +4,7 @@ import ProfileView from '../components/ProfileView';
 import { useUser } from './_app';
 
 export default function ProfilePage() {
-  const { playerId } = useUser();
+  const { playerId, playerStats } = useUser();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -59,6 +59,7 @@ export default function ProfilePage() {
           isOwn={true}
           backHref="/"
           backLabel="Back to Games"
+          recoveryCode={playerStats?.recovery_code}
         />
       )}
     </Layout>

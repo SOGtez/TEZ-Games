@@ -88,7 +88,7 @@ function StatRow({ label, value, color }) {
   );
 }
 
-export default function ProfileView({ player, perGame, recent, isOwn, backHref = '/', backLabel = 'Back to Games' }) {
+export default function ProfileView({ player, perGame, recent, isOwn, backHref = '/', backLabel = 'Back to Games', recoveryCode }) {
   const level = player.level || 'Rookie';
   const points = player.tez_points || 0;
   const color = LEVEL_COLORS[level] || '#9ca3af';
@@ -203,6 +203,22 @@ export default function ProfileView({ player, perGame, recent, isOwn, backHref =
                   color: '#fde047', letterSpacing: '0.06em',
                 }}>{player.friend_code}</span>
                 <CopyButton text={player.friend_code} />
+              </div>
+            )}
+            {isOwn && recoveryCode && (
+              <div style={{ marginTop: 16, padding: '14px 16px', background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(245,158,11,0.7)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>
+                  Recovery Code
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: 15, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.12em', background: 'rgba(255,255,255,0.06)', padding: '5px 10px', borderRadius: 7 }}>
+                    {recoveryCode}
+                  </span>
+                  <CopyButton text={recoveryCode} />
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.6)', lineHeight: 1.5 }}>
+                  Save this somewhere safe — it's the only way to recover your account if you lose access. Never share it with anyone.
+                </div>
               </div>
             )}
           </div>

@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   const { data, error } = await supabase
     .from('players')
     .select('id, username, auth_id')
-    .ilike('friend_code', code.trim().toUpperCase())
+    .eq('recovery_code', code.trim().toUpperCase())
     .maybeSingle();
 
   if (error) return res.status(500).json({ error: 'server' });

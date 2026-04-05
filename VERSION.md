@@ -1,5 +1,12 @@
 # TEZ Games Changelog
 
+## v0.9.15 — Private recovery code
+- Each account now gets a unique private recovery code (format `XXXX-XXXX-XXXX-XXXX`, ~10²⁴ combinations)
+- Only visible to the account owner on their own profile page — never shown publicly
+- Existing accounts get a code auto-generated on next login
+- Removed friend code account recovery — friend code is public, using it for recovery was a security risk
+- Recovery code shown in profile with copy button and warning to save it somewhere safe
+
 ## v0.9.14 — Guest account persistence
 - Dual-layer session storage: saves to both localStorage and a 1-year cookie so accounts survive storage clears on either side
 - Friend code recovery: "Recover it →" link in UsernameModal lets users restore their account by entering their TEZ-XXXX friend code on a new device

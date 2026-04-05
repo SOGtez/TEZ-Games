@@ -50,11 +50,11 @@ export default function UsernameModal({ open, onClose }) {
 
   const handleRecover = async () => {
     const code = fcInput.trim().toUpperCase();
-    if (!code) { setFcError('Enter your friend code (e.g. TEZ-1234)'); return; }
+    if (!code) { setFcError('Enter your recovery code'); return; }
     setFcLoading(true);
     setFcError('');
     try {
-      const res = await fetch(`/api/recover-by-friend-code?code=${encodeURIComponent(code)}`);
+      const res = await fetch(`/api/recover-by-code?code=${encodeURIComponent(code)}`);
       const data = await res.json();
       if (res.ok) {
         if (data.hasEmail) {
@@ -66,7 +66,7 @@ export default function UsernameModal({ open, onClose }) {
           onClose();
         }
       } else if (data.error === 'not_found') {
-        setFcError('No account found with that friend code.');
+        setFcError('No account found with that recovery code.');
       } else {
         setFcError('Something went wrong, try again.');
       }
@@ -227,7 +227,7 @@ export default function UsernameModal({ open, onClose }) {
                 Recover Account
               </span>
               <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
-                Enter your friend code (found in your profile)
+                Enter your recovery code (only visible on your own profile)
               </span>
 
               <input
@@ -235,8 +235,8 @@ export default function UsernameModal({ open, onClose }) {
                 value={fcInput}
                 onChange={e => { setFcInput(e.target.value); setFcError(''); }}
                 onKeyDown={e => e.key === 'Enter' && handleRecover()}
-                placeholder="TEZ-1234"
-                maxLength={12}
+                placeholder="XXXX-XXXX-XXXX-XXXX"
+                maxLength={19}
                 style={{
                   width: '100%',
                   background: 'rgba(255,255,255,0.06)',

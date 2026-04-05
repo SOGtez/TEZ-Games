@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateFriendCode } from '../../lib/friendCode';
+import { generateRecoveryCode } from '../../lib/recoveryCode';
 import { containsProfanity } from '../../lib/wordFilter';
 
 const supabase = createClient(
@@ -45,7 +46,7 @@ export default async function handler(req, res) {
   // New player — insert
   const { data, error } = await supabase
     .from('players')
-    .insert({ username: clean, friend_code: generateFriendCode(), ...(country ? { country } : {}) })
+    .insert({ username: clean, friend_code: generateFriendCode(), recovery_code: generateRecoveryCode(), ...(country ? { country } : {}) })
     .select('id')
     .single();
   if (error) return res.status(500).json({ error: 'server' });

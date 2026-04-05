@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateFriendCode } from '../../lib/friendCode';
+import { generateRecoveryCode } from '../../lib/recoveryCode';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
@@ -11,7 +12,7 @@ export default async function handler(req, res) {
 
   const { data, error } = await supabase
     .from('players')
-    .select('id, username, tez_points, tez_bucks, level, total_games, total_wins, total_losses, current_streak, best_streak, country, blackjack_balance, blackjack_biggest_win, auth_id, friend_code, last_login_bonus')
+    .select('id, username, tez_points, tez_bucks, level, total_games, total_wins, total_losses, current_streak, best_streak, country, blackjack_balance, blackjack_biggest_win, auth_id, friend_code, last_login_bonus, recovery_code')
     .eq('id', id)
     .single();
 
@@ -32,6 +33,12 @@ export default async function handler(req, res) {
     const friend_code = generateFriendCode();
     await supabase.from('players').update({ friend_code }).eq('id', id);
     data.friend_code = friend_code;
+  }
+
+  if (!data.recovery_code) {
+    const recovery_code = generateRecoveryCode();
+    await supabase.from('players').update({ recovery_code }).eq('id', id);
+    data.recovery_code = recovery_code;
   }
 
   // Daily login bonus — award 10 TEZ Bucks once per calendar day on site load.
