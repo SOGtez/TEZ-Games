@@ -1,5 +1,11 @@
 # TEZ Games Changelog
 
+## v0.9.13 — Fix online Connect 4 freeze + dot size
+- Fixed critical bug where online games froze at turn 4: a remote drop arriving while a local animation was running would be silently discarded and marked as processed, leaving both players stuck forever
+- Root cause: `dropping = true` guard in `handleColClick` would reject the remote move, but `processedMoveRef` was already stamped — so the move was lost permanently when the animation finished
+- Fix: queue the remote move in `pendingRemoteMoveRef` when animating; flush it as soon as `dropping` goes false
+- Reduced last-placed white dot size from 28% to 18% of piece diameter
+
 ## v0.9.12 — Connect 4 last-placed piece dot indicator
 - Small white dot appears in the center of the most recently dropped piece in all game modes (local, vs AI, online)
 - Dot animates in with a spring pop (scale 0→1 with slight overshoot)

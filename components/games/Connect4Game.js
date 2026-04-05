@@ -194,6 +194,7 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
   const [result, setResult] = useState(null);
   const reportedRef = useRef(false);
   const processedMoveRef = useRef(null);
+  const pendingRemoteMoveRef = useRef(null);
   const [winCells, setWinCells] = useState([]);
   const [turnCount, setTurnCount] = useState(0);
   const [animPieces, setAnimPieces] = useState([]);
@@ -655,6 +656,16 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
     reportGameResult('connect4', apiResult, { mode, opponent: isOnline ? 'online' : 'ai' });
   }, [result, mode, vsAI, gameMode, localPlayer, onGameEnd]);
 
+  // Flush a queued remote move once the local animation finishes
+  useEffect(() => {
+    if (dropping || !pendingRemoteMoveRef.current) return;
+    const pending = pendingRemoteMoveRef.current;
+    pendingRemoteMoveRef.current = null;
+    if (pending.type === 'drop' || pending.type === 'bomb') {
+      handleColClick(pending.col, true);
+    }
+  }, [dropping, handleColClick]);
+
   // Process incoming opponent moves in online mode
   useEffect(() => {
     if (!incomingMove || gameMode !== 'online') return;
@@ -662,6 +673,8 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
     processedMoveRef.current = incomingMove;
     const { type } = incomingMove;
     if (type === 'drop' || type === 'bomb') {
+      // If mid-animation, queue the move; it will be flushed when dropping → false
+      if (dropping) { pendingRemoteMoveRef.current = incomingMove; return; }
       handleColClick(incomingMove.col, true);
     } else if (type === 'snatch' || type === 'ghost') {
       handleCellClick(incomingMove.row, incomingMove.col, true);
@@ -676,7 +689,7 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
       const opponentPlayer = localPlayer === 1 ? 2 : 1;
       setTimers(prev => ({ ...prev, [opponentPlayer]: incomingMove.timeRemaining }));
     }
-  }, [incomingMove, gameMode, localPlayer, handleColClick, handleCellClick, activatePU, inventory, board, turnCount, fog, gravityTurns, shields, poisonCell, lastPlaced]);
+  }, [incomingMove, gameMode, localPlayer, handleColClick, handleCellClick, activatePU, inventory, board, turnCount, fog, gravityTurns, shields, poisonCell, lastPlaced, dropping]);
 
   const poisonGlow = poisonCell ? Math.sin(pulseT * Math.PI * 1.4) * 0.5 + 0.5 : 0;
   const poisonShadow = `0 0 ${10 + poisonGlow * 28}px rgba(140,50,255,${0.6 + poisonGlow * 0.4}),0 0 ${6 + poisonGlow * 16}px rgba(40,200,80,${0.35 + poisonGlow * 0.45}),0 0 ${3 + poisonGlow * 8}px rgba(180,80,255,0.9),inset 0 -3px 8px rgba(0,0,0,0.6)`;
@@ -1001,7 +1014,7 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
                         {isBox && <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, color: "white", pointerEvents: "none" }}>?</div>}
                         {isDissolving && <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: pGrad(dissolveCell.player), boxShadow: pShadow(dissolveCell.player), opacity: dissolveT, transform: `scale(${dissolveT})`, transformOrigin: "center", transition: "none", pointerEvents: "none" }} />}
                         {!isWinPiece && cell !== null && lastPlaced?.r === r && lastPlaced?.c === c && (
-                          <div style={{ position: "absolute", top: "50%", left: "50%", width: "28%", height: "28%", borderRadius: "50%", background: "rgba(255,255,255,0.85)", pointerEvents: "none", zIndex: 8, animation: "dotPop 0.35s cubic-bezier(.34,1.56,.64,1) both" }} />
+                          <div style={{ position: "absolute", top: "50%", left: "50%", width: "18%", height: "18%", borderRadius: "50%", background: "rgba(255,255,255,0.85)", pointerEvents: "none", zIndex: 8, animation: "dotPop 0.35s cubic-bezier(.34,1.56,.64,1) both" }} />
                         )}
                         {isWinPiece && (
                           <div style={{ position: "absolute", inset: -4, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, zIndex: 15, pointerEvents: "none", animation: "starPop 0.4s cubic-bezier(.34,1.56,.64,1) both", filter: "drop-shadow(0 0 6px rgba(239,159,39,0.8))" }}>⭐</div>
