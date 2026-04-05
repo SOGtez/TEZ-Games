@@ -1,5 +1,11 @@
 # TEZ Games Changelog
 
+## v0.9.21 — Inventory name paint preview + equipped persistence debug
+- Name paint cards now show the player's actual username rendered with the paint CSS instead of a generic icon
+- Preview panel above the grid shows the currently equipped paint (or the one being hovered) at full size with paint name and rarity
+- Inventory API now exposes equipped column errors in the debug banner so missing DB migrations are immediately visible
+- Added css_value to cosmetics SELECT so name paint styles are available on the inventory page
+
 ## v0.9.20 — Fix cosmetics.icon column not found
 - Removed icon from SELECT in inventory and shop APIs — column doesn't exist in DB yet; items now load with ✨ fallback icon
 

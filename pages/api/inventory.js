@@ -25,12 +25,15 @@ export default async function handler(req, res) {
     equipped_badge: null,
     equipped_frame: null,
   };
-  const { data: player } = await supabase
+  let equippedDebug = null;
+  const { data: player, error: playerEquippedErr } = await supabase
     .from('players')
     .select('equipped_name_paint, equipped_banner, equipped_skin, equipped_badge, equipped_frame')
     .eq('id', playerId)
     .single();
-  if (player) {
+  if (playerEquippedErr) {
+    equippedDebug = playerEquippedErr.message;
+  } else if (player) {
     equipped = {
       equipped_name_paint: player.equipped_name_paint ?? null,
       equipped_banner: player.equipped_banner ?? null,
@@ -48,8 +51,10 @@ export default async function handler(req, res) {
     .order('acquired_at', { ascending: false });
 
   if (ownedErr) {
-    // Table may not exist yet — return empty inventory rather than 500
     return res.status(200).json({ items: [], equipped, debug: ownedErr.message });
+  }
+  if (equippedDebug) {
+    return res.status(200).json({ items: [], equipped, debug: equippedDebug });
   }
 
   let items = [];
@@ -57,7 +62,7 @@ export default async function handler(req, res) {
     const cosmeticIds = owned.map(o => o.cosmetic_id);
     const { data: cosmetics, error: cosErr } = await supabase
       .from('cosmetics')
-      .select('id, type, name, description, rarity')
+      .select('id, type, name, description, rarity, css_value')
       .in('id', cosmeticIds);
 
     if (cosErr) {

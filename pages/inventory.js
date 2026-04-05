@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { useUser } from './_app';
+import { parsePaintStyle } from '../lib/namePaint';
 
 const TABS = [
   { key: 'name_paint', label: 'Name Paints', emoji: '🎨' },
@@ -19,13 +20,14 @@ const EQUIPPED_KEYS = {
 };
 
 export default function InventoryPage() {
-  const { playerId, playerStats } = useUser();
+  const { playerId, playerStats, username } = useUser();
   const [activeTab, setActiveTab] = useState('name_paint');
   const [items, setItems] = useState(null);
   const [equipped, setEquipped] = useState({});
-  const [acting, setActing] = useState(null); // cosmeticId being acted on
+  const [acting, setActing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [debugMsg, setDebugMsg] = useState(null);
+  const [previewId, setPreviewId] = useState(null); // cosmetic_id being hovered for preview
   // Wait for session to hydrate from localStorage before deciding logged-out state
   const [sessionChecked, setSessionChecked] = useState(false);
   useEffect(() => { setSessionChecked(true); }, []);
@@ -68,6 +70,13 @@ export default function InventoryPage() {
   const tabItems = items?.filter(i => i.type === activeTab) || [];
   const equippedId = equipped[EQUIPPED_KEYS[activeTab]];
   const tezBucks = playerStats?.tez_bucks || 0;
+
+  // For name paint preview: resolve the css_value of whichever paint is being previewed/equipped
+  const previewItem = previewId
+    ? tabItems.find(i => i.cosmetic_id === previewId)
+    : tabItems.find(i => i.cosmetic_id === equippedId);
+  const previewCss = previewItem?.css_value || null;
+  const previewStyle = parsePaintStyle(previewCss);
 
   if (!sessionChecked || (!playerId && loading)) {
     return (
@@ -136,7 +145,7 @@ export default function InventoryPage() {
           {TABS.map(tab => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => { setActiveTab(tab.key); setPreviewId(null); }}
               style={{
                 padding: '8px 16px', borderRadius: 10, cursor: 'pointer',
                 border: activeTab === tab.key
@@ -157,7 +166,7 @@ export default function InventoryPage() {
           ))}
         </div>
 
-        {/* Debug banner — visible only when API returns an error message */}
+        {/* Debug banner */}
         {debugMsg && (
           <div style={{
             marginBottom: 16, padding: '10px 16px', borderRadius: 10,
@@ -165,6 +174,55 @@ export default function InventoryPage() {
             fontFamily: "'Nunito', sans-serif", fontSize: 12, color: '#f87171',
           }}>
             ⚠ DB error: {debugMsg}
+          </div>
+        )}
+
+        {/* Name Paint Preview Panel */}
+        {activeTab === 'name_paint' && !loading && tabItems.length > 0 && (
+          <div style={{
+            marginBottom: 24, padding: '18px 24px',
+            background: 'rgba(124,58,237,0.07)',
+            border: '1px solid rgba(124,58,237,0.2)',
+            borderRadius: 14,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+          }}>
+            <div>
+              <div style={{
+                fontFamily: "'Nunito', sans-serif", fontSize: 11, fontWeight: 700,
+                color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em',
+                marginBottom: 8,
+              }}>
+                {previewId ? 'Preview' : equippedId ? 'Currently Equipped' : 'Preview'}
+              </div>
+              <span
+                style={{
+                  fontFamily: "'Fredoka', sans-serif",
+                  fontSize: 26, fontWeight: 700,
+                  ...(previewStyle || { color: 'rgba(255,255,255,0.5)' }),
+                }}
+              >
+                {username || 'YourName'}
+              </span>
+            </div>
+            {previewItem && (
+              <div style={{
+                fontFamily: "'Nunito', sans-serif", fontSize: 12,
+                color: 'rgba(255,255,255,0.4)', textAlign: 'right',
+              }}>
+                <div style={{ fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: 2 }}>{previewItem.name}</div>
+                {previewItem.rarity && (
+                  <div style={{ color: rarityColor(previewItem.rarity) }}>{previewItem.rarity}</div>
+                )}
+              </div>
+            )}
+            {!previewItem && (
+              <div style={{
+                fontFamily: "'Nunito', sans-serif", fontSize: 12,
+                color: 'rgba(255,255,255,0.25)',
+              }}>
+                Hover a paint to preview
+              </div>
+            )}
           </div>
         )}
 
@@ -205,9 +263,12 @@ export default function InventoryPage() {
             {tabItems.map(item => {
               const isEquipped = equipped[EQUIPPED_KEYS[activeTab]] === item.cosmetic_id;
               const isActing = acting === item.cosmetic_id;
+              const paintStyle = activeTab === 'name_paint' ? parsePaintStyle(item.css_value) : null;
               return (
                 <div
                   key={item.cosmetic_id}
+                  onMouseEnter={() => activeTab === 'name_paint' && setPreviewId(item.cosmetic_id)}
+                  onMouseLeave={() => activeTab === 'name_paint' && setPreviewId(null)}
                   style={{
                     background: isEquipped
                       ? 'rgba(74,222,128,0.06)'
@@ -235,7 +296,23 @@ export default function InventoryPage() {
                     </span>
                   )}
 
-                  <div style={{ fontSize: 36 }}>{item.icon || '✨'}</div>
+                  {/* Name paint preview or default icon */}
+                  {activeTab === 'name_paint' ? (
+                    <div style={{
+                      height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      padding: '0 4px',
+                    }}>
+                      <span style={{
+                        fontFamily: "'Fredoka', sans-serif",
+                        fontSize: 18, fontWeight: 700,
+                        ...(paintStyle || { color: 'rgba(255,255,255,0.6)' }),
+                      }}>
+                        {username || 'Player'}
+                      </span>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 36 }}>{item.icon || '✨'}</div>
+                  )}
 
                   <div style={{ textAlign: 'center' }}>
                     <div style={{
