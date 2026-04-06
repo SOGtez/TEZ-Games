@@ -1,5 +1,8 @@
 # TEZ Games Changelog
 
+## v0.9.28 — White dot indicator for AI moves in Connect 4
+- AI drop callback now calls setLastPlaced so the white dot appears on the AI's piece after it plays, matching the behavior for human moves
+
 ## v0.9.27 — Font hierarchy: Nunito for major text, Fredoka for small decorative only
 - All titles, headings, stats, section headers, item names, and prominent labels across inventory, leaderboard, friends, profile, shop, ProfileView, Layout, TezToast, and GameCard switched to Nunito
 - Fredoka retained only for small decorative elements: level badge labels (12px), name paint card demo text

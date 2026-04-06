@@ -606,6 +606,7 @@ export default function Connect4Game({ gameMode, playerColor, onMove, incomingMo
       const boxTriggeredRef = { current: false };
       animateDrop(col, 2, landRow, (id) => {
         const nb = board.map(r => [...r]); nb[landRow][col] = 2;
+        setLastPlaced({ r: landRow, c: col });
         if (boxTriggeredRef.current && mode === "rumble") {
           setBoard(nb); setTurnCount(newTc); setFog(newFog); setGravityTurns(newGrav);
           setAnimPieces(boardToPieces(nb)); setDropping(false);
